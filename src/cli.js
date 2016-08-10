@@ -19,51 +19,51 @@ global.__hiipack_cwd__ = process.cwd();
 program
     .version(package.version)
     // .option('-v, --version', '版本信息')
-    .option('-o, --open', 'open browser')
-    .option('-p, --port <port>', 'server port', 8800)
-    .option('-r, --registry <registry>', 'npm registry')
+    .option('-o, --open', 'open in browser')
+    .option('-p, --port <port>', 'service port', 8800)
+    .option('-r, --registry <registry>', 'npm registry address')
     //TODO impl next version
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
-    .option('-t, --type <type>', 'project type', /^(react|react-redux|es6|normal|empty)$/, 'normal');
+    .option('-t, --type <type>', 'project type: one of react|react-redux|es6|normal', /^(react|react-redux|es6|normal|empty)$/, 'normal');
 
 program
     .command('init <name>')
-    .description('初始化一个项目')
+    .description('initialize project')
     .action(function(name){
         client.init(name, program.type, program.registry);
     });
 
 program
     .command('start')
-    .description('创建本地服务器')
+    .description('create a local server')
     .action(function(){
         server.start(program.port, program.open);
     });
 
 program
     .command('min')
-    .description('压缩/混淆项目文件')
+    .description('compress/obfuscate project files')
     .action(function(){
         client.build();
     });
 
 program
     .command('pack')
-    .description('合并项目文件')
+    .description('pack project files')
     .action(function(){
         client.pack();
     });
 
 program
     .command('sync')
-    .description('同步/上传当前目录至远程服务器')
+    .description('synchronize the current directory to remote server')
     .action(function(){
         client.sync();
     });
 
 program
     .command('clear')
-    .description('清除hiipack生成的文件夹')
+    .description('clear resulting folders of hiipack')
     .action(function(){
         child_process.exec('rm -rdf dll loc dev prd ver')
     });
