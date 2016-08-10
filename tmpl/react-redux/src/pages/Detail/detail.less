@@ -1,0 +1,56 @@
+.m-detail-page{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    .content{
+        margin: .4rem 0;
+        padding: .1rem;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+
+        font-size: .14rem;
+
+        overflow: scroll;
+
+        h1{
+            font-size: .18rem;
+            text-align: left;
+            color: #404040;
+            margin: 0 0 10px;
+        }
+
+        .info{
+            color: #888;
+            font-size: .12rem;
+
+            span{
+                margin-right: 5px;
+            }
+        }
+
+        p{
+            padding: 0;
+            margin: 10px 0;
+            text-indent: 2em;
+            line-height: 1.5em;
+        }
+    }
+
+    .tips{
+        flex: 1;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .loading{
+            width: .30rem;
+            height: .30rem;
+            -webkit-animation: loading;
+            animation: loading 1s infinite linear;
+            color: #FF3333;
+        }
+    }
+}

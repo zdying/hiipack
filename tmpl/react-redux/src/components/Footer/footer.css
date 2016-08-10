@@ -1,0 +1,35 @@
+.m-footer{
+    height: .40rem;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #999999;
+    background: #FFFFFF;
+    font-size: .14rem;
+    text-align: center;
+
+    border-top: 1px solid #e8e8e8;
+    box-shadow: 0 -1px 15px rgba(0,0,0,.1);
+}
+
+.m-footer .list{
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.m-footer .list li{
+    flex: 1;
+    list-style: none;
+}
+
+.m-footer .list li.active{
+    color: #09f;
+}
