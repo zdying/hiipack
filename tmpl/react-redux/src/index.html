@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>$PROJECT_NAME$</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/$PROJECT_NAME$/prd/app@version.css">
+    <script>
+        function _setRem(){
+            var base = 320;
+            var html = document.documentElement;
+            var width = html.clientWidth;
+            var fontSize = 100 * width / base;
+
+            html.style.fontSize = fontSize + 'px';
+        }
+
+        window.addEventListener('resize', _setRem);
+
+        _setRem();
+    </script>
+    <style>
+        html, body{ height: 100%; width: 100%; display: flex; margin: 0; }
+        body{ font-size: .16rem; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif }
+        #app{ display: flex; flex: 1; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script src="/$PROJECT_NAME$/prd/lib@version.js"></script>
+    <script src="/$PROJECT_NAME$/prd/app@version.js"></script>
+</body>
+</html>

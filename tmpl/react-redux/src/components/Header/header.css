@@ -1,0 +1,37 @@
+.m-header{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: .40rem;
+    padding: 0 .10rem;
+    position: fixed;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    background: #FF3333;
+    color: #FFFFFF;
+    font-size: .18rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.m-header .icon{
+    width: .24rem;
+    height: .24rem;
+}
+
+.m-header .icon:hover,
+.m-header .icon:active{
+    color: #09F;
+}
+
+.m-header .title{
+    flex: 1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
