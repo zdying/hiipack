@@ -24,7 +24,7 @@ program
     .option('-r, --registry <registry>', 'npm registry')
     //TODO impl next version
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
-    .option('-t, --type <type>', 'project type', /^(react|react-redux|es6|normal)$/, 'normal');
+    .option('-t, --type <type>', 'project type', /^(react|react-redux|es6|normal|empty)$/, 'normal');
 
 program
     .command('init <name>')
@@ -88,5 +88,5 @@ if(process.argv.length == 2){
 
 function showVersion(){
     console.log('hiipack\t'.bold, package.version.magenta);
-    console.log('author\t', 'zdying'.yellow.bold);
+    console.log('author\t', 'zdying@live.com'.yellow.bold);
 }
