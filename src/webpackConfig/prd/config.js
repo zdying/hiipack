@@ -12,6 +12,7 @@ var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var common = require('../common');
+var tmpdir = process.env.TMPDIR;
 
 module.exports = function(root){
     var userConfig = require(root + '/config');
@@ -102,12 +103,13 @@ module.exports = function(root){
         },
         resolve: {
             root: root,
-            fallback: [path.resolve(__hiipack_root__, "node_modules")],
+            fallback: [path.resolve(tmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
             alias: userConfig.alias
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack_root__, "node_modules")],
+            fallback: [path.resolve(tmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }
