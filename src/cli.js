@@ -78,6 +78,9 @@ program.on('--help', function(){
     console.log('    $ hii sync');
     console.log('    $ hii min');
     console.log('');
+    console.log('  Wiki:');
+    console.log('');
+    console.log('    https://github.com/zdying/hiipack/wiki/hiipack-wiki');
 });
 
 program.parse(process.argv);
