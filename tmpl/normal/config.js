@@ -18,7 +18,11 @@ module.exports = {
     loaders: {
         'dev': [
             { test: /\.(mustache|html)$/, loader: 'mustache' }
-        ]
+        ],
+        //TODO add next version
+        // '*': [
+        //     { test: /\.(mustache|html)$/, loader: 'mustache' }
+        // ]
     },
     //TODO add next version
     // plugins: {
@@ -33,7 +37,21 @@ module.exports = {
     //             option1: 'opt1',
     //             option2: 'opt2'
     //         })
-    //     }
+    //     },
+    //     'plugin1 plugin2': function(Plugin1, Plugin2){
+    //         return [
+    //              new Plugin1({
+    //                  option1: 'opt1',
+    //                  option2: 'opt2'
+    //              }),
+    //              new Plugin2({
+    //                  option1: 'opt1',
+    //                  option2: 'opt2'
+    //              }),
+    //     },
+    //     'plugin@version': function(Plugin){
+    //         return new Plugin()
+    //     },
     // },
     /**
      * 业务代码入口
