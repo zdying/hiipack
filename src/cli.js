@@ -80,7 +80,7 @@ program.on('--help', function(){
     console.log('');
     console.log('  Wiki:');
     console.log('');
-    console.log('    https://github.com/zdying/hiipack/wiki/hiipack-wiki');
+    console.log('    https://github.com/zdying/hiipack/wiki/hiipack-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E');
 });
 
 program.parse(process.argv);

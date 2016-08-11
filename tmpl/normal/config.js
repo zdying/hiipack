@@ -20,6 +20,21 @@ module.exports = {
             { test: /\.(mustache|html)$/, loader: 'mustache' }
         ]
     },
+    //TODO add next version
+    // plugins: {
+    //     'webpack': function(webpack){
+    //         return [
+    //             new webpack.HotModuleReplacementPlugin(),
+    //             new webpack.NoErrorsPlugin()
+    //         ]
+    //     },
+    //     'other-plugin': function(otherPlugin){
+    //         return new otherPlugin({
+    //             option1: 'opt1',
+    //             option2: 'opt2'
+    //         })
+    //     }
+    // },
     /**
      * 业务代码入口
      */
