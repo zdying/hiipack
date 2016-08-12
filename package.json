@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "1.0.1-pre",
+  "version": "1.0.1-pre.0",
   "description": "hiipack",
   "main": "index.js",
   "scripts": {
