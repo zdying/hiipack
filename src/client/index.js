@@ -51,7 +51,7 @@ module.exports = {
 
             var oldCwd = process.cwd();
 
-            process.chdir(__hiipack_root__);
+            process.chdir(__hiipack__.root);
 
             compiler.plugin("compile", function(){
                 // this.isCompiling = true;

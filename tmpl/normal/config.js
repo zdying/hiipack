@@ -3,6 +3,12 @@
  * @author zdying
  */
 
+// console.log('---------- visit global variable -----------');
+// console.log(__hiipack__.cwd);
+// console.log(__hiipack__.root);
+// console.log(__hiipack__.tmpdir);
+// console.log('---------- visit global variable -----------');
+
 module.exports = {
     /**
      * 需要单独打包的第三方库
@@ -22,7 +28,15 @@ module.exports = {
         //TODO add next version
         // '*': [
         //     { test: /\.(mustache|html)$/, loader: 'mustache' }
-        // ]
+        // ],
+        // '*': {
+        //     "handlebars-loader handlebars": function(handlebarsLoader, handlebars){
+        //         return { test: /\.(handlebars|hbs)$/, loader: 'handlebars' }
+        //     },
+        //     "vue-loader": function(vueLoader){
+        //
+        //     }
+        // }
     },
     //TODO add next version
     // plugins: {
@@ -64,5 +78,12 @@ module.exports = {
      */
     alias: {
         'root': 'src/'
-    }
+    },
+    //TODO extend customConfig to webpack config, add next version
+    // customConfig: {
+    //     test: 1
+    // },
+    // customConfig: {
+    //     test: 2
+    // },
 };

@@ -86,7 +86,7 @@ module.exports = function(root){
             alias: userConfig.alias
         },
         resolveLoader: {
-            modulesDirectories: [path.resolve(__hiipack_root__, "node_modules")],
+            modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
             fallback: [path.resolve(tmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]

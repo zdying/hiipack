@@ -132,7 +132,7 @@ module.exports = {
 
             console.log('server start at', ('http://127.0.0.1:' + port).magenta.bold);
             console.log('work at', __hiipack_cwd__.magenta.bold);
-            // console.log('hiipack root', __hiipack_root__.magenta.bold);
+            // console.log('hiipack root', __hiipack__.root.magenta.bold);
         });
     },
 
@@ -279,7 +279,7 @@ module.exports = {
         // 而`process.cwd()`的值是当前的工作目录, 不是`hiipack`的跟目录
         var oldCwd = process.cwd();
 
-        process.chdir(__hiipack_root__);
+        process.chdir(__hiipack__.root);
 
         // var entry = config.entry;
         // var hotURL = require.resolve('webpack-hot-middleware/client');

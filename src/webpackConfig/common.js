@@ -79,7 +79,7 @@ module.exports = {
             if(loadersName.join(' ').trim() !== ''){
                 console.log('[install]'.green, 'install custom loader', loadersName.join(' ').bold.green);
                 child_process.execSync('npm install ' + loadersName.join(' '), { cwd: tmpdir });
-                // child_process.execSync('npm install ' + loadersName.join(' '), { cwd: __hiipack_root__ });
+                // child_process.execSync('npm install ' + loadersName.join(' '), { cwd: __hiipack__.root });
 
                 // 安装peerDependencies
                 loadersName.forEach(function(loader, index){

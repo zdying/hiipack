@@ -5,16 +5,23 @@ var fs = require('fs');
 var colors = require('colors');
 var program = require('commander');
 var child_process = require('child_process');
+var os = require('os');
 
 var server = require('./server');
 var client = require('./client');
 var package = require('../package.json');
 
+global.__hiipack__ = {
+    root: path.resolve(__dirname, '..'),
+    cwd: process.cwd(),
+    tmpdir: os.tmpdir()
+};
+
 global.__hiipack_root__ = path.resolve(__dirname, '..');
 global.__hiipack_cwd__ = process.cwd();
 
-// console.log('__hiipack_root__'.bold.magenta, '==>', __hiipack_root__);
-// console.log('__hiipack-cwd__ '.bold.magenta, '==>', __hiipack_cwd__);
+// console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
+// console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);
 
 program
     .version(package.version)
