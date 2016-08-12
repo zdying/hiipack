@@ -25,7 +25,7 @@ module.exports = function(root){
             hashDigestLength: 32
         },
         module: {
-            loaders: common.extendLoaders([
+            loaders: [
                 {
                     test: /\.jsx?$/,
                     exclude: /(node_modules|bower_components)/,
@@ -46,8 +46,9 @@ module.exports = function(root){
                 },
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
-            ], root, userConfig),
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") },
+                { test: /\.vue/, loader: "vue" },
+            ],
             postLoaders: [
                 {
                     test: /\.jsx?$/,
@@ -70,6 +71,11 @@ module.exports = function(root){
              */
             new ProgressBarPlugin()
         ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig),
+        vue: {
+            loaders: {
+                js: 'babel-loader?presets[]=' + require.resolve('babel-preset-es2015-loose') + '&plugins[]=' + require.resolve('babel-plugin-transform-runtime') + '&comments=false'
+            }
+        },
         node: {
             fs: "empty"
         },
@@ -86,6 +92,8 @@ module.exports = function(root){
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }
     };
+
+    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
 
     return config;
 };

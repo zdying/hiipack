@@ -47,7 +47,7 @@ module.exports = {
         return arr
     },
 
-    extendLoaders: function(arr, root, userConfig){
+    extendLoaders: function(arr, root, userConfig, config){
         var userLoaders = (userConfig.loaders || {}).dev || [];
 
         userLoaders.forEach(function(loader, index){
@@ -85,21 +85,24 @@ module.exports = {
                 loadersName.forEach(function(loader, index){
                     console.log('[install]'.green, 'find peerDependencies for', loader.green);
 
-                    var tmpModulesPath = tmpdir + '/node_modules/';
+                    var tmpModulesPath = tmpdir + 'node_modules/';
                     var packageInfo = require(tmpModulesPath + loader + '/package.json');
                     var peerDependencies = packageInfo.peerDependencies;
                     var peerDeps = Object.keys(peerDependencies);
 
-                    if(!peerDeps){
-                        return
+                    if(peerDeps){
+                        console.log('[install]'.green, loader.green, 'peerDependencies:', peerDeps.toString().green);
+                        child_process.execSync('npm install --peer', { cwd: tmpModulesPath + loader });
                     }
 
-                    console.log('[install]'.green, loader.green, 'peerDependencies:', peerDeps.toString().green);
+                    config.resolve.fallback.push(tmpModulesPath + loader + '/node_modules');
+                    config.resolveLoader.fallback.push(tmpModulesPath + loader + '/node_modules');
 
+                    /**
                     peerDeps.forEach(function(dep){
-                        if(dep === 'webpack'){
-                            return
-                        }
+                        // if(dep === 'webpack'){
+                        //     return
+                        // }
                         try{
                             var stats = fs.statSync(tmpModulesPath + dep);
                             if (stats.isDirectory()) {
@@ -111,6 +114,7 @@ module.exports = {
                             child_process.execSync('npm install ' + dep, { cwd: tmpdir });
                         }
                     })
+                    */
                 });
             }
 

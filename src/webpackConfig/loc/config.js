@@ -26,7 +26,7 @@ module.exports = function(root, userConfig){
             publicPath: '/loc/'
         },
         module: {
-            loaders: common.extendLoaders([
+            loaders: [
                 {
                     test: /\.jsx?$/,
                     exclude: /(node_modules|bower_components)/,
@@ -48,7 +48,8 @@ module.exports = function(root, userConfig){
                 { test: /\.css$/, loader: "style!css?sourceMap" },
                 { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat" },
                 { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap" },
-            ], root, userConfig),
+                { test: /\.vue/, loader: "vue" },
+            ],
             postLoaders: [
                 {
                     test: /\.jsx?$/,
@@ -56,7 +57,21 @@ module.exports = function(root, userConfig){
                 }
             ]
         },
+        vue: {
+            loaders: {
+                js: 'babel-loader?presets[]=' + require.resolve('babel-preset-es2015-loose') + '&plugins[]=' + require.resolve('babel-plugin-transform-runtime') + '&comments=false'
+            }
+        },
         plugins: common.extendPlugins([
+            function () {
+                 this.plugin("context-module-factory", function(cmf) {
+                    cmf.plugin("after-resolve", function(result, callback) {
+                        if(!result) return callback();
+
+                        return callback(null, result);
+                    });
+                 });
+            },
             new webpack.DefinePlugin({
                 'process.env': {
                     'NODE_ENV': JSON.stringify('development')
@@ -135,6 +150,8 @@ module.exports = function(root, userConfig){
             }
         }
     };
+
+    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
 
     return config;
 
