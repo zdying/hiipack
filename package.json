@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "1.0.1-pre.0",
+  "version": "1.0.1-pre.1",
   "description": "hiipack",
   "main": "index.js",
   "scripts": {
@@ -49,10 +49,6 @@
     "rsync": "^0.4.0",
     "sass-loader": "^3.2.3",
     "style-loader": "^0.13.1",
-    "vue-hot-reload-api": "^1.3.3",
-    "vue-html-loader": "^1.2.3",
-    "vue-loader": "^8.5.3",
-    "vue-style-loader": "^1.0.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-hot-middleware": "^2.12.1"

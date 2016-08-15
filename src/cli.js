@@ -2,6 +2,7 @@
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
+var fse = require('fs-extra');
 var colors = require('colors');
 var program = require('commander');
 var child_process = require('child_process');
@@ -14,11 +15,43 @@ var package = require('../package.json');
 global.__hiipack__ = {
     root: path.resolve(__dirname, '..'),
     cwd: process.cwd(),
-    tmpdir: os.tmpdir()
+    tmpdir: os.tmpdir() + '/hiipack_cache/',
+    resolve: function(module){
+        if(!module){
+            throw Error('module should not be empty.');
+        }
+
+        var modulePath = '/node_modules/' + module;
+        var dirs = [this.root, this.cwd, this.tmpdir];
+        var finalPath = '';
+
+        dirs.forEach(function(dir){
+            if(!finalPath){
+                try{
+                    var stat = fs.statSync(dir + modulePath);
+
+                    if(stat.isDirectory()){
+                        finalPath = dir + modulePath;
+                    }
+                }catch(e){
+                    // throw Error('Can\'t find module:' + modulePath)
+                }
+            }
+        });
+
+        finalPath = finalPath || (this.tmpdir + modulePath);
+        console.log('[resolve]'.green, module ,'==>', finalPath);
+        return finalPath
+    }
 };
 
-global.__hiipack_root__ = path.resolve(__dirname, '..');
-global.__hiipack_cwd__ = process.cwd();
+try{
+    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
+        if(err) console.error(err);
+    });
+}catch(e){
+
+}
 
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);

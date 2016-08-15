@@ -131,7 +131,7 @@ module.exports = {
             openBrowser && open('http://127.0.0.1:' + port);
 
             console.log('server start at', ('http://127.0.0.1:' + port).magenta.bold);
-            console.log('work at', __hiipack_cwd__.magenta.bold);
+            console.log('work at', __hiipack__.cwd.magenta.bold);
             // console.log('hiipack root', __hiipack__.root.magenta.bold);
         });
     },
