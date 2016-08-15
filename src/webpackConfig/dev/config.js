@@ -47,7 +47,6 @@ module.exports = function(root){
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
                 { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") },
-                { test: /\.vue/, loader: "vue" },
             ],
             postLoaders: [
                 {
