@@ -64,7 +64,7 @@ program
     .option('-r, --registry <registry>', 'npm registry address')
     //TODO impl next version
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
-    .option('-t, --type <type>', 'project type: one of react|react-redux|es6|normal', /^(react|react-redux|es6|normal|empty)$/, 'normal');
+    .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal', /^(react|react-redux|es6|normal|empty)$/, 'normal');
 
 program
     .command('init <name>')
