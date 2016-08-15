@@ -102,6 +102,13 @@ program
     });
 
 program
+    .command('test')
+    .description('run unit test')
+    .action(function(){
+        client.test();
+    });
+
+program
     .command('clear')
     .description('clear resulting folders of hiipack')
     .action(function(){
