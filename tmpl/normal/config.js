@@ -22,7 +22,7 @@ module.exports = {
      * loaders
      */
     loaders: {
-        'dev': [
+        '*': [
             { test: /\.(mustache|html)$/, loader: 'mustache' }
         ],
         //TODO add next version

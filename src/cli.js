@@ -22,7 +22,7 @@ global.__hiipack__ = {
         }
 
         var modulePath = '/node_modules/' + module;
-        var dirs = [this.root, this.cwd, this.tmpdir];
+        var dirs = [this.cwd, this.root, this.tmpdir];
         var finalPath = '';
 
         dirs.forEach(function(dir){
@@ -64,7 +64,7 @@ program
     .option('-r, --registry <registry>', 'npm registry address')
     //TODO impl next version
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
-    .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal', /^(react|react-redux|es6|normal|empty)$/, 'normal');
+    .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');
 
 program
     .command('init <name>')
