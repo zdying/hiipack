@@ -15,7 +15,7 @@ var package = require('../package.json');
 global.__hiipack__ = {
     root: path.resolve(__dirname, '..'),
     cwd: process.cwd(),
-    tmpdir: os.tmpdir() + '/hiipack_cache/',
+    tmpdir: os.tmpdir() + '/hiipack_cache',
     resolve: function(module){
         if(!module){
             throw Error('module should not be empty.');

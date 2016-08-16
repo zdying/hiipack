@@ -156,32 +156,29 @@ module.exports = {
      * 跑自动化测试
      */
     test: function(){
-        console.log('[test]'.green, 'mocha ...');
-        var Mocha = require('mocha'),
-            fs = require('fs'),
-            path = require('path');
+        // try{
+        //     child_process.execSync('mocha')
+        // }catch(e){
+        //     console.log('[warn]'.yellow, 'mocha not install.');
+        //     console.log('[test]'.green, 'install mocha.');
+        //     child_process.execSync('npm install -g mocha');
 
-        // Instantiate a Mocha instance.
-        var mocha = new Mocha();
-
-        var testDir = path.resolve(__hiipack__.cwd, 'test');
-
-        // Add each .js file to the mocha instance
-        fs.readdirSync(testDir).filter(function(file){
-            // Only keep the .js files
-            return file.substr(-3) === '.js';
-        }).forEach(function(file){
-            mocha.addFile(
-                path.join(testDir, file)
+            // var cmd = __hiipack__.root + "/node_modules/.bin/mocha --compilers js:babel-register";
+            var cmd = "mocha --compilers js:babel-register";
+            var rcFile = __hiipack__.cwd + '/.babelrc';
+            fs.writeFileSync(
+                rcFile,
+                JSON.stringify({
+                    "presets": [__hiipack__.resolve("babel-preset-es2015")]
+                }, null, 4)
             );
-        });
-
-        // Run the tests.
-        mocha.run(function(failures){
-            process.on('exit', function () {
-                process.exit(failures);  // exit with non-zero status if there were failures
+            console.log('[test]'.green, 'exec command:', cmd.yellow);
+            child_process.exec(cmd, function(err, stdout, stderr){
+                console.log(stdout);
+                console.log(stderr);
+                fs.unlink(rcFile);
             });
-        });
+        // }
     },
 
     /**

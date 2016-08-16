@@ -3,12 +3,13 @@
  * @author zdying
  */
 "use strict";
+var fs = require('fs');
 var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
-// var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var common = require('../common');
@@ -47,7 +48,7 @@ module.exports = function(root){
                 },
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") },
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
             ],
             postLoaders: [
                 {
@@ -74,12 +75,12 @@ module.exports = function(root){
              * sass编译出来的代码包含重复的内容(多次import同一个文件,导致同一个文件多次打包)
              * 其他的CSS优化
              */
-            // new OptimizeCssAssetsPlugin({
-            //     // assetNameRegExp: /\.css$/g,
-            //     // cssProcessor: require('cssnano'),
-            //     // cssProcessorOptions: { discardComments: {removeAll: true } },
-            //     // canPrint: true
-            // }),
+            new OptimizeCssAssetsPlugin({
+                // assetNameRegExp: /\.css$/g,
+                // cssProcessor: require('cssnano'),
+                // cssProcessorOptions: { discardComments: {removeAll: true } },
+                // canPrint: true
+            }),
             /**
              * 压缩JS
              */
