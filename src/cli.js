@@ -31,7 +31,9 @@ program
     .option('-o, --open', 'open in browser')
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
-    //TODO impl next version
+    .option('-d, --debug', 'debug mode', function(){
+        process.env.HIIPACK_DEBUG = true;
+    })
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');
 

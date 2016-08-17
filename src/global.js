@@ -59,7 +59,7 @@ var __hiipack__ = {
         finalPath = finalPath || (this.tmpdir + modulePath);
         console.log('[resolve]'.green, module ,'==>', finalPath);
         return finalPath
-    }
+    },
 };
 
 global.__hiipack__ = global.__hii__ = __hiipack__;

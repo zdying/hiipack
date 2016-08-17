@@ -13,6 +13,7 @@ var fs = require('fs');
 var open = require("open");
 
 var configUtil = require('../webpackConfig');
+var log = require('../helpers/log');
 
 var watchings = {};
 var clients = {};
@@ -31,10 +32,11 @@ module.exports = {
     start: function(port, openBrowser){
         var app = express();
 
-        app.get('*', function(req, res, next){
-            console.log('[access]'.green, req.method, req.url);
-            next();
-        });
+        // app.get('*', function(req, res, next){
+        //     // console.log('[access]'.green, req.method, req.url);
+        //     log.access(req);
+        //     next();
+        // });
 
         // app.get('/__webpack_hmr', function(req, res, next){
         //     req.socket.setKeepAlive(true);
@@ -64,16 +66,37 @@ module.exports = {
             // console.log('');
             // console.log(logPrex, '[access]', req.method.bold, url);
 
+            log.debug('projInfo:' + JSON.stringify(projInfo));
+
             if(projInfo){
                 var fileExt = projInfo.fileExt;
                 var version = projInfo.version;
+                var env = projInfo.env;
 
                 if(fileExt === 'scss'){
                     // 编译sass文件
                     return this.compileSass(req, projInfo)
-                }else if((fileExt === 'js' && version) || (req.url.indexOf('hot-update.js') !== -1)){
-                    // 编译js文件
-                    return this.compileJS(req, projInfo)
+                }else if(fileExt === 'js'){
+                    if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
+                        // var fileName = projInfo.fileName + fileExt;
+                        // var userConfig = require('./' + projInfo.projectName + '/config');
+                        // var isEntry = fileName in userConfig.library || fileName in userConfig.entry;
+
+                        return this.compileJS(req, projInfo)
+                    }else if(env === 'dev'){
+                        var filePath = path.resolve('.' + req.url);
+                        filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2').replace(/[\?\#](.*)/, '');
+
+                        console.log(req.url, '==>', filePath);
+
+                        if(fs.statSync(filePath).isFile()){
+                            this.sendFile(req, filePath)
+                        }
+
+                        return
+                    }else if(env === 'src'){
+                        return this.sendFile(req)
+                    }
                 }else if(fileExt === 'css'){
                     //TODO 判断,如果文件存在, 不处理, 直接发送文件
                     // 处理css文件
@@ -90,30 +113,38 @@ module.exports = {
                 }
             }
 
-            //TODO 处理其它文件不在`src`中报错的问题
             var dir = path.resolve('.' + req.url).replace(/\/prd\//, '/src/');
-            fs.readdir(dir, function(err, files){
-                if(err){
-                    console.log('[error]'.red, err.message);
-                    return res.end('error: ' + err);
+            // TODO: Error: ENOENT: no such file or directory, stat '/Users/zdying/test/favicon.ico'
+            try{
+                var stat = fs.statSync(dir);
+                if(stat.isDirectory()){
+                    fs.readdir(dir, function(err, files){
+                        if(err){
+                            console.log('[error]'.red, err.message);
+                            return res.end('error: ' + err);
+                        }
+                        res.setHeader('Content-Type', 'text/html');
+
+                        var html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
+                        // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
+                        var filesItem = files.map(function(fileName, index){
+                            return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
+                        });
+
+                        html.push.apply(html, filesItem);
+
+                        html.push('</ul>');
+
+                        res.end(html.join(''))
+                    });
+                }else{
+                    this.sendFile(req)
                 }
-                res.setHeader('Content-Type', 'text/html');
-
-                var html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
-                // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
-                var filesItem = files.map(function(fileName, index){
-                    return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
-                });
-
-                html.push.apply(html, filesItem);
-
-                html.push('</ul>');
-
-                res.end(html.join(''))
-            });
-
-            // res.statusCode = 404;
-            // res.end(req.url + ' not found.');
+            }catch(e){
+                log.error(e);
+                res.statusCode = 404;
+                res.end();
+            }
         }.bind(this));
 
         var server = app.listen(port);
@@ -134,6 +165,16 @@ module.exports = {
             console.log('work at', __hiipack__.cwd.magenta.bold);
             // console.log('hiipack root', __hiipack__.root.magenta.bold);
         });
+
+        process.on("SIGINT", function(){
+            console.log('server close. by ctrl + c');
+            process.exit()
+        });
+        
+        process.on('SIGTERM', function(){
+            console.log('server close. SIGTERM');
+            process.exit()
+        });
     },
 
     /**
@@ -142,9 +183,9 @@ module.exports = {
      * @param filePath
      * @param env
      */
-    sendFile: function(req, filePath, env){
+    _sendFile: function(req, filePath, env){
         if(env){
-            filePath = filePath.replace(/\/(prd|loc|src)\//, '/' + env + '/');
+            filePath = filePath.replace(/\/(prd|loc|src|dev)\//, '/' + env + '/');
         }
 
         var res = req.res;
@@ -160,6 +201,23 @@ module.exports = {
                     res.end(req.url + ' Error.');
                 }
             });
+    },
+    sendFile: function(req, filePath){
+        filePath = filePath || path.resolve('.' + req.url);
+
+        log.debug('send file: ' + filePath.bold);
+
+        var res = req.res;
+
+        res.sendFile(filePath, function(err){
+            if(err){
+                log.error(err);
+                res.statusCode = 404;
+                res.end(req.url + ' not found.');
+            }else{
+                log.access(req);
+            }
+        });
     },
 
     /**
@@ -228,7 +286,7 @@ module.exports = {
             // send compiled file
             send()
         }else{
-            console.log('[info]'.green, 'file is compiling...');
+            log.debug('[info]'.green + 'file is compiling...');
             var a = setInterval(function(){
                 if(this.isCompiling === false){
                     send();
@@ -239,14 +297,14 @@ module.exports = {
 
         function send(){
             var filePath = path.resolve('.' + req.url);
-            filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1');
-            self.sendFile(req, filePath, 'loc')
+            filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
+            self.sendFile(req, filePath)
         }
     },
 
     getProjectInfoFromURL: function(url){
         //  url,  projectName,    env,    folder, fileName, version, fileExt,     paramsAndHash
-        var reg = /^\/(.*?)\/(src|prd|loc)(\/.*)?\/(.*?)(@\w+)?(?:\.(\w+))([\#\?].*)?$/;
+        var reg = /\/(.*?)\/(src|prd|loc|dev)(\/.*)?\/(.*?)(@\w+)?(?:\.(\w+))([\#\?].*)?$/;
         var result = url.match(reg);
 
         if(result){
@@ -367,9 +425,9 @@ module.exports = {
 
         compiler.run(function(err, state){
             if(err){
-                console.error(err);
+                log.error(err);
             }else{
-                console.log('[info]'.green, 'library build finish');
+                log.debug('[info]'.green + 'library build finish');
                 cbk && cbk(state)
             }
         });
