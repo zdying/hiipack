@@ -51,7 +51,7 @@ module.exports = {
 
             var oldCwd = process.cwd();
 
-            process.chdir(__hiipack__.root);
+            process.chdir(__hii__.root);
 
             compiler.plugin("compile", function(){
                 // this.isCompiling = true;
@@ -163,13 +163,24 @@ module.exports = {
         //     console.log('[test]'.green, 'install mocha.');
         //     child_process.execSync('npm install -g mocha');
 
-            // var cmd = __hiipack__.root + "/node_modules/.bin/mocha --compilers js:babel-register";
-            var cmd = "mocha --compilers js:babel-register";
-            var rcFile = __hiipack__.cwd + '/.babelrc';
+            // var isExist = fs.existsSync(__hii__.globalRoot + '/' + 'mocha');
+            //
+            // if(isExist){
+            // }else{
+            //     console.log('[test]'.yellow, 'exec', 'npm i -g mocha expect assert'.bold);
+            //     child_process.execSync('npm i -g mocha expect assert')
+            // }
+            //TODO 判断前端工程里面有没有`assert`|`expect`, 如果没有自动安装
+
+            var cmd = __hii__.root + "/node_modules/.bin/mocha --compilers js:" + __hii__.resolve('babel-register');
+            // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
+            var rcFile = __hii__.cwd + '/.babelrc';
+            //TODO resolve时,如果不存在对应的依赖包, 自动安装
+            //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-preset-es2015`
             fs.writeFileSync(
                 rcFile,
                 JSON.stringify({
-                    "presets": [__hiipack__.resolve("babel-preset-es2015")]
+                    "presets": [__hii__.resolve("babel-preset-es2015")]
                 }, null, 4)
             );
             console.log('[test]'.green, 'exec command:', cmd.yellow);

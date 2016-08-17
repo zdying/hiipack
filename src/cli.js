@@ -12,38 +12,7 @@ var server = require('./server');
 var client = require('./client');
 var package = require('../package.json');
 
-global.__hiipack__ = {
-    root: path.resolve(__dirname, '..'),
-    cwd: process.cwd(),
-    tmpdir: os.tmpdir() + '/hiipack_cache',
-    resolve: function(module){
-        if(!module){
-            throw Error('module should not be empty.');
-        }
-
-        var modulePath = '/node_modules/' + module;
-        var dirs = [this.cwd, this.root, this.tmpdir];
-        var finalPath = '';
-
-        dirs.forEach(function(dir){
-            if(!finalPath){
-                try{
-                    var stat = fs.statSync(dir + modulePath);
-
-                    if(stat.isDirectory()){
-                        finalPath = dir + modulePath;
-                    }
-                }catch(e){
-                    // throw Error('Can\'t find module:' + modulePath)
-                }
-            }
-        });
-
-        finalPath = finalPath || (this.tmpdir + modulePath);
-        console.log('[resolve]'.green, module ,'==>', finalPath);
-        return finalPath
-    }
-};
+var __hiipack__ = require('./global');
 
 try{
     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
