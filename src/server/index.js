@@ -271,7 +271,7 @@ module.exports = {
             // send compiled file
             send()
         }else{
-            log.debug('[info]'.green + 'file is compiling...');
+            log.info('file is compiling...');
             var a = setInterval(function(){
                 if(this.isCompiling === false){
                     send();
@@ -412,7 +412,7 @@ module.exports = {
             if(err){
                 log.error(err);
             }else{
-                log.debug('[info]'.green + 'library build finish');
+                log.info('library build finish');
                 cbk && cbk(state)
             }
         });
