@@ -93,7 +93,7 @@ module.exports = {
                 loadersName.forEach(function(loader, index){
                     console.log('[install]'.green, 'find peerDependencies for', loader.green);
 
-                    var tmpModulesPath = tmpdir + 'node_modules/';
+                    var tmpModulesPath = tmpdir + '/node_modules/';
                     var packageInfo = require(tmpModulesPath + loader + '/package.json');
                     var peerDependencies = packageInfo.peerDependencies;
                     var peerDeps = Object.keys(peerDependencies);

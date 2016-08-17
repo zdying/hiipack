@@ -172,7 +172,7 @@ module.exports = {
             // }
             //TODO 判断前端工程里面有没有`assert`|`expect`, 如果没有自动安装
 
-            var cmd = __hii__.root + "/node_modules/.bin/mocha --compilers js:" + __hii__.resolve('babel-register');
+            var cmd = __hii__.root + "/node_modules/.bin/mocha --colors --compilers js:" + __hii__.resolve('babel-register');
             // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
             var rcFile = __hii__.cwd + '/.babelrc';
             //TODO resolve时,如果不存在对应的依赖包, 自动安装
@@ -184,7 +184,7 @@ module.exports = {
                 }, null, 4)
             );
             console.log('[test]'.green, 'exec command:', cmd.yellow);
-            child_process.exec(cmd, function(err, stdout, stderr){
+            child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
                 console.log(stdout);
                 console.log(stderr);
                 fs.unlink(rcFile);
