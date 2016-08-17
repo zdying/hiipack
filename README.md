@@ -10,7 +10,7 @@ hiipack is a front end development tool based on webpack.
 
   Usage: 
   
-    cli [options] [command]
+    hii [options] [command]
 
 
   Commands:
