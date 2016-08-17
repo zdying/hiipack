@@ -31,8 +31,11 @@ program
     .option('-o, --open', 'open in browser')
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
-    .option('-d, --debug', 'debug mode', function(){
+    .option('-d, --debug', 'show debug log', function(){
         process.env.HIIPACK_DEBUG = true;
+    })
+    .option('-e, --error', 'show error detail log', function(){
+        process.env.HIIPACK_ERROR_DETAIL = true;
     })
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');

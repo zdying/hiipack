@@ -12,13 +12,10 @@ var execSync = child_process.execSync;
 var configUtil = require('../webpackConfig');
 
 var steps = require('../helpers/steps');
+var log = require('../helpers/log');
 
 var fse = require('fs-extra');
 var fs = require('fs');
-
-var logPrex = '[log]'.green.bold;
-var warnPrex = '[warn]'.yellow.bold;
-var errPrex = '[error]'.red.bold;
 
 module.exports = {
     /**
@@ -30,13 +27,12 @@ module.exports = {
         var templatePath = path.resolve(__dirname, '..', '..', 'tmpl', type);
         var targetPath = process.cwd() + '/' + projName;
 
-        // console.log(logPrex, '[copy]', templatePath.magenta.bold, 'to', targetPath.magenta.bold);
         steps.printTitle('copy template files');
 
         fse.copy(templatePath, targetPath, function(err){
             if(err){
                 steps.printErrorIcon();
-                console.error(err);
+                log.error(err);
                 return
             }
             steps.printSuccessIcon();
@@ -55,18 +51,19 @@ module.exports = {
 
             compiler.plugin("compile", function(){
                 // this.isCompiling = true;
-                console.log('compiling: [' + entry.join('.js, ') + '.js]');
+                log.info('compile', '-', 'compiling: [' + entry.join('.js, ') + '.js]');
             }.bind(this));
 
             compiler.plugin("done", function(){
+                log.info('compile', '-', 'compile finished.');
                 process.chdir(oldCwd)
             });
 
             compiler.run(function(err, state){
                 if(err){
-                    console.log(err);
+                    log.error(err);
                 }else{
-                    console.log(state.toString({
+                    log.info(state.toString({
                         colors: true,
                         timings: true,
                         chunks: false,
@@ -101,7 +98,7 @@ module.exports = {
             }.bind(this))
         }catch(e){
             steps.printErrorIcon();
-            console.log(e.toString());
+            log.error(e);
         }
     },
 
@@ -133,7 +130,7 @@ module.exports = {
             }
         }catch(e){
             steps.printErrorIcon();
-            console.log(e.toString());
+            log.error(e);
         }
     },
 
@@ -183,7 +180,7 @@ module.exports = {
                     "presets": [__hii__.resolve("babel-preset-es2015")]
                 }, null, 4)
             );
-            console.log('[test]'.green, 'exec command:', cmd.yellow);
+            log.debug('test', '-', 'exec command:', cmd.yellow);
             child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
                 console.log(stdout);
                 console.log(stderr);
@@ -231,7 +228,7 @@ module.exports = {
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
                                 steps.printErrorIcon();
-                                console.log(err);
+                                log.error(err);
                                 return
                             }
                             clearInterval(timer);
@@ -239,9 +236,10 @@ module.exports = {
                             steps.printTitle('installing dependencies');
                             steps.printSuccessIcon();
                             steps.showCursor();
-                            console.log('');
+                            console.log();
                             console.log('init success :)'.bold.green);
                             console.log('Now you may need to exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
+                            console.log();
                         });
                     }
                 };
@@ -252,7 +250,7 @@ module.exports = {
                     if(stat.isFile()){
                         fs.readFile(file, function(err, data){
                             if(err){
-                                return console.log(errPrex, err);
+                                return log.error(err);
                             }
                             var fileContent = data.toString();
 

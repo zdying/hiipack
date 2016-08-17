@@ -78,16 +78,12 @@ module.exports = {
                     return this.compileSass(req, projInfo)
                 }else if(fileExt === 'js'){
                     if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
-                        // var fileName = projInfo.fileName + fileExt;
-                        // var userConfig = require('./' + projInfo.projectName + '/config');
-                        // var isEntry = fileName in userConfig.library || fileName in userConfig.entry;
-
                         return this.compileJS(req, projInfo)
                     }else if(env === 'dev'){
                         var filePath = path.resolve('.' + req.url);
                         filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2').replace(/[\?\#](.*)/, '');
 
-                        console.log(req.url, '==>', filePath);
+                        log.debug(req.url, '==>', filePath);
 
                         if(fs.statSync(filePath).isFile()){
                             this.sendFile(req, filePath)
@@ -113,37 +109,41 @@ module.exports = {
                 }
             }
 
-            var dir = path.resolve('.' + req.url).replace(/\/prd\//, '/src/');
-            // TODO: Error: ENOENT: no such file or directory, stat '/Users/zdying/test/favicon.ico'
+            var dir = path.resolve('.' + req.url);
             try{
                 var stat = fs.statSync(dir);
                 if(stat.isDirectory()){
                     fs.readdir(dir, function(err, files){
+                        var html = [];
                         if(err){
-                            console.log('[error]'.red, err.message);
-                            return res.end('error: ' + err);
+                            log.error(err);
+                        }else{
+                            res.setHeader('Content-Type', 'text/html');
+
+                            html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
+                            // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
+                            var filesItem = files.map(function(fileName, index){
+                                return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
+                            });
+
+                            html.push.apply(html, filesItem);
+
+                            html.push('</ul>');
                         }
-                        res.setHeader('Content-Type', 'text/html');
 
-                        var html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
-                        // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
-                        var filesItem = files.map(function(fileName, index){
-                            return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
-                        });
+                        res.end(html.join(''));
 
-                        html.push.apply(html, filesItem);
-
-                        html.push('</ul>');
-
-                        res.end(html.join(''))
+                        log.access(req);
                     });
                 }else{
                     this.sendFile(req)
                 }
             }catch(e){
-                log.error(e);
                 res.statusCode = 404;
                 res.end();
+
+                log.error(e);
+                log.access(req);
             }
         }.bind(this));
 
@@ -151,26 +151,29 @@ module.exports = {
 
         server.on('error', function(err){
             if(err.code === 'EADDRINUSE'){
-                console.log('[error]'.red, 'port', String(port).bold.yellow, 'is already in use.');
+                log.error('port', String(port).bold.yellow, 'is already in use.');
                 server.close();
             }else{
-                console.log('[error]'.red, err.message);
+                log.error(err.message);
             }
         });
 
         server.on('listening', function(){
             openBrowser && open('http://127.0.0.1:' + port);
 
+            console.log();
             console.log('server start at', ('http://127.0.0.1:' + port).magenta.bold);
             console.log('work at', __hiipack__.cwd.magenta.bold);
-            // console.log('hiipack root', __hiipack__.root.magenta.bold);
+            console.log();
+
+            log.debug('hiipack', '-',  JSON.stringify(__hiipack__));
         });
 
         process.on("SIGINT", function(){
             console.log('server close. by ctrl + c');
             process.exit()
         });
-        
+
         process.on('SIGTERM', function(){
             console.log('server close. SIGTERM');
             process.exit()
@@ -183,25 +186,6 @@ module.exports = {
      * @param filePath
      * @param env
      */
-    _sendFile: function(req, filePath, env){
-        if(env){
-            filePath = filePath.replace(/\/(prd|loc|src|dev)\//, '/' + env + '/');
-        }
-
-        var res = req.res;
-
-        console.log('[send]'.blue, filePath.bold);
-
-        res.sendFile(filePath,
-            function(err){
-                if(err){
-                    console.log('[error]'.red, 'send file failed.');
-                    console.log(err.stack);
-                    res.statusCode = 500;
-                    res.end(req.url + ' Error.');
-                }
-            });
-    },
     sendFile: function(req, filePath){
         filePath = filePath || path.resolve('.' + req.url);
 
@@ -211,12 +195,11 @@ module.exports = {
 
         res.sendFile(filePath, function(err){
             if(err){
-                log.error(err);
                 res.statusCode = 404;
                 res.end(req.url + ' not found.');
-            }else{
-                log.access(req);
+                log.error(err);
             }
+            log.access(req);
         });
     },
 
@@ -240,12 +223,14 @@ module.exports = {
             },
             function(err, result){
                 if(err){
+                    res.statusCode = 500;
                     res.end(err.stack || err.message)
                 }else{
                     res.setHeader('Content-Type', 'text/css');
                     res.end(result.css.toString());
-                    console.log('[*.sass]'.bold.green, url.bold, '==>'.green, fileName.bold, (Date.now() - start + 'ms').magenta);
+                    log.debug('*.sass', '-', url.bold, '==>', fileName.bold, (Date.now() - start + 'ms').magenta);
                 }
+                log.access(req);
             }
         );
     },
@@ -372,7 +357,7 @@ module.exports = {
             process.chdir(oldCwd);
 
             console.log(statsResult.toString({
-                colors: true,
+                colors: false,
                 timings: true,
                 chunks: false,
                 children: false

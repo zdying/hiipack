@@ -8,6 +8,8 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var fs = require('fs');
 var child_process = require('child_process');
 
+var log = require('../helpers/log');
+
 module.exports = {
     getDllPlugin: function(root, userConfig){
         var library = userConfig.library;
@@ -33,7 +35,7 @@ module.exports = {
     extendPlugins: function(arr, plugins, root, userConfig){
         var self = this;
         if(!Array.isArray(plugins)){
-            console.log('[error]'.red, 'invalid param', 'plugins'.bold.yellow);
+            log.error('invalid param', 'plugins'.bold.yellow);
         }else{
             plugins.forEach(function(plName){
                 if(!/Plugin$/.test(plName)){
@@ -75,7 +77,7 @@ module.exports = {
                 try{
                     var stats = fs.statSync(tmpdir + '/node_modules/' + _name);
                     if (stats.isDirectory()) {
-                        console.log('[info]'.green, 'loader', _name.bold.green, 'is already exists.');
+                        log.info('loader', '-', 'loader', _name.bold.green, 'is already exists, skip it.');
                     }
                     return ''
                 }catch(e){
@@ -85,13 +87,13 @@ module.exports = {
 
             // 如果需要安装的模块不为空, 安装相应的模块
             if(loadersName.join(' ').trim() !== ''){
-                console.log('[install]'.green, 'install custom loader', loadersName.join(' ').bold.green);
+                log.info('loader', '-', 'install custom loader', loadersName.join(' ').bold.green);
                 child_process.execSync('npm install ' + loadersName.join(' '), { cwd: tmpdir, stdio: 'ignore' });
                 // child_process.execSync('npm install ' + loadersName.join(' '), { cwd: __hiipack__.root });
 
                 // 安装peerDependencies
                 loadersName.forEach(function(loader, index){
-                    console.log('[install]'.green, 'find peerDependencies for', loader.green);
+                    log.info('loader', '-', 'find peer dependencies for', loader.green);
 
                     var tmpModulesPath = tmpdir + '/node_modules/';
                     var packageInfo = require(tmpModulesPath + loader + '/package.json');
@@ -100,7 +102,7 @@ module.exports = {
 
                     /*
                     if(peerDeps){
-                        console.log('[install]'.green, loader.green, 'peerDependencies:', peerDeps.toString().green);
+                        log.info('loader', '-', loader.green, 'peerDependencies:', peerDeps.toString().green);
                         child_process.execSync('npm install --peer', { cwd: tmpModulesPath + loader });
                     }
 
@@ -113,14 +115,15 @@ module.exports = {
                         try{
                             var stats = fs.statSync(tmpModulesPath + dep);
                             if (stats.isDirectory()) {
-                                console.log('[info]'.green, loader, 'peerDependency', dep.bold.green, 'is already exists.');
+                                log.info('loader', '-', loader, 'peerDependency', dep.bold.green, 'is already exists.');
                             }
                             return ''
                         }catch(e){
-                            console.log('[install]'.green, 'install', loader, 'peerDependency', dep.bold.green);
+                            log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green);
                             try{
                                 child_process.execSync('npm install ' + dep, { cwd: tmpdir, stdio: 'ignore' });
                             }catch(e){
+                                log.debug(e.message);
                                 // console.log('e', e.message);
                             }
                         }

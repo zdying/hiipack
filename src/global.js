@@ -7,6 +7,7 @@ var fs = require('fs');
 var colors = require('colors');
 var child_process = require('child_process');
 var os = require('os');
+var log = require('./helpers/log');
 
 var __hiipack__ = {
     /**
@@ -57,7 +58,7 @@ var __hiipack__ = {
         });
 
         finalPath = finalPath || (this.tmpdir + modulePath);
-        console.log('[resolve]'.green, module ,'==>', finalPath);
+        log.debug('resolve', '-', module ,'==>', finalPath);
         return finalPath
     },
 };
