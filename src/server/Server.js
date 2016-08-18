@@ -14,6 +14,9 @@ var Compiler = require('./Compiler');
 var clients = {};
 var clientId = 0;
 
+var fileSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Document.svg'));
+var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Folder.svg'));
+
 function Server(port, openBrowser){
     this.app = express();
     this.compiler = new Compiler();
@@ -109,16 +112,39 @@ function Server(port, openBrowser){
                 var stat = fs.statSync(dir);
                 if(stat.isDirectory()){
                     fs.readdir(dir, function(err, files){
-                        var html = [];
                         if(err){
                             log.error(err);
                         }else{
                             res.setHeader('Content-Type', 'text/html');
 
-                            html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
-                            html.push('<li><a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">../</a></li>');
-                            var filesItem = files.map(function(fileName, index){
-                                return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
+                            var html = [
+                                '<style>',
+                                    'ul{ padding: 0 }',
+                                    'li{ list-style: none; margin: 5px; height: 36px; width: 20%; width: calc(20% - 10px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; color: #0077DD; }',
+                                    'a { color: #0077DD }',
+                                    'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
+                                '</style>',
+                                '<ul>'
+                            ];
+                            html.push('<li>');
+                            html.push(      folderSVG);
+                            html.push(      '<a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">../</a>');
+                            html.push('</li>');
+                            var filesItem = files.map(function(fileName){
+                                if(fileName.slice(0, 1) === '.'){
+                                    log.debug('hide system file/directory', fileName.bold);
+                                    // 不显示系统隐藏文件
+                                    return
+                                }
+
+                                var isFile = fs.statSync(dir + '/' + fileName).isFile();
+
+                                return [
+                                    '<li>',
+                                        isFile ? fileSVG : folderSVG,
+                                        '<a title="' + fileName + '" href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a>',
+                                    '</li>'
+                                ].join('')
                             });
 
                             html.push.apply(html, filesItem);
