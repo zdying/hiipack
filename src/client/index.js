@@ -51,7 +51,7 @@ module.exports = {
 
             compiler.plugin("compile", function(){
                 // this.isCompiling = true;
-                log.info('compile', '-', 'compiling [' + entry.join('.js, ') + '.js]', '...');
+                log.info('compile', '-', 'compiling [', (entry.join('.js, ') + '.js').bold.magenta, ']', '...');
             }.bind(this));
 
             compiler.plugin("done", function(stat){

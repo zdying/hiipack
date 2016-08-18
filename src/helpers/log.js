@@ -17,7 +17,14 @@ module.exports = {
             304: 'green',
             200: 'white'
         };
-        printMessage('access', 'grey', [req.method.bold.grey, req.url.grey, String(statusCode)[colormap[statusCode] || 'grey']])
+        var time = Date.now() - req._startTime;
+
+        printMessage('access', 'grey', [
+            req.method.bold.grey,
+            req.url.grey,
+            String(statusCode)[colormap[statusCode] || 'grey'],
+            ('(' + time + 'ms' + ')')[time >= 2000 ? 'yellow' : 'grey']
+        ])
     },
     error: function(err){
         if(program.error){

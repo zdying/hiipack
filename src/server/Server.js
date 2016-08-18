@@ -18,11 +18,10 @@ function Server(port, openBrowser){
     this.app = express();
     this.compiler = new Compiler();
 
-    // this.app.get('*', function(req, res, next){
-    //     // console.log('[access]'.green, req.method, req.url);
-    //     log.access(req);
-    //     next();
-    // });
+    this.app.all('*', function(req, res, next){
+        req._startTime = Date.now();
+        next();
+    });
 
     // this.app.get('/__webpack_hmr', function(req, res, next){
     //     req.socket.setKeepAlive(true);
