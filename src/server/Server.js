@@ -120,15 +120,16 @@ function Server(port, openBrowser){
                             var html = [
                                 '<style>',
                                     'ul{ padding: 0 }',
-                                    'li{ list-style: none; margin: 5px 5px 15px; height: 36px; width: 20%; width: calc(20% - 10px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; color: #0077DD; }',
-                                    'a { color: #0077DD }',
+                                    'li{ list-style: none; margin: 5px; width: 20%; width: calc(20% - 10px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; color: #0077DD; }',
+                                    'li:hover{ color: #FF5522; }',
+                                    'a { padding: 15px 5px; display: block; color: #0077DD }',
+                                    'a:hover { color: #FF5522 }',
                                     'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
                                 '</style>',
                                 '<ul>'
                             ];
                             html.push('<li>');
-                            html.push(      folderSVG);
-                            html.push(      '<a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">../</a>');
+                            html.push(      '<a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">', folderSVG, '../</a>');
                             html.push('</li>');
                             var filesItem = files.map(function(fileName){
                                 if(fileName.slice(0, 1) === '.'){
@@ -141,8 +142,10 @@ function Server(port, openBrowser){
 
                                 return [
                                     '<li>',
-                                        isFile ? fileSVG : folderSVG,
-                                        '<a title="' + fileName + '" href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a>',
+                                        '<a title="' + fileName + '" href="' + url.replace(/\/$/, '') + '/' + fileName + '">',
+                                            isFile ? fileSVG : folderSVG,
+                                            fileName,
+                                        '</a>',
                                     '</li>'
                                 ].join('')
                             });
