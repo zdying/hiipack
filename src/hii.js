@@ -110,6 +110,11 @@ if(process.argv.length == 2){
 }
 
 function showVersion(){
-    console.log('hiipack\t'.bold, package.version.magenta);
-    console.log('author\t', 'zdying@live.com'.yellow.bold);
+    console.log('');
+    console.log('  .----------------------------.');
+    console.log('  |  ' + 'hiipack'.bold, package.version.magenta + '        |');
+    console.log('  |  ' + 'author ', 'zdying@live.com'.yellow.bold + '   |');
+    console.log('  |  ' + 'github.com/zdying/hiipack'.green.underline + ' |');
+    console.log('  \'----------------------------\'');
+    console.log('');
 }

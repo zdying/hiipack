@@ -168,12 +168,13 @@ function Server(port, openBrowser){
     });
 
     process.on("SIGINT", function(){
-        log.info('server closed by ctrl + c');
+        console.log('\b\b  ');
+        console.log('Bye Bye.'.bold.yellow);
         process.exit()
     });
 
     process.on('SIGTERM', function(){
-        log.info('server closed by SIGTERM');
+        console.log('Bye Bye.'.bold.yellow);
         process.exit()
     });
 }

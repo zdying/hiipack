@@ -84,7 +84,7 @@ Compiler.prototype = {
             // send compiled file
             callback(req, projInfo, watchings[projInfo.projectName])
         }else{
-            log.info('file is compiling...');
+            log.info('wait until compilation is complete ...'.bold);
             var a = setInterval(function(){
                 if(this.isCompiling === false){
                     callback(req, projInfo, watchings[projInfo.projectName]);
