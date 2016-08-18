@@ -13,15 +13,17 @@ module.exports = {
         printMessage('access', 'green', [req.method.bold, req.url, req.res.statusCode])
     },
     error: function(err){
-        var type = Object.prototype.toString.call(err);
+        if(process.env.HIIPACK_DEBUG){
+            var type = Object.prototype.toString.call(err);
 
-        if(type === '[object Error]'){
-            printMessage('error', 'red', err.message);
-            if(process.env.HIIPACK_ERROR_DETAIL){
-                printMessage('', 'red', err.stack)
+            if(type === '[object Error]'){
+                printMessage('error', 'red', err.message);
+                if(process.env.HIIPACK_ERROR_DETAIL){
+                    printMessage('', 'red', err.stack)
+                }
+            }else{
+                printMessage('error', 'red', arguments)
             }
-        }else{
-            printMessage('error', 'red', arguments)
         }
     },
     warn: function(){
