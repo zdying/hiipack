@@ -58,7 +58,7 @@ module.exports = {
                 process.chdir(oldCwd);
                 log.info('compile', '-', 'compile finished (', (stat.endTime - stat.startTime) + 'ms', ')');
                 log.debug('compile result: \n' + stat.toString({
-                    colors: true,
+                    colors: false,
                     timings: true,
                     chunks: false,
                     children: false

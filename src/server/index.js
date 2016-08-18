@@ -90,7 +90,7 @@ module.exports = {
                         }
 
                         return
-                    }else if(env === 'src'){
+                    }else if(env === 'src' || env === 'loc'){
                         return this.sendFile(req)
                     }
                 }else if(fileExt === 'css'){
@@ -102,48 +102,55 @@ module.exports = {
                     var filePath = path.resolve('.' + req.url);
                     filePath = filePath.replace(/\/prd\//, '/src/').replace(/[\?\#](.*)/, '');
 
-                    if(fs.statSync(filePath).isFile()){
-                        this.sendFile(req, filePath, 'src')
-                    }
-                    return
-                }
-            }
-
-            var dir = path.resolve('.' + req.url);
-            try{
-                var stat = fs.statSync(dir);
-                if(stat.isDirectory()){
-                    fs.readdir(dir, function(err, files){
-                        var html = [];
-                        if(err){
-                            log.error(err);
-                        }else{
-                            res.setHeader('Content-Type', 'text/html');
-
-                            html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
-                            // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
-                            var filesItem = files.map(function(fileName, index){
-                                return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
-                            });
-
-                            html.push.apply(html, filesItem);
-
-                            html.push('</ul>');
+                    log.debug(req.url, '==>', filePath);
+                    try{
+                        if(fs.statSync(filePath).isFile()){
+                            this.sendFile(req, filePath)
                         }
-
-                        res.end(html.join(''));
-
+                    }catch(e){
+                        res.statusCode = 404;
+                        res.end('404 not found.');
+                        log.error(e);
                         log.access(req);
-                    });
-                }else{
-                    this.sendFile(req)
+                    }
                 }
-            }catch(e){
-                res.statusCode = 404;
-                res.end();
+            }else{
+                var dir = path.resolve('.' + req.url);
+                try{
+                    var stat = fs.statSync(dir);
+                    if(stat.isDirectory()){
+                        fs.readdir(dir, function(err, files){
+                            var html = [];
+                            if(err){
+                                log.error(err);
+                            }else{
+                                res.setHeader('Content-Type', 'text/html');
 
-                log.error(e);
-                log.access(req);
+                                html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
+                                // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
+                                var filesItem = files.map(function(fileName, index){
+                                    return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
+                                });
+
+                                html.push.apply(html, filesItem);
+
+                                html.push('</ul>');
+                            }
+
+                            res.end(html.join(''));
+
+                            log.access(req);
+                        });
+                    }else{
+                        this.sendFile(req)
+                    }
+                }catch(e){
+                    res.statusCode = 404;
+                    res.end();
+
+                    log.error(e);
+                    log.access(req);
+                }
             }
         }.bind(this));
 
