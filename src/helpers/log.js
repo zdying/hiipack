@@ -14,7 +14,8 @@ module.exports = {
         var colormap = {
             404: 'yellow',
             500: 'red',
-            304: 'green'
+            304: 'green',
+            200: 'white'
         };
         printMessage('access', 'grey', [req.method.bold.grey, req.url.grey, String(statusCode)[colormap[statusCode] || 'grey']])
     },

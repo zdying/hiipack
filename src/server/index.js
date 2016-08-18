@@ -357,24 +357,25 @@ module.exports = {
 
             process.chdir(oldCwd);
 
-            console.log(statsResult.toString({
+            log.info('compile', '-', 'compile finished (', (statsResult.endTime - statsResult.startTime) + 'ms', ')');
+            log.debug('compile result: \n' + statsResult.toString({
                 colors: false,
                 timings: true,
                 chunks: false,
                 children: false
             }));
 
-            (stats.children || [stats]).forEach(function(stats){
-                publish({
-                    name: stats.name,
-                    action: "built",
-                    time: stats.time,
-                    hash: stats.hash,
-                    warnings: stats.warnings || [],
-                    errors: stats.errors || [],
-                    modules: buildModuleMap(stats.modules)
-                });
-            });
+            // (stats.children || [stats]).forEach(function(stats){
+            //     publish({
+            //         name: stats.name,
+            //         action: "built",
+            //         time: stats.time,
+            //         hash: stats.hash,
+            //         warnings: stats.warnings || [],
+            //         errors: stats.errors || [],
+            //         modules: buildModuleMap(stats.modules)
+            //     });
+            // });
         }.bind(this));
 
         var watching = compiler.watch({}, function(err, state){
