@@ -2,23 +2,29 @@
  * @file
  * @author zdying
  */
-var program = global.program;
+
 var colors = require('colors');
 
 module.exports = {
     debug: function(){
-        process.env.HIIPACK_DEBUG && printMessage('debug', 'blue', arguments)
+        program.debug && printMessage('debug', 'blue', arguments)
     },
     access: function(req){
-        printMessage('access', 'green', [req.method.bold, req.url, req.res.statusCode])
+        var statusCode = req.res.statusCode;
+        var colormap = {
+            404: 'yellow',
+            500: 'red',
+            304: 'green'
+        };
+        printMessage('access', 'grey', [req.method.bold.grey, req.url.grey, String(statusCode)[colormap[statusCode] || 'grey']])
     },
     error: function(err){
-        if(process.env.HIIPACK_DEBUG){
+        if(program.error){
             var type = Object.prototype.toString.call(err);
 
             if(type === '[object Error]'){
                 printMessage('error', 'red', err.message);
-                if(process.env.HIIPACK_ERROR_DETAIL){
+                if(program.errorDetail){
                     printMessage('', 'red', err.stack)
                 }
             }else{

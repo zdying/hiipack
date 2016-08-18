@@ -87,7 +87,7 @@ module.exports = {
 
             // 如果需要安装的模块不为空, 安装相应的模块
             if(loadersName.join(' ').trim() !== ''){
-                log.info('loader', '-', 'install custom loader', loadersName.join(' ').bold.green);
+                log.info('loader', '-', 'install custom loader', loadersName.join(' ').bold.green, '...');
                 child_process.execSync('npm install ' + loadersName.join(' '), { cwd: tmpdir, stdio: 'ignore' });
                 // child_process.execSync('npm install ' + loadersName.join(' '), { cwd: __hiipack__.root });
 
@@ -119,7 +119,7 @@ module.exports = {
                             }
                             return ''
                         }catch(e){
-                            log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green);
+                            log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green, '...');
                             try{
                                 child_process.execSync('npm install ' + dep, { cwd: tmpdir, stdio: 'ignore' });
                             }catch(e){

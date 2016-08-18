@@ -159,23 +159,24 @@ module.exports = {
         });
 
         server.on('listening', function(){
-            openBrowser && open('http://127.0.0.1:' + port);
+            var url = 'http://127.0.0.1:' + port;
+            openBrowser && open(url);
 
             console.log();
-            console.log('server start at', ('http://127.0.0.1:' + port).magenta.bold);
-            console.log('work at', __hiipack__.cwd.magenta.bold);
+            console.log('hiipack started at', url.magenta.bold);
+            console.log('current workspace ', __hiipack__.cwd.magenta.bold);
             console.log();
 
-            log.debug('hiipack', '-',  JSON.stringify(__hiipack__));
+            log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
         });
 
         process.on("SIGINT", function(){
-            console.log('server close. by ctrl + c');
+            log.info('server closed by ctrl + c');
             process.exit()
         });
 
         process.on('SIGTERM', function(){
-            console.log('server close. SIGTERM');
+            log.info('server closed by SIGTERM');
             process.exit()
         });
     },

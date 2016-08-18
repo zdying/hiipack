@@ -79,7 +79,7 @@ module.exports = function(root){
                 // assetNameRegExp: /\.css$/g,
                 // cssProcessor: require('cssnano'),
                 // cssProcessorOptions: { discardComments: {removeAll: true } },
-                // canPrint: true
+                canPrint: false
             }),
             /**
              * 压缩JS

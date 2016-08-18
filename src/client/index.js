@@ -51,11 +51,17 @@ module.exports = {
 
             compiler.plugin("compile", function(){
                 // this.isCompiling = true;
-                log.info('compile', '-', 'compiling: [' + entry.join('.js, ') + '.js]');
+                log.info('compile', '-', 'compiling [' + entry.join('.js, ') + '.js]', '...');
             }.bind(this));
 
-            compiler.plugin("done", function(){
-                log.info('compile', '-', 'compile finished.');
+            compiler.plugin("done", function(stat){
+                log.info('compile', '-', 'compile finished (', (stat.endTime - stat.startTime) + 'ms', ')');
+                log.debug('result: \n' + stat.toString({
+                    colors: true,
+                    timings: true,
+                    chunks: false,
+                    children: false
+                }));
                 process.chdir(oldCwd)
             });
 
@@ -63,12 +69,6 @@ module.exports = {
                 if(err){
                     log.error(err);
                 }else{
-                    log.info(state.toString({
-                        colors: true,
-                        timings: true,
-                        chunks: false,
-                        children: false
-                    }));
                     cbk && cbk(state)
                 }
             });
@@ -87,17 +87,15 @@ module.exports = {
         var workPath = process.cwd();
         var dllConfig = configUtil.getPrdDLLConfig(workPath);
 
-        steps.printTitle('clean ./prd/* && ./ver/*');
+        log.info('clean', '[prd/*, ver/*]'.bold, '...');
 
         try{
-            execSync('rm -rdf ./prd && rm -rdf ./ver');
-            steps.printSuccessIcon();
+            execSync('rm -rdf ./prd ./ver');
             this._build(dllConfig, function(){
                 var config = configUtil.getPrdConfig(workPath);
                 this._build(config, cbk)
             }.bind(this))
         }catch(e){
-            steps.printErrorIcon();
             log.error(e);
         }
     },
@@ -113,11 +111,10 @@ module.exports = {
         var userConfig = require(workPath + '/config');
         var hasLib = userConfig.library && Object.keys(userConfig.library).length > 0;
 
-        steps.printTitle('clean ./dev/*');
+        log.info('clean', '[dev/*]'.bold, '...');
 
         try{
             execSync('rm -rdf ./dev');
-            steps.printSuccessIcon();
 
             if(hasLib){
                 this._build(dllConfig, function(){
@@ -129,7 +126,6 @@ module.exports = {
                 this._build(config)
             }
         }catch(e){
-            steps.printErrorIcon();
             log.error(e);
         }
     },

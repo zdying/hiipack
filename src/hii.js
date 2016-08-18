@@ -7,15 +7,14 @@ var path = require('path');
 var fs = require('fs');
 var fse = require('fs-extra');
 var colors = require('colors');
-var program = require('commander');
 var child_process = require('child_process');
 var os = require('os');
 
 var server = require('./server');
 var client = require('./client');
 var package = require('../package.json');
-
-var __hiipack__ = require('./global');
+var __hiipack = require('./global');
+var program = global.program;
 
 try{
     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
@@ -30,17 +29,13 @@ try{
 // console.log(process.env.NODE_PATH);
 
 program
-    .version(package.version)
-    // .option('-v, --version', '版本信息')
+    .version(package.version, '-v, --version')
     .option('-o, --open', 'open in browser')
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
-    .option('-d, --debug', 'show debug log', function(){
-        process.env.HIIPACK_DEBUG = true;
-    })
-    .option('-e, --error', 'show error detail log', function(){
-        process.env.HIIPACK_ERROR_DETAIL = true;
-    })
+    .option('-d, --debug', 'print debug log')
+    .option('-e, --error', 'print error info')
+    .option('-E, --error-detail', 'print error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');
 

@@ -8,6 +8,10 @@ var hiipackRoot = path.resolve(__dirname, '..', 'node_modules');
 var hiipackTempRoot = os.tmpdir() + '/hiipack_cache';
 
 var NODE_PATH = process.env.NODE_PATH;
-process.env.NODE_PATH = [hiipackRoot, globalRoot, hiipackTempRoot].join(':') + (NODE_PATH ? ':' + NODE_PATH : '');
+process.env.NODE_PATH = [
+    hiipackRoot,
+    globalRoot,
+    hiipackTempRoot
+].join(':') + (NODE_PATH ? ':' + NODE_PATH : '');
 
-child_process.fork(__dirname + '/commander.js', process.argv.slice(2));
+child_process.fork(__dirname + '/hii.js', process.argv.slice(2));
