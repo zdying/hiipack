@@ -1,5 +1,12 @@
 # hiipack
 
+hiipack is a front end development tool based on webpack.
+
+
+  Install:
+  
+    npm install hiipack -g
+
   Usage: hii [options] [command]
 
 
