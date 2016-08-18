@@ -9,7 +9,6 @@ var path = require('path');
 
 var color = require('colors');
 var webpack = require('webpack');
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 // var WriteFilePlugin = require('write-file-webpack-plugin');
 var common = require('../common');
 
@@ -62,7 +61,6 @@ module.exports = function(root, userConfig){
                     'NODE_ENV': JSON.stringify('development')
                 }
             }),
-            new ProgressBarPlugin(),
             // new WriteFilePlugin({
             //     test: /\/static\//,
             //     log: false

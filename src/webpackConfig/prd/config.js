@@ -8,7 +8,6 @@ var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
@@ -95,9 +94,7 @@ module.exports = function(root){
             /**
              * 生成版本号
              */
-            new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i),
-
-            new ProgressBarPlugin()
+            new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i)
         ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig),
         node: {
             fs: "empty"

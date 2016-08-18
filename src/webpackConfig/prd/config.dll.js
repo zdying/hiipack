@@ -4,7 +4,6 @@
  */
 
 var webpack = require("webpack");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 
@@ -35,8 +34,7 @@ module.exports = function(root){
                     drop_debugger: true
                 }
             }),
-            new VersionPlugin(6),
-            new ProgressBarPlugin()
+            new VersionPlugin(6)
         ]
     }
 };

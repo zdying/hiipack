@@ -4,7 +4,6 @@
  */
 
 var webpack = require("webpack");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 module.exports = function(root){
     var userConfigPath = root + '/config';
@@ -23,8 +22,7 @@ module.exports = function(root){
                 path: root + "/dll/[name]-manifest.json",
                 name: "__lib__[name]__",
                 context: root
-            }),
-            new ProgressBarPlugin()
+            })
         ],
         // resolve: {
         //     root: root,

@@ -4,7 +4,6 @@
  */
 
 var webpack = require("webpack");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 module.exports = function(root){
     var userConfigPath = root + '/config';
@@ -24,7 +23,6 @@ module.exports = function(root){
                 name: "__lib__[name]__",
                 context: root
             }),
-            new ProgressBarPlugin(),
             new webpack.optimize.OccurenceOrderPlugin()
         ]
     }

@@ -10,7 +10,6 @@ var color = require('colors');
 var webpack = require('webpack');
 // var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 var common = require('../common');
@@ -66,10 +65,6 @@ module.exports = function(root){
              * 提取公共的css
              */
             new ExtractTextPlugin('[name]@dev.css'),
-            /**
-             * 进度条
-             */
-            new ProgressBarPlugin(),
 
             /**
              * 优化CSS
