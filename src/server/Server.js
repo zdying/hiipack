@@ -14,7 +14,8 @@ var Compiler = require('./Compiler');
 var clients = {};
 var clientId = 0;
 
-var fileSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Document.svg'));
+var docSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Document.svg'));
+var fileSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'File.svg'));
 var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Folder.svg'));
 
 function Server(port, openBrowser){
@@ -143,7 +144,7 @@ function Server(port, openBrowser){
                                 return [
                                     '<li>',
                                         '<a title="' + fileName + '" href="' + url.replace(/\/$/, '') + '/' + fileName + '">',
-                                            isFile ? fileSVG : folderSVG,
+                                            isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
                                             fileName,
                                         '</a>',
                                     '</li>'
