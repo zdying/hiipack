@@ -55,6 +55,7 @@ module.exports = {
             }.bind(this));
 
             compiler.plugin("done", function(stat){
+                process.chdir(oldCwd);
                 log.info('compile', '-', 'compile finished (', (stat.endTime - stat.startTime) + 'ms', ')');
                 log.debug('result: \n' + stat.toString({
                     colors: true,
@@ -62,7 +63,6 @@ module.exports = {
                     chunks: false,
                     children: false
                 }));
-                process.chdir(oldCwd)
             });
 
             compiler.run(function(err, state){
