@@ -7,7 +7,7 @@ var colors = require('colors');
 
 module.exports = {
     debug: function(){
-        program.debug && printMessage('debug', 'blue', arguments)
+        program.debug && printMessage('debug', 'magenta', arguments)
     },
     access: function(req){
         var statusCode = req.res.statusCode;

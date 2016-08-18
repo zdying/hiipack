@@ -59,7 +59,7 @@ module.exports = {
         //     }, 2000)
         // });
 
-        app.get('*', function(req, res, next){
+        app.all('*', function(req, res, next){
             var url = req.url;
             var projInfo = this.getProjectInfoFromURL(url);
 
@@ -127,7 +127,7 @@ module.exports = {
                                 res.setHeader('Content-Type', 'text/html');
 
                                 html = ['<style>li{ list-style: none; margin: 5px; display: block; }</style>', '<ul>'];
-                                // html.push('<li><a href="', url.replace(/\/$/, '') , '">..</a></li>');
+                                html.push('<li><a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">../</a></li>');
                                 var filesItem = files.map(function(fileName, index){
                                     return '<li><a href="' + url.replace(/\/$/, '') + '/' + fileName + '">' + fileName + '</a></li>'
                                 });
