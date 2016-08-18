@@ -131,6 +131,7 @@ Compiler.prototype = {
 
         compiler.plugin("compile", function(){
             this.isCompiling = true;
+            log.info('compiling [', Object.keys(config.entry).join('.js, ') + '.js', ']');
             // publish({
             //     action: "building"
             // });
@@ -190,6 +191,7 @@ Compiler.prototype = {
 
         compiler.plugin("compile", function(){
             this.isCompiling = true;
+            log.info('compiling [', Object.keys(dllConfig.entry).join('.js, ') + '.js', ']');
             // publish({
             //     action: "building"
             // });

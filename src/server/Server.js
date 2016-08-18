@@ -160,8 +160,8 @@ function Server(port, openBrowser){
         openBrowser && open(url);
 
         console.log();
-        console.log('hiipack started at', url.magenta.bold);
-        console.log('current workspace ', __hiipack__.cwd.magenta.bold);
+        console.log('hiipack started at', url.green.bold);
+        console.log('current workspace ', __hiipack__.cwd.green.bold);
         console.log();
 
         log.debug('__hii__', '-',  JSON.stringify(__hiipack__));

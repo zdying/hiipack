@@ -169,7 +169,7 @@ module.exports = {
             // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
             var rcFile = __hii__.cwd + '/.babelrc';
             //TODO resolve时,如果不存在对应的依赖包, 自动安装
-            //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-preset-es2015`
+            //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-register`
             fs.writeFileSync(
                 rcFile,
                 JSON.stringify({
