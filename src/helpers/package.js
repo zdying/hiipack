@@ -64,33 +64,6 @@ module.exports = {
 
                 deps.forEach(function(dep){
                     self.installPackage(dep, 'peerDependency');
-                    //已经存在的package不需要安装
-                    // var exists = self.checkIfPackageExist(dep);
-                    //
-                    // if(!exists){
-                    //     log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green, '...');
-                    //     try{
-                    //         child_process.execSync('npm install ' + dep, { cwd: tmpdir, stdio: 'ignore' });
-                    //     }catch(e){
-                    //         log.error(e);
-                    //     }
-                    // }
-
-                    // try{
-                    //     var stats = fs.statSync(tmpModulesPath + dep);
-                    //     if (stats.isDirectory()) {
-                    //         log.info('loader', '-', loader, 'peerDependency', dep.bold.green, 'is already exists.');
-                    //     }
-                    //     return ''
-                    // }catch(e){
-                    //     log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green, '...');
-                    //     try{
-                    //         child_process.execSync('npm install ' + dep, { cwd: tmpdir, stdio: 'ignore' });
-                    //     }catch(e){
-                    //         log.debug(e.message);
-                    //         // console.log('e', e.message);
-                    //     }
-                    // }
                 })
             }else{
 

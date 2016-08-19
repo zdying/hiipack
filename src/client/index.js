@@ -43,7 +43,6 @@ module.exports = {
     _build: function(env, callback){
         var workPath = process.cwd();
         var projectName = workPath.split('/').pop();
-        // 在项目根目录执行build命令,所以project为空
         var compiler = new Compiler(projectName, workPath);
         var dir = {
             'dev': ['dev'],
