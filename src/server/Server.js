@@ -23,6 +23,7 @@ function Server(port, openBrowser){
     this.compiler = new Compiler();
 
     this.app.all('*', function(req, res, next){
+        req.url = req.url.replace(/[\?\#].*$/, '');
         req._startTime = Date.now();
         next();
     });
@@ -54,6 +55,7 @@ function Server(port, openBrowser){
 
     this.app.all('*', function(req, res, next){
         var url = req.url;
+        var filePath = path.resolve('.' + url);
         var projInfo = this.getProjectInfoFromURL(url);
         var compiler = this.compiler;
 
@@ -73,27 +75,37 @@ function Server(port, openBrowser){
                 if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
                     return compiler.compileJS(req, projInfo,  this.sendCompiledFile.bind(this))
                 }else if(env === 'dev'){
-                    var filePath = path.resolve('.' + req.url);
-                    filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2').replace(/[\?\#](.*)/, '');
+                    filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 
                     log.debug(req.url, '==>', filePath);
 
                     if(fs.statSync(filePath).isFile()){
                         this.sendFile(req, filePath)
                     }
-
-                    return
                 }else if(env === 'src' || env === 'loc'){
-                    return this.sendFile(req)
+                    this.sendFile(req)
                 }
             }else if(fileExt === 'css'){
-                //TODO 判断,如果文件存在, 不处理, 直接发送文件
-                // 处理css文件
-                return res.end('/* The `css` code in development environment has been moved to the `js` file */')
+                if(fs.existsSync(filePath)){
+                    this.sendFile(req, filePath);
+                }else{
+                    var userConfig = require(path.resolve('.', projInfo.projectName, 'config.js'));
+                    var entry = userConfig.entry;
+                    var entries = Object.keys(entry);
+
+                    if(entries.indexOf(projInfo.fileName) !== -1){
+                        // 处理css文件
+                        res.setHeader('Content-Type', 'text/css');
+                        log.debug('css -', filePath.bold, 'replaced');
+                        return res.end('/* The `css` code in development environment has been moved to the `js` file */')
+                    }else{
+                        // will return 404
+                        this.sendFile(req, filePath);
+                    }
+                }
             }else{
                 // 其它文件
-                var filePath = path.resolve('.' + req.url);
-                filePath = filePath.replace(/\/prd\//, '/src/').replace(/[\?\#](.*)/, '');
+                filePath = filePath.replace(/\/prd\//, '/src/');
 
                 log.debug(req.url, '==>', filePath);
                 try{
@@ -108,11 +120,10 @@ function Server(port, openBrowser){
                 }
             }
         }else{
-            var dir = path.resolve('.' + req.url);
             try{
-                var stat = fs.statSync(dir);
+                var stat = fs.statSync(filePath);
                 if(stat.isDirectory()){
-                    fs.readdir(dir, function(err, files){
+                    fs.readdir(filePath, function(err, files){
                         if(err){
                             log.error(err);
                         }else{
@@ -139,7 +150,7 @@ function Server(port, openBrowser){
                                     return
                                 }
 
-                                var isFile = fs.statSync(dir + '/' + fileName).isFile();
+                                var isFile = fs.statSync(filePath + '/' + fileName).isFile();
 
                                 return [
                                     '<li>',

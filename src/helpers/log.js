@@ -21,7 +21,7 @@ module.exports = {
 
         printMessage('access', 'grey', [
             req.method.bold.grey,
-            req.url.grey,
+            req.originalUrl.grey,
             String(statusCode)[colormap[statusCode] || 'grey'],
             ('(' + time + 'ms' + ')')[time >= 2000 ? 'yellow' : 'grey']
         ])
