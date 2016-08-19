@@ -116,7 +116,7 @@ Compiler.prototype = {
                     // 没有指定relativeTo, 所以默认采用`process.cwd()`
                     // 而`process.cwd()`的值是当前的工作目录, 不是`hiipack`的跟目录
                     process.chdir(__hii__.root);
-                    log.info('compiling [', (Object.keys(config.entry).join('.js, ') + '.js').bold.magenta, ']');
+                    log.info('compile - compiling [', (Object.keys(config.entry).join('.js, ') + '.js').bold.magenta, ']');
                 }
             ].concat(optPlugins.compile || []),
             'done': [
