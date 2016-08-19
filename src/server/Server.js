@@ -9,7 +9,8 @@ var fs = require('fs');
 var open = require("open");
 
 var log = require('../helpers/log');
-var Compiler = require('./Compiler');
+// var Compiler = require('./Compiler');
+var Compiler = require('../compiler');
 
 var clients = {};
 var clientId = 0;
@@ -20,11 +21,13 @@ var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Fold
 
 function Server(port, openBrowser){
     this.app = express();
-    this.compiler = new Compiler();
+    this.compilers = {};
+
 
     this.app.all('*', function(req, res, next){
         req.url = req.url.replace(/[\?\#].*$/, '');
         req._startTime = Date.now();
+        log.debug('request -', req.url);
         next();
     });
 
@@ -57,23 +60,40 @@ function Server(port, openBrowser){
         var url = req.url;
         var filePath = path.resolve('.' + url);
         var projInfo = this.getProjectInfoFromURL(url);
-        var compiler = this.compiler;
-
+        // var compiler = this.compiler;
         // console.log('');
         // console.log(logPrex, '[access]', req.method.bold, url);
 
         log.debug('projInfo:' + JSON.stringify(projInfo));
 
         if(projInfo){
+            var projectName = projInfo.projectName;
             var fileExt = projInfo.fileExt;
             var env = projInfo.env;
+            var compiler = this.compilers[projectName];
+
+            if(!compiler){
+                compiler = this.compilers[projectName] = new Compiler(projectName);
+            }
 
             if(fileExt === 'scss'){
                 // 编译sass文件
-                return compiler.compileSass(req, projInfo)
+                return compiler.compileSASS(filePath, function(err, css, time, result){
+                    if(err){
+                        res.statusCode = 500;
+                        res.end(err.stack || err.message)
+                    }else{
+                        res.setHeader('Content-Type', 'text/css');
+                        res.end(css);
+                        log.debug('*.sass', '-', filePath.bold, 'compiled', (time + 'ms').magenta);
+                    }
+                    log.access(req);
+                });
             }else if(fileExt === 'js'){
-                if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
-                    return compiler.compileJS(req, projInfo,  this.sendCompiledFile.bind(this))
+                if(env === 'prd'/* || req.url.indexOf('hot-update.js') !== -1*/){
+                    return compiler.compile('loc', function(){
+                        this.sendCompiledFile(req, filePath)
+                    }.bind(this))
                 }else if(env === 'dev'){
                     filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 
@@ -97,7 +117,8 @@ function Server(port, openBrowser){
                         // 处理css文件
                         res.setHeader('Content-Type', 'text/css');
                         log.debug('css -', filePath.bold, 'replaced');
-                        return res.end('/* The `css` code in development environment has been moved to the `js` file */')
+                        res.end('/* The `css` code in development environment has been moved to the `js` file */');
+                        log.access(req);
                     }else{
                         // will return 404
                         this.sendFile(req, filePath);
@@ -188,10 +209,10 @@ function Server(port, openBrowser){
 
     server.on('error', function(err){
         if(err.code === 'EADDRINUSE'){
-            log.error('port', String(port).bold.yellow, 'is already in use.');
+            console.log('port', String(port).bold.yellow, 'is already in use.');
             server.close();
         }else{
-            log.error(err.message);
+            console.log(err.message);
         }
     });
 
@@ -264,8 +285,7 @@ Server.prototype = {
         }
     },
 
-    sendCompiledFile: function(req, projInfo, webpackCompiler){
-        var filePath = path.resolve('.' + req.url);
+    sendCompiledFile: function(req, filePath){
         filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
         this.sendFile(req, filePath)
     }
