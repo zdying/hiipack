@@ -4,11 +4,10 @@
  */
 var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-
 var fs = require('fs');
 var child_process = require('child_process');
 
-var log = require('../helpers/log');
+var pkg = require('../helpers/package');
 
 module.exports = {
     getDllPlugin: function(root, userConfig){
@@ -68,67 +67,31 @@ module.exports = {
             var loaderContent = loader.loader;
             var loaders = Array.isArray(loaderContent) ? loaderContent : loaderContent.split('!');
             var tmpdir = __hiipack__.tmpdir;
+            // 需要安装的package
             var loadersName = loaders.map(function(name){
                 var _name = name.split('?')[0];
                 if(_name.indexOf('-loader') === -1){
                     _name += '-loader';
                 }
 
-                try{
-                    var stats = fs.statSync(tmpdir + '/node_modules/' + _name);
-                    if (stats.isDirectory()) {
-                        log.info('loader', '-', 'loader', _name.bold.green, 'is already exists, skip it.');
-                    }
+                var exists = pkg.checkIfPackageExist(_name);
+
+                if(exists){
                     return ''
-                }catch(e){
+                }else{
                     return _name
                 }
             });
 
+            loadersName = loadersName.join(' ').trim();
+
             // 如果需要安装的模块不为空, 安装相应的模块
-            if(loadersName.join(' ').trim() !== ''){
-                log.info('loader', '-', 'install custom loader', loadersName.join(' ').bold.green, '...');
-                child_process.execSync('npm install ' + loadersName.join(' '), { cwd: tmpdir, stdio: 'ignore' });
-                // child_process.execSync('npm install ' + loadersName.join(' '), { cwd: __hiipack__.root });
+            if(loadersName !== ''){
+                var installed = pkg.installPackage(loadersName, 'loader');
 
-                // 安装peerDependencies
-                loadersName.forEach(function(loader, index){
-                    log.info('loader', '-', 'find peer dependencies for', loader.green);
-
-                    var tmpModulesPath = tmpdir + '/node_modules/';
-                    var packageInfo = require(tmpModulesPath + loader + '/package.json');
-                    var peerDependencies = packageInfo.peerDependencies;
-                    var peerDeps = Object.keys(peerDependencies);
-
-                    /*
-                    if(peerDeps){
-                        log.info('loader', '-', loader.green, 'peerDependencies:', peerDeps.toString().green);
-                        child_process.execSync('npm install --peer', { cwd: tmpModulesPath + loader });
-                    }
-
-                    config.resolve.fallback.push(tmpModulesPath + loader + '/node_modules');
-                    config.resolveLoader.fallback.push(tmpModulesPath + loader + '/node_modules');
-                    */
-
-                    peerDeps.forEach(function(dep){
-                        //TODO hiipack内置的依赖,不需要安装
-                        try{
-                            var stats = fs.statSync(tmpModulesPath + dep);
-                            if (stats.isDirectory()) {
-                                log.info('loader', '-', loader, 'peerDependency', dep.bold.green, 'is already exists.');
-                            }
-                            return ''
-                        }catch(e){
-                            log.info('loader', '-', 'install', loader, 'peerDependency', dep.bold.green, '...');
-                            try{
-                                child_process.execSync('npm install ' + dep, { cwd: tmpdir, stdio: 'ignore' });
-                            }catch(e){
-                                log.debug(e.message);
-                                // console.log('e', e.message);
-                            }
-                        }
-                    })
-                });
+                if(installed){
+                    pkg.installDependencies(loadersName, 'peerDependencies')
+                }
             }
 
             arr.push(loader);
