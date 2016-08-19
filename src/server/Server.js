@@ -120,10 +120,10 @@ function Server(port, openBrowser){
 
                             var html = [
                                 '<style>',
-                                    'ul{ padding: 0 }',
-                                    'li{ list-style: none; margin: 5px; width: 20%; width: calc(20% - 10px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; color: #0077DD; }',
+                                    'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
+                                    'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
                                     'li:hover{ color: #FF5522; }',
-                                    'a { padding: 15px 5px; display: block; color: #0077DD }',
+                                    'a { padding: 15px 5px; display: block; color: #0077DD; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }',
                                     'a:hover { color: #FF5522 }',
                                     'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
                                 '</style>',
