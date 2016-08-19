@@ -10,10 +10,10 @@ var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
 
-function Compiler(projectName){
+function Compiler(projectName, root){
     this.isCompiling = false;
     this.projectName = projectName;
-    this.root = path.resolve('./' + projectName);
+    this.root = root || path.resolve('./' + projectName);
     this.webpackCompiler = null;
 
     log.debug('Compiler - create new compiler', projectName.bold.green);
@@ -23,10 +23,16 @@ Compiler.prototype = {
     constructor: Compiler,
     _compile: function(env, isDLL, isWatch, option, callback){
         var cbk = function(err, state){
-            callback && callback();
+            callback && callback(err, state);
         };
 
         var compiler = this.webpackCompiler = this._getWebpackCompiler(env, isDLL, option);
+
+        if(!compiler){
+            var err = new Error();
+            err.code = "COMPILER_NULL";
+            return cbk(err, null)
+        }
 
         if(isWatch){
             return this.watching = compiler.watch({}, cbk);
@@ -35,13 +41,13 @@ Compiler.prototype = {
         }
     },
     compile: function(env, option, callback){
-        if(typeof callback === 'undefined'){
+        if(arguments.length === 2){
             callback = option;
             option = {
-                isWatch: true
+                watch: true
             };
         }
-        var isWatch = option.isWatch;
+        var isWatch = option.watch;
 
         if(this.webpackCompiler === null){
             // 编译dll
@@ -149,17 +155,25 @@ Compiler.prototype = {
     _getConfig: function(env, isDLL){
         var root = this.root;
         var userConfigPath = root + '/config.js';
+        var userConfig = null;
         var fixedEnv = env.slice(0, 1).toUpperCase() + env.slice(1);
         var dllName = isDLL ? 'DLL' : '';
         var method= 'get' + fixedEnv + dllName + 'Config';
 
         if(!/^(loc|dev|prd)$/.test(env)){
-            log.err('invalid param', '`env`'.bold.yellow, 'env should be one of loc/dev/prd.');
+            log.error('invalid param', '`env`'.bold.yellow, 'env should be one of loc/dev/prd.');
             return null
         }
 
         if(!fs.existsSync(userConfigPath)){
-            log.err(this.projectName.bold.yellow, "is not an valid hiipack project,", '`config.js`'.bold.green, 'not exists.');
+            log.error(this.projectName.bold.yellow, "is not an valid hiipack project,", '`config.js`'.bold.green, 'not exists.');
+            return null
+        }
+
+        userConfig = require(userConfigPath);
+
+        if(isDLL && Object.keys(userConfig.library || {}).length === 0){
+            log.debug(this.projectName.bold.yellow, "has no third party library.");
             return null
         }
 
@@ -167,7 +181,7 @@ Compiler.prototype = {
 
         // delete require cache
         // delete require.cache[require.resolve(userConfigPath)];
-        var config = configUtil[method](root, require(userConfigPath));
+        var config = configUtil[method](root, userConfig);
 
         // log.debug('Compiler - user config', '==>', JSON.stringify(config));
 

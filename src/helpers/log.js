@@ -27,17 +27,15 @@ module.exports = {
         ])
     },
     error: function(err){
-        if(program.error){
-            var type = Object.prototype.toString.call(err);
+        var type = Object.prototype.toString.call(err);
 
-            if(type === '[object Error]'){
-                printMessage('error', 'red', err.message);
-                if(program.errorDetail){
-                    printMessage('', 'red', err.stack)
-                }
-            }else{
-                printMessage('error', 'red', arguments)
+        if(type === '[object Error]'){
+            printMessage('error', 'red', err.message);
+            if(program.errorDetail){
+                printMessage('', 'red', err.stack)
             }
+        }else{
+            printMessage('error', 'red', arguments)
         }
     },
     warn: function(){

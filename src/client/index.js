@@ -9,7 +9,7 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var execSync = child_process.execSync;
 
-var configUtil = require('../webpackConfig');
+var Compiler = require('../compiler');
 
 var steps = require('../helpers/steps');
 var log = require('../helpers/log');
@@ -40,64 +40,32 @@ module.exports = {
         }.bind(this));
     },
 
-    _build: function(config, callback){
-        var createCompiler = function(config, cbk){
-            var compiler = webpack(config);
-            var entry = Object.keys(config.entry);
-
-            var oldCwd = process.cwd();
-
-            process.chdir(__hii__.root);
-
-            compiler.plugin("compile", function(){
-                // this.isCompiling = true;
-                log.info('compile', '-', 'compiling [', (entry.join('.js, ') + '.js').bold.magenta, ']', '...');
-            }.bind(this));
-
-            compiler.plugin("done", function(stat){
-                process.chdir(oldCwd);
-                log.info('compile', '-', 'compile finished (', (stat.endTime - stat.startTime) + 'ms', ')');
-                log.debug('compile result: \n' + stat.toString({
-                    colors: false,
-                    timings: true,
-                    chunks: false,
-                    children: false
-                }));
-            });
-
-            compiler.run(function(err, state){
-                if(err){
-                    log.error(err);
-                }else{
-                    cbk && cbk(state)
-                }
-            });
-
-            return compiler
+    _build: function(env, callback){
+        var workPath = process.cwd();
+        var projectName = workPath.split('/').pop();
+        // 在项目根目录执行build命令,所以project为空
+        var compiler = new Compiler(projectName, workPath);
+        var dir = {
+            'dev': ['dev'],
+            'prd': ['prd', 'ver']
         };
 
-        createCompiler(config, callback)
+        log.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
+
+        try{
+            execSync('rm -rdf ./' + dir[env].join(' ./'));
+            compiler.compile(env, {watch: false}, callback);
+        }catch(e){
+            log.error(e);
+        }
     },
 
     /**
      * 打包压缩线上版本代码
-     * @param cbk
+     * @param callback
      */
-    build: function(cbk){
-        var workPath = process.cwd();
-        var dllConfig = configUtil.getPrdDLLConfig(workPath);
-
-        log.info('clean', '[prd/*, ver/*]'.bold, '...');
-
-        try{
-            execSync('rm -rdf ./prd ./ver');
-            this._build(dllConfig, function(){
-                var config = configUtil.getPrdConfig(workPath);
-                this._build(config, cbk)
-            }.bind(this))
-        }catch(e){
-            log.error(e);
-        }
+    build: function(callback){
+        this._build('prd', callback)
     },
 
     /**
@@ -105,29 +73,7 @@ module.exports = {
      * @param callback
      */
     pack: function(callback){
-        var workPath = process.cwd();
-        var dllConfig = configUtil.getDevDLLConfig(workPath);
-        //TODO userConfig 可以直接作为参数传进去
-        var userConfig = require(workPath + '/config');
-        var hasLib = userConfig.library && Object.keys(userConfig.library).length > 0;
-
-        log.info('clean', '[dev/*]'.bold, '...');
-
-        try{
-            execSync('rm -rdf ./dev');
-
-            if(hasLib){
-                this._build(dllConfig, function(){
-                    var config = configUtil.getDevConfig(workPath);
-                    this._build(config)
-                }.bind(this))
-            }else{
-                var config = configUtil.getDevConfig(workPath);
-                this._build(config)
-            }
-        }catch(e){
-            log.error(e);
-        }
+        this._build('dev', callback)
     },
 
     /**
