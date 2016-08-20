@@ -40,7 +40,11 @@ module.exports = {
 
     install: function(package){
         try{
-            child_process.execSync('npm install ' + package, { cwd: __hii__.tmpdir, stdio: 'ignore' });
+            var cmd = 'npm install ' + package + (program.registry ? ' --registry ' + program.registry : '');
+
+            logger.debug('exec command', cmd.bold);
+
+            child_process.execSync(cmd, { cwd: __hii__.tmpdir, stdio: 'ignore' });
             return true
         }catch(err){
             logger.error(err);
