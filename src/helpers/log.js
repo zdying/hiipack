@@ -6,8 +6,13 @@
 var colors = require('colors');
 
 module.exports = {
+    namespace: function(name){
+        var log = Object.create(this);
+        log._namespace = name;
+        return log;
+    },
     debug: function(){
-        program.debug && printMessage('debug', 'magenta', arguments)
+        program.debug && this.printMessage('debug', 'magenta', arguments)
     },
     access: function(req){
         var statusCode = req.res.statusCode;
@@ -19,7 +24,7 @@ module.exports = {
         };
         var time = Date.now() - req._startTime;
 
-        printMessage('access', 'grey', [
+        this.printMessage('access', 'grey', true, [
             req.method.bold.grey,
             req.originalUrl.grey,
             String(statusCode)[colormap[statusCode] || 'grey'],
@@ -30,25 +35,36 @@ module.exports = {
         var type = Object.prototype.toString.call(err);
 
         if(type === '[object Error]'){
-            printMessage('error', 'red', err.message);
-            if(program.errorDetail){
-                printMessage('', 'red', err.stack)
+            this.printMessage('error', 'red', err.message);
+            if(program.detail){
+                this.printMessage('', 'red', true, err.stack)
             }
         }else{
-            printMessage('error', 'red', arguments)
+            this.printMessage('error', 'red', arguments)
         }
     },
     warn: function(){
-        printMessage('warn', 'yellow', arguments)
+        this.printMessage('warn', 'yellow', arguments)
     },
     info: function(){
-        printMessage('info', 'magenta', arguments)
+        this.printMessage('info', 'magenta', arguments)
+    },
+    detail: function(){
+        program.detail && this.printMessage('detail', 'green', arguments)
+    },
+    printMessage: function(group, groupColor, ignoreNamespace, message){
+        if(arguments.length === 3){
+            message = ignoreNamespace;
+            ignoreNamespace = false;
+        }
+        if(typeof message === 'object'){
+            message = Array.prototype.join.call(message, ' ')
+        }
+
+        if(this._namespace && !ignoreNamespace){
+            message = this._namespace + ' - ' + message
+        }
+
+        console.log((group ? ('[' + group + '] ').bold[groupColor] : '') + message);
     }
 };
-
-function printMessage(group, groupColor, message){
-    if(typeof message === 'object'){
-        message = Array.prototype.join.call(message, ' ')
-    }
-    console.log((group ? ('[' + group + '] ').bold[groupColor] : '') + message);
-}

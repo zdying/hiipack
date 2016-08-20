@@ -2,6 +2,7 @@
  * @file
  * @author zdying
  */
+var __hiipack = require('./global');
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
@@ -13,7 +14,6 @@ var os = require('os');
 var server = require('./server');
 var client = require('./client');
 var package = require('../package.json');
-var __hiipack = require('./global');
 var program = global.program;
 
 try{
@@ -34,8 +34,8 @@ program
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
-    .option('-e, --error', 'print error info')
-    .option('-E, --error-detail', 'print error detail log')
+    // .option('-e, --error', 'print error info')
+    .option('-D, --detail', 'print debug and error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');
 

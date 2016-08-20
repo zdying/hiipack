@@ -12,7 +12,7 @@ var execSync = child_process.execSync;
 var Compiler = require('../compiler');
 
 var steps = require('../helpers/steps');
-var log = require('../helpers/log');
+var logger = log.namespace('client');
 
 var fse = require('fs-extra');
 var fs = require('fs');
@@ -32,7 +32,7 @@ module.exports = {
         fse.copy(templatePath, targetPath, function(err){
             if(err){
                 steps.printErrorIcon();
-                log.error(err);
+                logger.error(err);
                 return
             }
             steps.printSuccessIcon();
@@ -49,13 +49,13 @@ module.exports = {
             'prd': ['prd', 'ver']
         };
 
-        log.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
+        logger.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
 
         try{
             execSync('rm -rdf ./' + dir[env].join(' ./'));
             compiler.compile(env, {watch: false}, callback);
         }catch(e){
-            log.error(e);
+            logger.error(e);
         }
     },
 
@@ -121,7 +121,7 @@ module.exports = {
                     "presets": [__hii__.resolve("babel-preset-es2015")]
                 }, null, 4)
             );
-            log.debug('test', '-', 'exec command:', cmd.yellow);
+            logger.debug('test', '-', 'exec command:', cmd.yellow);
             child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
                 console.log(stdout);
                 console.log(stderr);
@@ -169,7 +169,7 @@ module.exports = {
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
                                 steps.printErrorIcon();
-                                log.error(err);
+                                logger.error(err);
                                 return
                             }
                             clearInterval(timer);
@@ -191,7 +191,7 @@ module.exports = {
                     if(stat.isFile()){
                         fs.readFile(file, function(err, data){
                             if(err){
-                                return log.error(err);
+                                return logger.error(err);
                             }
                             var fileContent = data.toString();
 

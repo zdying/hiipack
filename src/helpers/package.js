@@ -4,6 +4,7 @@
  */
 var fs = require('fs');
 var child_process = require('child_process');
+var logger = log.namespace('package');
 
 module.exports = {
     checkIfPackageExist: function(moduleName){
@@ -14,11 +15,11 @@ module.exports = {
         var logTips = ['loader', '-', 'loader', moduleName.bold.green, 'is already exists, position'].join(' ');
 
         if (existsInTmp) {
-            log.info(logTips, "TMP_DIR".bold.green,', skip it.');
+            logger.info(logTips, "TMP_DIR".bold.green,', skip it.');
         }
 
         if(existsInRoot){
-            log.info(logTips, "HIIPACK_ROOT".bold.green,', skip it.');
+            logger.info(logTips, "HIIPACK_ROOT".bold.green,', skip it.');
         }
 
         return existsInRoot || existsInTmp
@@ -29,7 +30,7 @@ module.exports = {
 
         if(!isExist){
             type = type || 'package';
-            log.info('install', '-' , 'installing', type, package.bold.green, '...');
+            logger.info('install', '-' , 'installing', type, package.bold.green, '...');
 
             return this.install(package);
         }
@@ -42,7 +43,7 @@ module.exports = {
             child_process.execSync('npm install ' + package, { cwd: __hii__.tmpdir, stdio: 'ignore' });
             return true
         }catch(err){
-            log.error(err);
+            logger.error(err);
             return false
         }
     },
@@ -51,7 +52,7 @@ module.exports = {
         var self = this;
         // 安装peerDependencies
         package.split(' ').forEach(function(loader, index){
-            log.info('install', '-', 'finding', type, 'for', loader.green);
+            logger.info('install', '-', 'finding', type, 'for', loader.green);
 
             var tmpModulesPath = __hii__.tmpdir + '/node_modules/';
             var packageInfo = require(tmpModulesPath + loader + '/package.json');
@@ -60,7 +61,7 @@ module.exports = {
 
             if(deps.length){
                 // 查找结果
-                log.info('install', '-', loader.green, type, deps.toString().green);
+                logger.info('install', '-', loader.green, type, deps.toString().green);
 
                 deps.forEach(function(dep){
                     self.installPackage(dep, 'peerDependency');

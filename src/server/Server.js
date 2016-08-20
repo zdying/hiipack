@@ -8,7 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var open = require("open");
 
-var log = require('../helpers/log');
+var logger = log.namespace('Server');
 // var Compiler = require('./Compiler');
 var Compiler = require('../compiler');
 
@@ -27,7 +27,7 @@ function Server(port, openBrowser){
     this.app.all('*', function(req, res, next){
         req.url = req.url.replace(/[\?\#].*$/, '');
         req._startTime = Date.now();
-        log.debug('request -', req.url);
+        logger.debug('request -', req.url);
         next();
     });
 
@@ -64,7 +64,7 @@ function Server(port, openBrowser){
         // console.log('');
         // console.log(logPrex, '[access]', req.method.bold, url);
 
-        log.debug('projInfo:' + JSON.stringify(projInfo));
+        logger.debug('projInfo:' + JSON.stringify(projInfo));
 
         if(projInfo){
             var projectName = projInfo.projectName;
@@ -85,9 +85,9 @@ function Server(port, openBrowser){
                     }else{
                         res.setHeader('Content-Type', 'text/css');
                         res.end(css);
-                        log.debug('*.sass', '-', filePath.bold, 'compiled', (time + 'ms').magenta);
+                        logger.debug('*.sass', '-', filePath.bold, 'compiled', (time + 'ms').magenta);
                     }
-                    log.access(req);
+                    logger.access(req);
                 });
             }else if(fileExt === 'js'){
                 if(env === 'prd'/* || req.url.indexOf('hot-update.js') !== -1*/){
@@ -97,7 +97,7 @@ function Server(port, openBrowser){
                 }else if(env === 'dev'){
                     filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 
-                    log.debug(req.url, '==>', filePath);
+                    logger.debug(req.url, '==>', filePath);
 
                     if(fs.statSync(filePath).isFile()){
                         this.sendFile(req, filePath)
@@ -116,9 +116,9 @@ function Server(port, openBrowser){
                     if(entries.indexOf(projInfo.fileName) !== -1){
                         // 处理css文件
                         res.setHeader('Content-Type', 'text/css');
-                        log.debug('css -', filePath.bold, 'replaced');
+                        logger.debug('css -', filePath.bold, 'replaced');
                         res.end('/* The `css` code in development environment has been moved to the `js` file */');
-                        log.access(req);
+                        logger.access(req);
                     }else{
                         // will return 404
                         this.sendFile(req, filePath);
@@ -128,7 +128,7 @@ function Server(port, openBrowser){
                 // 其它文件
                 filePath = filePath.replace(/\/prd\//, '/src/');
 
-                log.debug(req.url, '==>', filePath);
+                logger.debug(req.url, '==>', filePath);
                 try{
                     if(fs.statSync(filePath).isFile()){
                         this.sendFile(req, filePath)
@@ -136,8 +136,8 @@ function Server(port, openBrowser){
                 }catch(e){
                     res.statusCode = 404;
                     res.end('404 Not Found');
-                    log.error(e);
-                    log.access(req);
+                    logger.error(e);
+                    logger.access(req);
                 }
             }
         }else{
@@ -146,7 +146,7 @@ function Server(port, openBrowser){
                 if(stat.isDirectory()){
                     fs.readdir(filePath, function(err, files){
                         if(err){
-                            log.error(err);
+                            logger.error(err);
                         }else{
                             res.setHeader('Content-Type', 'text/html');
 
@@ -166,7 +166,7 @@ function Server(port, openBrowser){
                             html.push('</li>');
                             var filesItem = files.map(function(fileName){
                                 if(fileName.slice(0, 1) === '.'){
-                                    log.debug('hide system file/directory', fileName.bold);
+                                    logger.debug('hide system file/directory', fileName.bold);
                                     // 不显示系统隐藏文件
                                     return
                                 }
@@ -190,7 +190,7 @@ function Server(port, openBrowser){
 
                         res.end(html.join(''));
 
-                        log.access(req);
+                        logger.access(req);
                     });
                 }else{
                     this.sendFile(req)
@@ -199,8 +199,8 @@ function Server(port, openBrowser){
                 res.statusCode = 404;
                 res.end('404 Not Found');
 
-                log.error(e);
-                log.access(req);
+                logger.error(e);
+                logger.access(req);
             }
         }
     }.bind(this));
@@ -225,7 +225,7 @@ function Server(port, openBrowser){
         console.log('current workspace ', __hiipack__.cwd.green.bold);
         console.log();
 
-        log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
+        logger.debug('__hii__', '-',  JSON.stringify(__hiipack__));
     });
 
     process.on("SIGINT", function(){
@@ -251,7 +251,7 @@ Server.prototype = {
     sendFile: function(req, filePath){
         filePath = filePath || path.resolve('.' + req.url);
 
-        log.debug('send file: ' + filePath.bold);
+        logger.debug('send file: ' + filePath.bold);
 
         var res = req.res;
 
@@ -259,9 +259,9 @@ Server.prototype = {
             if(err){
                 res.statusCode = 404;
                 res.end('404 Not Found');
-                log.error(err);
+                logger.error(err);
             }
-            log.access(req);
+            logger.access(req);
         });
     },
 
