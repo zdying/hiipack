@@ -46,15 +46,15 @@ var __hiipack__ = {
         var finalPath = '';
 
         dirs.forEach(function(dir){
+            dir = dir.replace(/\/node\_modules\/?$/, '');
             if(!finalPath){
-                try{
-                    var stat = fs.statSync(dir + modulePath);
+                var _path = dir + modulePath;
+                var isExist  = fs.existsSync(_path);
 
-                    if(stat.isDirectory()){
-                        finalPath = dir + modulePath;
-                    }
-                }catch(e){
-                    // throw Error('Can\'t find module:' + modulePath)
+                if(isExist){
+                    finalPath = _path;
+                }else{
+                    log.debug('resolve', '-', _path.green, 'not exists.')
                 }
             }
         });
