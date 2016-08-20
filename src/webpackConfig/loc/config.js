@@ -14,13 +14,14 @@ var common = require('../common');
 
 module.exports = function(root, userConfig){
     // var userConfig = require('../config');
+    var projTmp = common.getProjectTMPDIR(root);
     var config = {
         env: 'loc',
         context: root,
         devtool: 'cheap-module-inline-source-map',
         entry: userConfig.entry,
         output: {
-            path: root + '/loc',
+            path: projTmp + '/loc',
             filename: '[name].js',
             publicPath: '/loc/'
         },

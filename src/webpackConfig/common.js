@@ -12,11 +12,12 @@ var pkg = require('../helpers/package');
 module.exports = {
     getDllPlugin: function(root, userConfig){
         var library = userConfig.library;
+        var projTmp = this.getProjectTMPDIR(root);
         if(library && Object.keys(library).length > 0){
             //TODO 遍历`dll`目录中的文件,添加`manifest.json`
             return new webpack.DllReferencePlugin({
                 context: root,
-                manifest: require(root + "/dll/lib-manifest.json")
+                manifest: require(projTmp + "/dll/lib-manifest.json")
             })
         }
     },

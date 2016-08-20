@@ -61,9 +61,6 @@ function Server(port, openBrowser){
         // var filePath = path.resolve('.' + url);
         var filePath = __hii__.cwd + url;
         var projInfo = this.getProjectInfoFromURL(url);
-        // var compiler = this.compiler;
-        // console.log('');
-        // console.log(logPrex, '[access]', req.method.bold, url);
 
         logger.debug('projInfo:' + JSON.stringify(projInfo));
 
@@ -93,7 +90,7 @@ function Server(port, openBrowser){
             }else if(fileExt === 'js'){
                 if(env === 'prd'/* || req.url.indexOf('hot-update.js') !== -1*/){
                     return compiler.compile('loc', function(){
-                        this.sendCompiledFile(req, filePath)
+                        this.sendCompiledFile(req, projInfo)
                     }.bind(this))
                 }else if(env === 'dev'){
                     filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
@@ -286,9 +283,10 @@ Server.prototype = {
         }
     },
 
-    sendCompiledFile: function(req, filePath){
+    sendCompiledFile: function(req, projInfo){
+        var filePath = __hii__.tmpdir + req.url;
         filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
-        this.sendFile(req, filePath)
+        this.sendFile(req, filePath);
         // var content = mfs.readFileSync(filePath)//.toString();
         // req.res.setHeader('Content-Type', 'text/javascript');
         // req.res.setHeader('Content-Length', content.length);

@@ -4,22 +4,24 @@
  */
 
 var webpack = require("webpack");
+var common = require('../common');
 
 module.exports = function(root){
     var userConfigPath = root + '/config';
     var userConfig = require(userConfigPath);
+    var projTmp = common.getProjectTMPDIR(root);
 
     return {
         context: root,
         entry: userConfig.library,
         output: {
-            path: root + "/loc",
+            path: projTmp + "/loc",
             filename: "[name].js",
             library: "__lib__[name]__"
         },
         plugins: [
             new webpack.DllPlugin({
-                path: root + "/dll/[name]-manifest.json",
+                path: projTmp + "/dll/[name]-manifest.json",
                 name: "__lib__[name]__",
                 context: root
             })
