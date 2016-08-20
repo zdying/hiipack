@@ -81,56 +81,6 @@ module.exports = function(root, userConfig){
         },
         node: {
             fs: "empty"
-        },
-        devServer: {
-            // quiet: true,
-            // historyApiFallback: true,
-            // lazy: true,
-            hot: true,
-            inline: true,
-            port: userConfig.port,
-            setup: function(app){
-                app.get('/*', function(req, res, next){
-                    var urlObj = require('url').parse(req.url);
-                    var pathname = urlObj.pathname;
-                    // var pathNameArr = pathname.split('/');
-                    var reg = /(.*?)\/prd\/(.*?)(@\w+)?\.(js|css)/;
-                    var url = req.url;
-
-                    if(pathname.match(/\.(scss)$/)){
-                        var sass = require('node-sass');
-                        var fileName = url.replace(/(.*?)\/prd\//, '..$1/src/');
-
-                        // console.log('[log] compile sass file: ', url, ' ==> ', fileName);
-                        console.log(['[log]'.yellow.bold, '[*.sass]', url.bold, '==>'.green, fileName.bold].join(' '));
-
-                        sass.render({
-                            file: fileName
-                        }, function(err, result){
-                            if(err){
-                                res.end(err.stack || err.message)
-                            }else{
-                                res.setHeader('Content-Type', 'text/css');
-                                res.end(result.css.toString())
-                            }
-                        });
-                    }else if(pathname.match(reg)){
-                        var devURL = req.url.replace(reg, '/loc/$2.$4');
-                        console.log(['[log]'.yellow.bold, '[version]', url.bold, '==>'.green, devURL.bold].join(' '));
-                        // 本地开发的时候,css都在js中, 返回空
-                        if(RegExp.$4 === 'css'){
-                            res.setHeader('Content-Type', 'text/css');
-                            res.end('');
-                            return
-                        }
-                        req.url = devURL;
-                        next();
-                    }else{
-                        console.log('[log]'.magenta.bold, ('[direct] ' + url).magenta);
-                        next();
-                    }
-                });
-            }
         }
     };
 

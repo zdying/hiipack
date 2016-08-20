@@ -115,5 +115,13 @@ module.exports = {
         }
 
         return config;
+    },
+
+    getProjectTMPDIR: function(root){
+        var projectName = root.replace(/\/$/, '').split('/').pop();
+        var tmpDir = __hii__.tmpdir + '/' + projectName;
+
+        log.debug('webpackConfig -', projectName.bold.green, 'tmp dir', tmpDir);
+        return tmpDir
     }
 };

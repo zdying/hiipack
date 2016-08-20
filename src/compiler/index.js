@@ -133,6 +133,11 @@ Compiler.prototype = {
             });
         }
 
+        // if(env === 'loc'/* && !isDLL*/){
+        //     console.log(mfs);
+        //     compiler.outputFileSystem = mfs;
+        // }
+
         return compiler
     },
     getWebpackCompiler: function(env, option){

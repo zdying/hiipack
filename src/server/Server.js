@@ -58,7 +58,8 @@ function Server(port, openBrowser){
 
     this.app.all('*', function(req, res, next){
         var url = req.url;
-        var filePath = path.resolve('.' + url);
+        // var filePath = path.resolve('.' + url);
+        var filePath = __hii__.cwd + url;
         var projInfo = this.getProjectInfoFromURL(url);
         // var compiler = this.compiler;
         // console.log('');
@@ -249,7 +250,7 @@ Server.prototype = {
      * @param env
      */
     sendFile: function(req, filePath){
-        filePath = filePath || path.resolve('.' + req.url);
+        filePath = filePath || __hii__.cwd + req.url;
 
         logger.debug('send file: ' + filePath.bold);
 
@@ -288,6 +289,10 @@ Server.prototype = {
     sendCompiledFile: function(req, filePath){
         filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
         this.sendFile(req, filePath)
+        // var content = mfs.readFileSync(filePath)//.toString();
+        // req.res.setHeader('Content-Type', 'text/javascript');
+        // req.res.setHeader('Content-Length', content.length);
+        // req.res.send(content)
     }
 };
 

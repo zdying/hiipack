@@ -9,6 +9,7 @@ var child_process = require('child_process');
 var os = require('os');
 var log = require('./helpers/log');
 var program = require('commander');
+// var MemoryFS = require("memory-fs");
 
 var __hiipack__ = {
     /**
@@ -68,5 +69,6 @@ global.__hiipack__ = __hiipack__;
 global.__hii__ = __hiipack__;
 global.log = log;
 global.program = program;
+// global.mfs = new MemoryFS();
 
 module.exports = __hiipack__;
