@@ -12,7 +12,7 @@ module.exports = {
         var existsInTmp = fs.existsSync(__hii__.tmpdir + relativePath);
         var existsInRoot = fs.existsSync(__hii__.root + relativePath);
 
-        var logTips = ['loader', '-', 'loader', moduleName.bold.green, 'is already exists, position'].join(' ');
+        var logTips = ['loader', moduleName.bold.green, 'is already exists, position'].join(' ');
 
         if (existsInTmp) {
             logger.info(logTips, "TMP_DIR".bold.green,', skip it.');
@@ -30,7 +30,7 @@ module.exports = {
 
         if(!isExist){
             type = type || 'package';
-            logger.info('install', '-' , 'installing', type, package.bold.green, '...');
+            logger.info('installing', type, package.bold.green, '...');
 
             return this.install(package);
         }
@@ -56,7 +56,7 @@ module.exports = {
         var self = this;
         // 安装peerDependencies
         package.split(' ').forEach(function(loader, index){
-            logger.info('install', '-', 'finding', type, 'for', loader.green);
+            logger.info('finding', type, 'for', loader.green);
 
             var tmpModulesPath = __hii__.tmpdir + '/node_modules/';
             var packageInfo = require(tmpModulesPath + loader + '/package.json');
@@ -65,7 +65,7 @@ module.exports = {
 
             if(deps.length){
                 // 查找结果
-                logger.info('install', '-', loader.green, type, deps.toString().green);
+                logger.info(loader.green, type, deps.toString().green);
 
                 deps.forEach(function(dep){
                     self.installPackage(dep, 'peerDependency');
