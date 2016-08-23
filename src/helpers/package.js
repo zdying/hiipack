@@ -68,7 +68,7 @@ module.exports = {
      * @returns {*}
      */
     installPackage: function(package, type){
-        var packages = package.split(/\s+/);
+        var packages = Array.isArray(package) ? package : package.split(/\s+/);
         var pkgsNeedInstall = [];
 
         packages.forEach(function(pkg, index){
@@ -124,7 +124,7 @@ module.exports = {
 
             var tmpModulesPath = __hii__.tmpdir + '/node_modules/';
             var packageInfo = require(tmpModulesPath + loader + '/package.json');
-            var peerDependencies = packageInfo[type];
+            var peerDependencies = packageInfo[type] || {};
             var deps = Object.keys(peerDependencies);
 
             if(deps.length){
