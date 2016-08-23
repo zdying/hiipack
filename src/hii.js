@@ -112,10 +112,11 @@ if(process.argv.length == 2){
 function showVersion(){
     var version = package.version.magenta;
     var versionLen = version.length;
+    var spaces = new Array(25 - versionLen + 3).join(' ');
 
     console.log('');
     console.log('  .----------------------------.');
-    console.log('  |  ' + 'hiipack'.bold + ' ' + version + new Array(25 - versionLen + 3).join(' ') + ' |');
+    console.log('  |  ' + 'hiipack'.bold + ' ' + version + spaces + ' |');
     console.log('  |  ' + 'author ', 'zdying@live.com'.yellow.bold + '   |');
     console.log('  |  ' + 'github.com/zdying/hiipack'.green.underline + ' |');
     console.log('  \'----------------------------\'');
