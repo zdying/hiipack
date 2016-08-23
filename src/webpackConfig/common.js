@@ -106,7 +106,8 @@ module.exports = {
             library: "",
             entry: "",
             alias: "",
-            loaders: ""
+            loaders: "",
+            autoTest: ""
         };
 
         for(var key in userConfig){
