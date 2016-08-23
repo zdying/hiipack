@@ -7,6 +7,7 @@
 // console.log(__hiipack__.cwd);
 // console.log(__hiipack__.root);
 // console.log(__hiipack__.tmpdir);
+// console.log(__hiipack__.resolve('webpack'));
 // console.log('---------- visit global variable -----------');
 
 module.exports = {
@@ -79,11 +80,12 @@ module.exports = {
     alias: {
         'root': 'src/'
     },
-    //TODO extend customConfig to webpack config, add next version
-    // customConfig: {
-    //     test: 1
-    // },
-    // customConfig: {
-    //     test: 2
-    // },
+    /**
+     * 测试框架配置, 目前只支持mocha
+     */
+    autoTest: {
+        framework: 'mocha',
+        assertion: 'expect'
+        // assertion: ['expect', 'assert']
+    }
 };
