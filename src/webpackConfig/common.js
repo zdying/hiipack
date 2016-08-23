@@ -53,6 +53,7 @@ module.exports = {
         var env = config.env;
         var customLoaders = userConfig.loaders;
         var userLoaders = null;
+        var self = this;
 
         if(!customLoaders || Object.keys(customLoaders).length === 0){
             return arr
@@ -63,36 +64,7 @@ module.exports = {
         userLoaders.forEach(function(loader, index){
             if(loader.loader){
                 // 直接使用loader
-                var loaderContent = loader.loader;
-                var loaders = Array.isArray(loaderContent) ? loaderContent : loaderContent.split('!');
-                var tmpdir = __hiipack__.tmpdir;
-                // 需要安装的package
-                var loadersName = loaders.map(function(name){
-                    var _name = name.split('?')[0];
-                    if(_name.indexOf('-loader') === -1){
-                        _name += '-loader';
-                    }
-
-                    var exists = pkg.checkIfPackageExist(_name);
-
-                    if(exists){
-                        return ''
-                    }else{
-                        return _name
-                    }
-                });
-
-                loadersName = loadersName.join(' ').trim();
-
-                // 如果需要安装的模块不为空, 安装相应的模块
-                if(loadersName !== ''){
-                    var installed = pkg.installPackage(loadersName, 'loader');
-
-                    if(installed){
-                        pkg.installDependencies(loadersName, 'peerDependencies')
-                    }
-                }
-
+                self.installLoader(loader);
                 arr.push(loader);
             }else{
                 // 先安装,然后设置
@@ -121,12 +93,49 @@ module.exports = {
                         loaderResult = currLoader
                     }
 
+                    self.installLoader(loaderResult);
+
                     arr.push(loaderResult)
                 }
             }
         });
 
         return arr
+    },
+
+    installLoader: function(loader){
+        var loaderContent = loader.loader;
+        var loaders = Array.isArray(loaderContent) ? loaderContent : loaderContent.split('!');
+        var tmpdir = __hiipack__.tmpdir;
+        var installed = false;
+        // 需要安装的package
+        var loadersName = loaders.map(function(name){
+            var _name = name.split('?')[0];
+            if(_name.indexOf('-loader') === -1){
+                _name += '-loader';
+            }
+
+            var exists = pkg.checkIfPackageExist(_name);
+
+            if(exists){
+                return ''
+            }else{
+                return _name
+            }
+        });
+
+        loadersName = loadersName.join(' ').trim();
+
+        // 如果需要安装的模块不为空, 安装相应的模块
+        if(loadersName !== ''){
+            installed = pkg.installPackage(loadersName, 'loader');
+
+            if(installed){
+                pkg.installDependencies(loadersName, 'peerDependencies')
+            }
+        }
+
+        return installed
     },
 
     extendCustomConfig: function(root, userConfig, config){
