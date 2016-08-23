@@ -5,7 +5,7 @@ var path = require('path');
 
 var globalRoot = child_process.execSync('npm root -g').toString().trim();
 var hiipackRoot = path.resolve(__dirname, '..', 'node_modules');
-var hiipackTempRoot = os.tmpdir() + '/hiipack_cache';
+var hiipackTempRoot = os.tmpdir() + '/hiipack_cache/node_modules';
 
 var NODE_PATH = process.env.NODE_PATH;
 process.env.NODE_PATH = [

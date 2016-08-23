@@ -41,7 +41,7 @@ var __hiipack__ = {
         var path = package.getPackagePath(module);
 
         if(!path){
-            path = this.tmpdir + modulePath;
+            path = this.tmpdir + '/node_modules/' + module;
         }
 
         return path

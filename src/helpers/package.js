@@ -68,13 +68,22 @@ module.exports = {
      * @returns {*}
      */
     installPackage: function(package, type){
-        var isExist = this.checkIfPackageExist(package);
+        var packages = package.split(/\s+/);
+        var pkgsNeedInstall = [];
 
-        if(!isExist){
+        packages.forEach(function(pkg, index){
+            var isExist = this.checkIfPackageExist(pkg);
+
+            if(!isExist){
+                pkgsNeedInstall.push(pkg)
+            }
+        }.bind(this));
+
+        if(pkgsNeedInstall.length){
             type = type || 'package';
-            logger.info('installing', type, package.bold.green, '...');
+            logger.info('installing', type, pkgsNeedInstall.join(' ').bold.green, '...');
 
-            return this.install(package);
+            return this.install(pkgsNeedInstall);
         }
 
         return false
@@ -86,6 +95,9 @@ module.exports = {
      * @returns {boolean}
      */
     install: function(package){
+        if(Array.isArray(package)){
+            package = package.join(' ');
+        }
         try{
             var cmd = 'npm install ' + package + (program.registry ? ' --registry ' + program.registry : '');
 
