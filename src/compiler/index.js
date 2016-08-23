@@ -110,15 +110,18 @@ Compiler.prototype = {
             ].concat(optPlugins.compile || []),
             'done': [
                 function(statsResult){
+                    var hasError = statsResult.hasErrors();
                     self.isCompiling = false;
                     process.chdir(__hii__.cwd);
                     logger.info('compile finished (', (statsResult.endTime - statsResult.startTime) + 'ms', ')');
-                    logger.debug('compile result: \n' + statsResult.toString({
-                        colors: false,
-                        timings: true,
-                        chunks: program.detail || false,
-                        children: program.detail || false
-                    }));
+                    if(hasError || program.detail){
+                        console.log('compile result: \n' + statsResult.toString({
+                            colors: true,
+                            timings: true,
+                            chunks: true,
+                            children: true
+                        }));
+                    }
                 }
             ].concat(optPlugins.done || [])
         };

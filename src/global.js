@@ -9,6 +9,7 @@ var child_process = require('child_process');
 var os = require('os');
 var log = require('./helpers/log');
 var program = require('commander');
+var package = require('./helpers/package');
 // var MemoryFS = require("memory-fs");
 
 var __hiipack__ = {
@@ -37,31 +38,13 @@ var __hiipack__ = {
      * @returns {string}
      */
     resolve: function(module){
-        if(!module){
-            throw Error('module should not be empty.');
+        var path = package.getPackagePath(module);
+
+        if(!path){
+            path = this.tmpdir + modulePath;
         }
 
-        var modulePath = '/node_modules/' + module;
-        var dirs = [this.cwd, this.root, this.globalRoot, this.tmpdir];
-        var finalPath = '';
-
-        dirs.forEach(function(dir){
-            dir = dir.replace(/\/node\_modules\/?$/, '');
-            if(!finalPath){
-                var _path = dir + modulePath;
-                var isExist  = fs.existsSync(_path);
-
-                if(isExist){
-                    finalPath = _path;
-                }else{
-                    log.debug('resolve', '-', _path.green, 'not exists.')
-                }
-            }
-        });
-
-        finalPath = finalPath || (this.tmpdir + modulePath);
-        log.debug('resolve', '-', module ,'==>', finalPath);
-        return finalPath
+        return path
     }
 };
 

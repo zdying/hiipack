@@ -11,6 +11,7 @@ var execSync = child_process.execSync;
 
 var Compiler = require('../compiler');
 
+var package = require('../helpers/package');
 var steps = require('../helpers/steps');
 var logger = log.namespace('client');
 
@@ -94,40 +95,39 @@ module.exports = {
      * 跑自动化测试
      */
     test: function(){
-        // try{
-        //     child_process.execSync('mocha')
-        // }catch(e){
-        //     console.log('[warn]'.yellow, 'mocha not install.');
-        //     console.log('[test]'.green, 'install mocha.');
-        //     child_process.execSync('npm install -g mocha');
+        var root = __hii__.cwd;
+        var configPath = root + '/config';
+        var config = require(configPath);
+        var autoTestConfig = config.autoTest || {};
+        var frameworks = autoTestConfig.framework || '';
+        var asserts = autoTestConfig.assertion || '';
 
-            // var isExist = fs.existsSync(__hii__.globalRoot + '/' + 'mocha');
-            //
-            // if(isExist){
-            // }else{
-            //     console.log('[test]'.yellow, 'exec', 'npm i -g mocha expect assert'.bold);
-            //     child_process.execSync('npm i -g mocha expect assert')
-            // }
-            //TODO 判断前端工程里面有没有`assert`|`expect`, 如果没有自动安装
+        if(frameworks){
+            package.installPackage(Array.isArray(frameworks) ? frameworks.join(' ') : frameworks);
+        }
 
-            var cmd = __hii__.root + "/node_modules/.bin/mocha --colors --compilers js:" + __hii__.resolve('babel-register');
-            // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
-            var rcFile = __hii__.cwd + '/.babelrc';
-            //TODO resolve时,如果不存在对应的依赖包, 自动安装
-            //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-register`
-            fs.writeFileSync(
-                rcFile,
-                JSON.stringify({
-                    "presets": [__hii__.resolve("babel-preset-es2015")]
-                }, null, 4)
-            );
-            logger.debug('test', '-', 'exec command:', cmd.yellow);
-            child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
-                console.log(stdout);
-                console.log(stderr);
-                fs.unlink(rcFile);
-            });
-        // }
+        if(asserts){
+            package.installPackage(Array.isArray(asserts) ? asserts.join(' ') : asserts);
+        }
+
+        var cmd = __hii__.root + "/node_modules/.bin/mocha --colors --compilers js:" + __hii__.resolve('babel-register');
+        // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
+        var rcFile = __hii__.cwd + '/.babelrc';
+        //TODO resolve时,如果不存在对应的依赖包, 自动安装
+        //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-register`
+        fs.writeFileSync(
+            rcFile,
+            JSON.stringify({
+                "presets": [__hii__.resolve("babel-preset-es2015")]
+            }, null, 4)
+        );
+        logger.debug('test', '-', 'exec command:', cmd.yellow);
+        logger.info('run testing...');
+        child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
+            console.log(stdout);
+            console.log(stderr);
+            fs.unlink(rcFile);
+        });
     },
 
     /**
