@@ -14,7 +14,7 @@ var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var common = require('../common');
 
 module.exports = function(root){
-    var userConfig = require(root + '/config');
+    var userConfig = require(root + '/hii.config');
     var config = {
         env: 'prd',
         context: root,

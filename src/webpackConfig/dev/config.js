@@ -15,7 +15,7 @@ var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var common = require('../common');
 
 module.exports = function(root){
-    var userConfig = require(root + '/config');
+    var userConfig = require(root + '/hii.config');
     var config = {
         env: 'dev',
         entry: userConfig.entry,

@@ -8,7 +8,7 @@ var webpack = require("webpack");
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 
 module.exports = function(root){
-    var userConfigPath = root + '/config';
+    var userConfigPath = root + '/hii.config';
     var userConfig = require(userConfigPath);
 
     return {

@@ -13,7 +13,7 @@ var webpack = require('webpack');
 var common = require('../common');
 
 module.exports = function(root, userConfig){
-    // var userConfig = require('../config');
+    // var userConfig = require('../hii.config');
     var projTmp = common.getProjectTMPDIR(root);
     var config = {
         env: 'loc',

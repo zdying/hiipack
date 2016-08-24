@@ -6,7 +6,7 @@
 var webpack = require("webpack");
 
 module.exports = function(root){
-    var userConfigPath = root + '/config';
+    var userConfigPath = root + '/hii.config';
     var userConfig = require(userConfigPath);
 
     return {

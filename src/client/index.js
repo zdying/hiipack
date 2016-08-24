@@ -96,7 +96,7 @@ module.exports = {
      */
     test: function(){
         var root = __hii__.cwd;
-        var configPath = root + '/config';
+        var configPath = root + '/hii.config';
         var config = require(configPath);
         var autoTestConfig = config.autoTest || {};
         var frameworks = autoTestConfig.framework || '';

@@ -4,7 +4,7 @@
  */
 
 'use strict';
-
+var fs = require('fs');
 var Server = require('./Server');
 
 module.exports = {
@@ -18,6 +18,10 @@ module.exports = {
      * 启动一个服务
      */
     start: function(port, openBrowser){
+        if(fs.existsSync(__hii__.cwd + '/hii.config.js')){
+            console.log('');
+            log.warn(__hii__.cwd.bold.yellow , 'looks like a hiipack project, try starting the service from the parent.');
+        }
         return new Server(port, openBrowser);
     }
 };

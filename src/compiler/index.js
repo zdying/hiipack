@@ -151,7 +151,7 @@ Compiler.prototype = {
     },
     _getConfig: function(env, isDLL){
         var root = this.root;
-        var userConfigPath = root + '/config.js';
+        var userConfigPath = root + '/hii.config.js';
         var userConfig = null;
         var fixedEnv = env.slice(0, 1).toUpperCase() + env.slice(1);
         var dllName = isDLL ? 'DLL' : '';
@@ -163,7 +163,7 @@ Compiler.prototype = {
         }
 
         if(!fs.existsSync(userConfigPath)){
-            logger.error('Compiler -', this.projectName.bold.yellow, "is not an valid hiipack project,", '`config.js`'.bold.green, 'not exists.');
+            logger.error('Compiler -', this.projectName.bold.yellow, "is not an valid hiipack project,", '`hii.config.js`'.bold.green, 'not exists.');
             return null
         }
 
