@@ -107,7 +107,7 @@ function Server(port, openBrowser){
                 if(fs.existsSync(filePath)){
                     this.sendFile(req, filePath);
                 }else{
-                    var userConfig = require(path.resolve('.', projInfo.projectName, 'hii.config.js'));
+                    var userConfig = require(path.resolve(__hii__.cwd, projInfo.projectName, 'hii.config.js'));
                     var entry = userConfig.entry;
                     var entries = Object.keys(entry);
 
