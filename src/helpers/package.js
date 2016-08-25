@@ -51,7 +51,7 @@ module.exports = {
 
                 if(isExist){
                     finalPath = _path;
-                    logger.info(logTips, tips[index].bold.green);
+                    logger.debug(logTips, tips[index].bold.green);
                 }else{
                     log.debug('package', '-', _path.green, 'not exists.')
                 }

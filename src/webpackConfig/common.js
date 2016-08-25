@@ -15,6 +15,7 @@ module.exports = {
         var projTmp = this.getProjectTMPDIR(root);
         if(library && Object.keys(library).length > 0){
             //TODO 遍历`dll`目录中的文件,添加`manifest.json`
+            log.debug('webpackConfig -', 'use dll file', projTmp + "/dll/lib-manifest.json");
             return new webpack.DllReferencePlugin({
                 context: root,
                 manifest: require(projTmp + "/dll/lib-manifest.json")
@@ -158,7 +159,7 @@ module.exports = {
 
     getProjectTMPDIR: function(root){
         var projectName = root.replace(/\/$/, '').split('/').pop();
-        var tmpDir = __hii__.tmpdir + '/' + projectName;
+        var tmpDir = __hii__.codeTmpdir + '/' + projectName;
 
         log.debug('webpackConfig -', projectName.bold.green, 'tmp dir', tmpDir);
         return tmpDir
@@ -170,5 +171,44 @@ module.exports = {
         }
 
         return alias
+    },
+
+    getBabelLoader: function(userConfig, env){
+        var babelConfig = userConfig.babel || {};
+        var presets = babelConfig.presets;
+        var plugins = babelConfig.plugins;
+        var exclude = babelConfig.exclude;
+        var include = babelConfig.include;
+        var supportIE8 = userConfig.supportIE8;
+
+        exclude = exclude == null ? /(node_modules|bower_components)/ : exclude;
+        include = include == null ? '' : include;
+
+        presets = !!presets ? presets : [
+            'babel-preset-react',
+            supportIE8 ? 'babel-preset-es2015-loose' : 'babel-preset-es2015'
+        ];
+
+        plugins = !!plugins ? plugins : [
+            // es6 export
+            'babel-plugin-add-module-exports',
+            // export default
+            'babel-plugin-transform-export-extensions',
+            // {...}语法
+            'babel-plugin-transform-object-rest-spread',
+            // Object.assign
+            'babel-plugin-transform-object-assign'
+        ];
+
+        return {
+            test: /\.jsx?$/,
+            exclude: exclude,
+            include: include,
+            loader: 'babel',
+            query: {
+                presets: (presets).map(__hii__.resolve),
+                plugins: (plugins).map(__hii__.resolve)
+            }
+        }
     }
 };

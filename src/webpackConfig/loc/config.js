@@ -27,24 +27,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                {
-                    test: /\.jsx?$/,
-                    // exclude: /(node_modules|bower_components)/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['babel-preset-react', 'babel-preset-es2015-loose'/*, 'stage-0'*/].map(require.resolve),
-                        plugins: [
-                            // es6 export
-                            'babel-plugin-add-module-exports',
-                            // export default
-                            'babel-plugin-transform-export-extensions',
-                            // {...}语法
-                            'babel-plugin-transform-object-rest-spread',
-                            // Object.assign
-                            'babel-plugin-transform-object-assign'
-                        ].map(require.resolve)
-                    }
-                },
+                common.getBabelLoader(userConfig, 'loc'),
                 { test: /\.css$/, loader: "style!css?sourceMap" },
                 { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat" },
                 { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap" }

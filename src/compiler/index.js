@@ -180,7 +180,14 @@ Compiler.prototype = {
         // delete require.cache[require.resolve(userConfigPath)];
         var config = configUtil[method](root, userConfig);
 
-        logger.detail('user config', '==>', JSON.stringify(config));
+        logger.detail('user config', '==>',
+            JSON.stringify(config, function(key, value){
+                if(Object.prototype.toString.call(value) === '[object RegExp]'){
+                    return value.toString()
+                }
+                return value
+            })
+        );
 
         return config;
     },

@@ -4,10 +4,12 @@
  */
 
 var webpack = require("webpack");
+var common = require('../common');
 
 module.exports = function(root){
     var userConfigPath = root + '/hii.config';
     var userConfig = require(userConfigPath);
+    var projTmp = common.getProjectTMPDIR(root);
 
     return {
         context: root,
@@ -19,7 +21,7 @@ module.exports = function(root){
         },
         plugins: [
             new webpack.DllPlugin({
-                path: root + "/dll/[name]-manifest.json",
+                path: projTmp + "/dll/[name]-manifest.json",
                 name: "__lib__[name]__",
                 context: root
             }),

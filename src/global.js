@@ -30,6 +30,10 @@ var __hiipack__ = {
      */
     tmpdir: os.tmpdir() + '/hiipack_cache',
     /**
+     * hiipack存放工程临时编译文件的目录
+     */
+    codeTmpdir: os.tmpdir() + '/hiipack_code',
+    /**
      * 查找模块路径, 模块查找顺序: cwd > root > globalRoot > tmpdir
      * 用户可以安装依赖到自己的前端项目中, 如果前端项目中没有指定的依赖, 则去root和globalRoot中查找,
      * 如果没有找到, 会认为模块存在于tmpdir中

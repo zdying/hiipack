@@ -26,25 +26,7 @@ module.exports = function(root){
         },
         module: {
             loaders: [
-                {
-                    test: /\.jsx?$/,
-                    // include: [root + '/src/'],
-                    // exclude: /(node_modules|bower_components)/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['babel-preset-react', 'babel-preset-es2015-loose'/*, 'babel-preset-stage-0'*/].map(require.resolve),
-                        plugins: [
-                            // es6 export
-                            'babel-plugin-add-module-exports',
-                            // export default
-                            'babel-plugin-transform-export-extensions',
-                            // {...}语法
-                            'babel-plugin-transform-object-rest-spread',
-                            // Object.assign
-                            'babel-plugin-transform-object-assign'
-                        ].map(require.resolve)
-                    }
-                },
+                common.getBabelLoader(userConfig, 'prd'),
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
                 { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
