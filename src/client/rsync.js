@@ -46,7 +46,7 @@ function uploadFile(){
     }
 
     if(errorField.length > 0){
-        console.log('[error]'.red, 'invalid config field', errorField.join(' ').bold.yellow, 'at', (root + '/dev.json').bold.yellow);
+        console.log('[error]'.red, 'invalid config field', errorField.join(', ').bold.yellow, 'at', (root + '/dev.json').bold.yellow);
         console.log('\nconfig example: \n');
         console.log('  {');
         console.log('    "source": "./",');
