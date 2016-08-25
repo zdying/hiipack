@@ -33,7 +33,7 @@ module.exports = {
         }
     },
 
-    extendPlugins: function(arr, plugins, root, userConfig){
+    extendPlugins: function(arr, plugins, root, userConfig, env){
         var self = this;
         if(!Array.isArray(plugins)){
             log.error('invalid param', 'plugins'.bold.yellow);
@@ -47,61 +47,161 @@ module.exports = {
                 plugin && arr.push(plugin)
             });
         }
+
+        arr = this._extendPlugins(arr, root, userConfig, env);
+
         return arr
     },
 
-    extendLoaders: function(arr, root, userConfig, config){
+    extendLoaders: function(loaders, root, userConfig, config){
         var env = config.env;
         var customLoaders = userConfig.loaders;
         var userLoaders = null;
         var self = this;
 
         if(!customLoaders || Object.keys(customLoaders).length === 0){
-            return arr
+            return loaders
         }
 
-        userLoaders = (userConfig.loaders[env] || []).concat(userConfig.loaders['*'] || []);
+        userLoaders = (customLoaders[env] || []).concat(customLoaders['*'] || []);
 
         userLoaders.forEach(function(loader, index){
+            /*
+            {
+                loaders: {
+                    '*' : [
+                        // type1
+                        {loader: 'babel', test: /\.js$/},
+                        {
+                            // type2
+                            'dep1': function(dep1, dep1Path){
+                                return {loader: 'babel', test: /\.js$/}
+                            },
+                            // type3
+                            'dep2': {loader: 'babel', test: /\.js$/}
+                        }
+                    ],
+                    'dev': [
+                        // ...
+                    ]
+                }
+            };
+            */
+
             if(loader.loader){
-                // 直接使用loader
+                // type1 ==> 直接使用loader
                 self.installLoader(loader);
-                arr.push(loader);
+                loaders.push(loader);
             }else{
-                // 先安装,然后设置
+                // type2/type3 ==> 先安装,然后设置
                 for(var pkgs in loader){
                     var currLoader = loader[pkgs];
                     var currLoaderType = typeof currLoader;
                     var loaderResult = null;
-                    var installed =  pkg.installPackage(pkgs, 'loader');
 
-                    if(installed){
-                        pkg.installDependencies(pkgs, 'peerDependencies')
-                    }
 
                     if(currLoaderType === 'function'){
-                        var params = pkgs.split(' ').map(function(pkgName){
-                            return pkg.getPackagePath(pkgName);
-                        });
-                        var modules = params.map(function(p){
-                            return require(p)
-                        });
-                        log.debug('call loader config callback ...');
-                        loaderResult = currLoader.apply(null, modules.concat(params));
-                        log.debug('loader config callback result:', JSON.stringify(loaderResult));
+                        // type2
+                        loaderResult = self.installCustomDependencies(pkgs, 'loaders', currLoader);
+
+
+
+
+                        // var installed =  pkg.installPackage(pkgs, 'loader');
+                        //
+                        // if(installed){
+                        //     pkg.installDependencies(pkgs, 'peerDependencies')
+                        // }
+                        //
+                        // var params = pkgs.split(' ').map(function(pkgName){
+                        //     return pkg.getPackagePath(pkgName);
+                        // });
+                        // var modules = params.map(function(p){
+                        //     return require(p)
+                        // });
+                        // log.debug('call loader config callback ...');
+                        // loaderResult = currLoader.apply(null, modules.concat(params));
+                        // log.debug('loader config callback result:', JSON.stringify(loaderResult));
                     }else if(currLoaderType === 'object' && currLoader !== null){
-                        log.debug('loader config is object:', JSON.stringify(loaderResult));
+                        // type3
+                        self.installCustomDependencies(pkgs, 'loaders', null);
+                        // var installed =  pkg.installPackage(pkgs, 'loader');
+                        //
+                        // if(installed){
+                        //     pkg.installDependencies(pkgs, 'peerDependencies')
+                        // }
+
+                        log.debug('loader config is object:', JSON.stringify(currLoader));
                         loaderResult = currLoader
                     }
 
                     self.installLoader(loaderResult);
 
-                    arr.push(loaderResult)
+                    loaders.push(loaderResult)
                 }
             }
         });
 
-        return arr
+        return loaders
+    },
+
+    _extendPlugins: function(plugins, root, userConfig, config){
+        var env = config.env;
+        var customPlugins = userConfig.plugins;
+        var userPlugins = null;
+        var self = this;
+
+        if(!customPlugins || Object.keys(customPlugins).length === 0){
+            return plugins
+        }
+
+        var envPlugins = customPlugins[env] || [];
+        var allPlugins = customPlugins['*'] || [];
+
+        envPlugins.forEach(function(plugin, index){
+            if(typeof plugin === 'function'){
+                log.debug('pluginugin is function');
+                log.detail(plugin);
+                plugins.push(plugin);
+            }else if(typeof plugin === 'object'){
+                for(var pl in plugin){
+                    plugins.push(self.installCustomDependencies(pl, env + '-plugin', plugin[pl]))
+                }
+            }
+        });
+
+        allPlugins.forEach(function(plugin, index){
+            if(typeof plugin === 'function'){
+                log.debug('pluginugin is function');
+                log.detail(plugin);
+                plugins.push(plugin);
+            }else if(typeof plugin === 'object'){
+                for(var pl in plugin){
+                    plugins.push(self.installCustomDependencies(pl, 'all' + '-plugin', plugin[pl]))
+                }
+            }
+        });
+
+        return plugins
+    },
+
+    installCustomDependencies: function(pkgs, type, cbk){
+        var installed = pkg.installPackageAndDependencies(pkgs, type);
+
+        var params = pkgs.split(' ').map(function(pkgName){
+            return pkg.getPackagePath(pkgName);
+        });
+        var modules = params.map(function(p){
+            return require(p)
+        });
+
+        if(typeof cbk === 'function'){
+            log.debug('call plugin config callback ...');
+            var result = cbk.apply(null, modules.concat(params));
+            log.debug('loader config callback result:', typeof result === 'function' ? result : JSON.stringify(result));
+
+            return result
+        }
     },
 
     installLoader: function(loader){
@@ -129,11 +229,7 @@ module.exports = {
 
         // 如果需要安装的模块不为空, 安装相应的模块
         if(loadersName !== ''){
-            installed = pkg.installPackage(loadersName, 'loader');
-
-            if(installed){
-                pkg.installDependencies(loadersName, 'peerDependencies')
-            }
+            installed = pkg.installPackageAndDependencies(loadersName, 'loader')
         }
 
         return installed
@@ -141,10 +237,12 @@ module.exports = {
 
     extendCustomConfig: function(root, userConfig, config){
         var customConfig = {
+            babel: "",
             library: "",
             entry: "",
             alias: "",
             loaders: "",
+            plugins: "",
             autoTest: ""
         };
 

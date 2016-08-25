@@ -284,7 +284,7 @@ Server.prototype = {
     },
 
     sendCompiledFile: function(req, projInfo){
-        var filePath = __hii__.tmpdir + req.url;
+        var filePath = __hii__.codeTmpdir + req.url;
         filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
         this.sendFile(req, filePath);
         // var content = mfs.readFileSync(filePath)//.toString();

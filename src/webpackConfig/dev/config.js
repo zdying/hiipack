@@ -86,7 +86,7 @@ module.exports = function(root){
             //         }
             //     });
             // }
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig),
+        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'dev'),
         node: {
             fs: "empty"
         },

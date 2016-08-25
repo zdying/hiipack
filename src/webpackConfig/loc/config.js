@@ -50,7 +50,7 @@ module.exports = function(root, userConfig){
             //     log: false
             //     // useHashIndex: true
             // })
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig),
+        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc'),
         resolve: {
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],

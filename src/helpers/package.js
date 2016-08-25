@@ -123,20 +123,34 @@ module.exports = {
             logger.info('finding', type, 'for', loader.green);
 
             var tmpModulesPath = __hii__.tmpdir + '/node_modules/';
-            var packageInfo = require(tmpModulesPath + loader + '/package.json');
-            var peerDependencies = packageInfo[type] || {};
-            var deps = Object.keys(peerDependencies);
+            try{
+                var packageInfo = require(tmpModulesPath + loader + '/package.json');
+                var peerDependencies = packageInfo[type] || {};
+                var deps = Object.keys(peerDependencies);
 
-            if(deps.length){
-                // 查找结果
-                logger.info(loader.green, type, deps.toString().green);
+                if(deps.length){
+                    // 查找结果
+                    logger.info(loader.green, type, deps.toString().green);
 
-                deps.forEach(function(dep){
-                    self.installPackage(dep, 'peerDependency');
-                })
-            }else{
+                    deps.forEach(function(dep){
+                        self.installPackage(dep, 'peerDependency');
+                    })
+                }else{
 
+                }
+            }catch(e){
+                log.debug('loader', loader.green, 'not exists in ', tmpModulesPath.bold, 'skip to install peer dependencies.')
             }
         });
+    },
+    
+    installPackageAndDependencies: function(loadersName, type){
+        var installed = this.installPackage(loadersName, type);
+
+        if(installed){
+            this.installDependencies(loadersName, 'peerDependencies')
+        }
+
+        return installed
     }
 };

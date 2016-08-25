@@ -77,7 +77,7 @@ module.exports = function(root){
              * 生成版本号
              */
             new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i)
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig),
+        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'prd'),
         node: {
             fs: "empty"
         },
