@@ -162,5 +162,13 @@ module.exports = {
 
         log.debug('webpackConfig -', projectName.bold.green, 'tmp dir', tmpDir);
         return tmpDir
+    },
+    
+    fixAlias: function(alias){
+        for(var key in alias){
+            alias[key] = alias[key].replace(/\/$/, '')
+        }
+
+        return alias
     }
 };

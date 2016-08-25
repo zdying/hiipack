@@ -29,7 +29,7 @@ module.exports = function(root){
                 {
                     test: /\.jsx?$/,
                     // include: [root + '/src/'],
-                    exclude: /(node_modules|bower_components)/,
+                    // exclude: /(node_modules|bower_components)/,
                     loader: 'babel',
                     query: {
                         presets: ['babel-preset-react', 'babel-preset-es2015-loose'/*, 'babel-preset-stage-0'*/].map(require.resolve),
@@ -103,7 +103,7 @@ module.exports = function(root){
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
-            alias: userConfig.alias
+            alias: common.fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
