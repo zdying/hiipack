@@ -34,7 +34,10 @@ program
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
-    // .option('-e, --error', 'print error info')
+    //TODO add this next version
+    // .option('-U, --uglify', 'uglify javascript')
+    //TODO add this next version
+    // .option('-e, --extract-css', 'extract css from javascript')
     .option('-D, --detail', 'print debug and error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal');
