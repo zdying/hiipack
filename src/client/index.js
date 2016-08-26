@@ -3,7 +3,6 @@
  * @author zdying
  */
 var colors = require('colors');
-var replace = require('replace');
 var webpack = require('webpack');
 var child_process = require('child_process');
 var exec = child_process.exec;
@@ -199,17 +198,10 @@ module.exports = {
 
                             fs.writeFile(file, fileContent, function(err){
                                 count++;
-                                // if(!err){
-                                //     console.log(logPrex, 'write file: '.green, file.bold);
-                                // }else{
-                                //     console.log(errPrex, 'write error: '.red, file.bold);
-                                //     console.log(err);
-                                // }
                                 finish();
                             });
                         })
                     }else if(stat.isDirectory()){
-                        // console.log(logPrex, 'copy directory: '.blue, file.bold);
                         count++;
                         finish();
                     }

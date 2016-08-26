@@ -182,7 +182,6 @@ function Server(port, openBrowser){
                             });
 
                             html.push.apply(html, filesItem);
-
                             html.push('</ul>');
                         }
 

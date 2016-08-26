@@ -99,37 +99,12 @@ module.exports = {
                     var currLoaderType = typeof currLoader;
                     var loaderResult = null;
 
-
                     if(currLoaderType === 'function'){
                         // type2
                         loaderResult = self.installCustomDependencies(pkgs, 'loaders', currLoader);
-
-
-
-
-                        // var installed =  pkg.installPackage(pkgs, 'loader');
-                        //
-                        // if(installed){
-                        //     pkg.installDependencies(pkgs, 'peerDependencies')
-                        // }
-                        //
-                        // var params = pkgs.split(' ').map(function(pkgName){
-                        //     return pkg.getPackagePath(pkgName);
-                        // });
-                        // var modules = params.map(function(p){
-                        //     return require(p)
-                        // });
-                        // log.debug('call loader config callback ...');
-                        // loaderResult = currLoader.apply(null, modules.concat(params));
-                        // log.debug('loader config callback result:', JSON.stringify(loaderResult));
                     }else if(currLoaderType === 'object' && currLoader !== null){
                         // type3
                         self.installCustomDependencies(pkgs, 'loaders', null);
-                        // var installed =  pkg.installPackage(pkgs, 'loader');
-                        //
-                        // if(installed){
-                        //     pkg.installDependencies(pkgs, 'peerDependencies')
-                        // }
 
                         log.debug('loader config is object:', JSON.stringify(currLoader));
                         loaderResult = currLoader

@@ -116,7 +116,7 @@ Compiler.prototype = {
                     logger.info('compile finished (', (statsResult.endTime - statsResult.startTime) + 'ms', ')');
                     if(hasError || program.detail){
                         console.log('compile result: \n' + statsResult.toString({
-                            colors: true,
+                            colors: program.color,
                             timings: true,
                             chunks: true,
                             children: true
