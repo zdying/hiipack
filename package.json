@@ -45,7 +45,6 @@
     "mocha": "^3.0.2",
     "node-sass": "^3.8.0",
     "open": "^0.0.5",
-    "optimize-css-assets-webpack-plugin": "^1.3.0",
     "rsync": "^0.4.0",
     "sass-loader": "^3.2.3",
     "style-loader": "^0.13.1",
