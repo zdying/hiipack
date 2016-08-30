@@ -279,6 +279,7 @@ module.exports = {
             include: include,
             loader: 'babel',
             query: {
+                cacheDirectory: true,
                 presets: (presets).map(__hii__.resolve),
                 plugins: (plugins).map(__hii__.resolve)
             }
