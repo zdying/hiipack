@@ -14,11 +14,10 @@ var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
 
 var common = require('../common');
 
-module.exports = function(root){
-    var userConfig = require(root + '/hii.config');
+module.exports = function(root, userConfig){
     var config = {
         env: 'dev',
-        entry: userConfig.entry,
+        entry: {},
         output: {
             path: root + '/dev',
             filename: '[name]@dev.js',
@@ -72,8 +71,8 @@ module.exports = function(root){
         }
     };
 
-    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
     config = common.extendCustomConfig(root, userConfig, config);
+    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
 
     return config;
 };

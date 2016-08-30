@@ -19,7 +19,7 @@ module.exports = function(root, userConfig){
         env: 'loc',
         context: root,
         devtool: 'cheap-module-inline-source-map',
-        entry: userConfig.entry,
+        entry: {},
         output: {
             path: projTmp + '/loc',
             filename: '[name].js',
@@ -68,60 +68,8 @@ module.exports = function(root, userConfig){
         }
     };
 
-    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
     config = common.extendCustomConfig(root, userConfig, config);
+    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
 
     return config;
-
-    /*
-     * 自动把library添加到入口
-     * 自动添加组件demo入口
-     * scr/component下的所有子目录,如果存在demo.js, 自动加入到entry
-     */
-    // function autoAddEntry(entry) {
-    //     var fs = require('fs');
-    //     var path = require('path');
-    //
-    //     var componentFolderPath = './src/components/';
-    //     var files = fs.readdirSync(componentFolderPath);
-    //     var demoFilePath = '';
-    //
-    //     files.forEach(function (fileName) {
-    //         var stat = fs.statSync(componentFolderPath + fileName);
-    //
-    //         if(stat.isDirectory()){
-    //             demoFilePath = path.resolve(componentFolderPath + fileName + '/demo.js');
-    //             if(fs.existsSync(demoFilePath) && !entry[fileName]){
-    //                 // console.log('[log] add entry: ', demoFilePath);
-    //                 entry[fileName] = demoFilePath;
-    //             }
-    //         }
-    //     });
-    //     return entry;
-    // }
-
 };
-
-// function getPlugins(root, userConfig){
-//     var plugins = [
-//         new webpack.DefinePlugin({
-//             'process.env': {
-//                 'NODE_ENV': JSON.stringify('development')
-//             }
-//         }),
-//         new ProgressBarPlugin(),
-//         // new WriteFilePlugin({
-//         //     test: /\/static\//,
-//         //     log: false
-//         //     // useHashIndex: true
-//         // })
-//     ];
-//
-//     var a = common.getCopyWebpackPlugin(root, userConfig, plugins);
-//     var b = common.getDllPlugin(root, userConfig, plugins);
-//
-//     a && plugins.push(a);
-//     b && plugins.push(b);
-//
-//     return plugins;
-// }

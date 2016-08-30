@@ -152,7 +152,7 @@ Compiler.prototype = {
     _getConfig: function(env, isDLL){
         var root = this.root;
         var userConfigPath = root + '/hii.config.js';
-        var userConfig = null;
+        // var userConfig = null;
         var fixedEnv = env.slice(0, 1).toUpperCase() + env.slice(1);
         var dllName = isDLL ? 'DLL' : '';
         var method= 'get' + fixedEnv + dllName + 'Config';
@@ -167,7 +167,9 @@ Compiler.prototype = {
             return null
         }
 
-        userConfig = require(userConfigPath);
+        var userConfig = configUtil.getUserConfig(root, env);
+
+        // userConfig = require(userConfigPath);
 
         if(isDLL && Object.keys(userConfig.library || {}).length === 0){
             logger.debug('Compiler -', this.projectName.bold.yellow, "has no third party library.");

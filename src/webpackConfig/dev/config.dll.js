@@ -6,9 +6,7 @@
 var webpack = require("webpack");
 var common = require('../common');
 
-module.exports = function(root){
-    var userConfigPath = root + '/hii.config';
-    var userConfig = require(userConfigPath);
+module.exports = function(root, userConfig){
     var projTmp = common.getProjectTMPDIR(root);
 
     return {

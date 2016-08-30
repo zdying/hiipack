@@ -22,12 +22,12 @@ module.exports = {
     alias: {
         'root': 'src/'
     },
-    loaders: {
-        // 所有环境下（`hii pack`）都使用
-        '*': [
-            { test: /\.vue$/, loader: 'vue' }
-        ]
-    },
+    // loaders: {
+    //     // 所有环境下（`hii pack`）都使用
+    //     '*': [
+    //         { test: /\.vue$/, loader: 'vue' }
+    //     ]
+    // },
     vue: {
         loaders: {
             js: 'babel-loader?presets[]=' + __hiipack__.resolve('babel-preset-es2015-loose')

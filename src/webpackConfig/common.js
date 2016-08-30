@@ -6,6 +6,7 @@ var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var fs = require('fs');
 var child_process = require('child_process');
+var extend = require('extend');
 
 var pkg = require('../helpers/package');
 
@@ -33,6 +34,24 @@ module.exports = {
         }
     },
 
+    getUserConfig: function(root, env){
+        var map = {
+            'loc': 'development',
+            'dev': 'beta',
+            'prd': 'production'
+        };
+        var baseConfig = require(root + '/hii.config');
+        var envConfig = {};
+        try{
+            envConfig = require(root + '/hii.config.' + map[env]);
+            log.debug('merge', ('`hii.config.' + map[env] + '.js`').bold.green, 'to', '`hii.config.js`'.bold.green);
+            return extend(true, {}, baseConfig, envConfig)
+        }catch(e){
+            log.debug(('`hii.config.' + map[env] + '.js`').bold.yellow, 'not exists, return', '`hii.config.js`'.bold.green);
+            return baseConfig
+        }
+    },
+
     extendPlugins: function(arr, plugins, root, userConfig, env){
         var self = this;
         if(!Array.isArray(plugins)){
@@ -55,17 +74,14 @@ module.exports = {
 
     extendLoaders: function(loaders, root, userConfig, config){
         var env = config.env;
-        var customLoaders = userConfig.loaders;
-        var userLoaders = null;
+        var customLoaders = userConfig.loaders || [];
         var self = this;
 
-        if(!customLoaders || Object.keys(customLoaders).length === 0){
+        if(!customLoaders || Array.isArray(customLoaders) === false){
             return loaders
         }
 
-        userLoaders = (customLoaders[env] || []).concat(customLoaders['*'] || []);
-
-        userLoaders.forEach(function(loader, index){
+        customLoaders.forEach(function(loader, index){
             /*
             {
                 loaders: {
@@ -212,9 +228,9 @@ module.exports = {
 
     extendCustomConfig: function(root, userConfig, config){
         var customConfig = {
-            babel: "",
+            // babel: "",
             library: "",
-            entry: "",
+            // entry: "",
             alias: "",
             loaders: "",
             plugins: "",
