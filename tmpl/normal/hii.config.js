@@ -37,30 +37,16 @@ module.exports = {
     /**
      * loaders
      */
-    loaders: {
-        '*': [
-            // { test: /\.(mustache|html)$/, loader: 'mustache' }
-            {
-                // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
-                'mustache mustache-loader': function(loader, path){
-                    // console.log('callback   ====> ', loader, path)
-                    return { test: /\.(mustache|html)$/, loader: 'mustache' }
-                }
+    loaders: [
+        // { test: /\.(mustache|html)$/, loader: 'mustache' }
+        {
+            // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
+            'mustache mustache-loader': function(loader, path){
+                // console.log('callback   ====> ', loader, path)
+                return { test: /\.(mustache|html)$/, loader: 'mustache' }
             }
-        ],
-        //TODO add next version
-        // '*': [
-        //     { test: /\.(mustache|html)$/, loader: 'mustache' }
-        // ],
-        // '*': {
-        //     "handlebars-loader handlebars": function(handlebarsLoader, handlebars){
-        //         return { test: /\.(handlebars|hbs)$/, loader: 'handlebars' }
-        //     },
-        //     "vue-loader": function(vueLoader){
-        //
-        //     }
-        // }
-    },
+        }
+    ],
     plugins: {
         '*': [
             function(){
