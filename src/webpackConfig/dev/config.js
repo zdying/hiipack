@@ -37,7 +37,7 @@ module.exports = function(root, userConfig){
                 }
             ]
         },
-        plugins: common.extendPlugins([
+        plugins: [
             new webpack.DefinePlugin({
                 'process.env': {
                     'NODE_ENV': JSON.stringify('production')
@@ -53,7 +53,7 @@ module.exports = function(root, userConfig){
              * sass编译出来的代码包含重复的内容(多次import同一个文件,导致同一个文件多次打包)
              */
             new RemoveCssDuplicate()
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'dev'),
+        ],
         node: {
             fs: "empty"
         },
@@ -73,6 +73,7 @@ module.exports = function(root, userConfig){
 
     config = common.extendCustomConfig(root, userConfig, config);
     config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
+    config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'dev');
 
     return config;
 };

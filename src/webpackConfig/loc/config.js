@@ -39,7 +39,7 @@ module.exports = function(root, userConfig){
                 }
             ]
         },
-        plugins: common.extendPlugins([
+        plugins: [
             new webpack.DefinePlugin({
                 'process.env': {
                     'NODE_ENV': JSON.stringify('development')
@@ -50,7 +50,7 @@ module.exports = function(root, userConfig){
             //     log: false
             //     // useHashIndex: true
             // })
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc'),
+        ],
         resolve: {
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
@@ -70,6 +70,7 @@ module.exports = function(root, userConfig){
 
     config = common.extendCustomConfig(root, userConfig, config);
     config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
+    config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc');
 
     return config;
 };

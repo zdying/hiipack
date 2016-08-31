@@ -37,7 +37,7 @@ module.exports = function(root, userConfig){
                 }
             ]
         },
-        plugins: common.extendPlugins([
+        plugins: [
             /**
              * 定义环境变量
              */
@@ -70,7 +70,7 @@ module.exports = function(root, userConfig){
              * 生成版本号
              */
             new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i)
-        ], ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'prd'),
+        ],
         node: {
             fs: "empty"
         },
@@ -90,6 +90,7 @@ module.exports = function(root, userConfig){
 
     config = common.extendCustomConfig(root, userConfig, config);
     config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
+    config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'prd');
 
     return config;
 };

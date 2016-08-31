@@ -146,29 +146,14 @@ module.exports = {
             return plugins
         }
 
-        var envPlugins = customPlugins[env] || [];
-        var allPlugins = customPlugins['*'] || [];
-
-        envPlugins.forEach(function(plugin, index){
-            if(typeof plugin === 'function'){
-                log.debug('pluginugin is function');
+        customPlugins.forEach(function(plugin, index){
+            if(typeof plugin.apply === 'function'){
+                log.debug('is callable plugin');
                 log.detail(plugin);
                 plugins.push(plugin);
             }else if(typeof plugin === 'object'){
                 for(var pl in plugin){
                     plugins.push(self.installCustomDependencies(pl, env + '-plugin', plugin[pl]))
-                }
-            }
-        });
-
-        allPlugins.forEach(function(plugin, index){
-            if(typeof plugin === 'function'){
-                log.debug('pluginugin is function');
-                log.detail(plugin);
-                plugins.push(plugin);
-            }else if(typeof plugin === 'object'){
-                for(var pl in plugin){
-                    plugins.push(self.installCustomDependencies(pl, 'all' + '-plugin', plugin[pl]))
                 }
             }
         });
