@@ -12,8 +12,6 @@ module.exports = {
 
     },
 
-    isCompiling: false,
-
     /**
      * 启动一个服务
      */
