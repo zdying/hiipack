@@ -9,6 +9,7 @@ var child_process = require('child_process');
 var extend = require('extend');
 
 var pkg = require('../helpers/package');
+// var merge = require('../helpers/merge');
 
 module.exports = {
     getDllPlugin: function(root, userConfig){
@@ -211,26 +212,6 @@ module.exports = {
         return installed
     },
 
-    extendCustomConfig: function(root, userConfig, config){
-        var customConfig = {
-            // babel: "",
-            library: "",
-            // entry: "",
-            alias: "",
-            loaders: "",
-            plugins: "",
-            autoTest: ""
-        };
-
-        for(var key in userConfig){
-            if(!(key in customConfig)){
-                config[key] = userConfig[key]
-            }
-        }
-
-        return config;
-    },
-
     getProjectTMPDIR: function(root){
         var projectName = root.replace(/\/$/, '').split('/').pop();
         var tmpDir = __hii__.codeTmpdir + '/' + projectName;
@@ -285,5 +266,50 @@ module.exports = {
                 plugins: (plugins).map(__hii__.resolve)
             }
         }
+    },
+
+    setConfig: function(config, userConfig, env, root){
+        var args = [].slice.call(arguments, 0);
+
+        // 把用户配置中正常配置字段merge到config中
+        config = this.mergeUserConfig.apply(this, args);
+
+        // 把扩展配置字段追加到config
+        config = this.extendConfig.apply(this, args);
+
+        return config
+    },
+    
+    mergeUserConfig: function(config, userConfig, env, root){
+        var specialFields = {
+            // babel: "",
+            library: "",
+            // entry: "",
+            alias: "",
+            // loaders: "",
+            // plugins: "",
+            autoTest: ""
+        };
+
+        for(var key in userConfig){
+            // 只要不是特殊字段，就merge，即使指位null/undefined
+            if(!(key in specialFields)){
+                config[key] = userConfig[key]
+            }
+        }
+
+        return config;
+    },
+
+    extendConfig: function(config, userConfig, env, root){
+        // config.module.loaders = this.extendLoaders(config.module.loaders, root, userConfig, config);
+        // config.plugins = this.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc');
+
+        config.module.loaders = this.extendLoaders(config.module.loaders, root, (userConfig.extend || {}).module || {}, config);
+        config.plugins = this.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig.extend || {}, 'loc');
+
+        // config = merge(true, config, userConfig.extend || {});
+
+        return config
     }
 };

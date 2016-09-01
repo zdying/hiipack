@@ -68,9 +68,11 @@ module.exports = function(root, userConfig){
         }
     };
 
-    config = common.extendCustomConfig(root, userConfig, config);
-    config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
-    config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc');
+    config = common.setConfig(config, userConfig, 'loc', root);
+
+    // config = common.extendCustomConfig(root, userConfig, config);
+    // config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
+    // config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc');
 
     return config;
 };

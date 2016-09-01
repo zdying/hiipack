@@ -119,10 +119,10 @@ function showVersion(){
     var spaces = new Array(25 - versionLen + 3).join(' ');
 
     console.log('');
-    console.log('  .----------------------------.');
-    console.log('  |  ' + 'hiipack'.bold + ' ' + version + spaces + ' |');
-    console.log('  |  ' + 'author ', 'zdying@live.com'.yellow.bold + '   |');
-    console.log('  |  ' + 'github.com/zdying/hiipack'.green.underline + ' |');
-    console.log('  \'----------------------------\'');
+    console.log('  .-----------------------------.');
+    console.log('  |  ' + 'hiipack'.bold + ' ' + version + spaces + '  |');
+    console.log('  |  ' + 'author ', 'zdying@live.com'.yellow.bold + '    |');
+    console.log('  |  ' + 'github.com/zdying/hiipack'.green.underline + '  |');
+    console.log('  \'-----------------------------\'');
     console.log('');
 }
