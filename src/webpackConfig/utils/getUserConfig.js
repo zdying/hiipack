@@ -24,7 +24,7 @@ module.exports = function getUserConfig(root, env){
     try{
         envConfig = require(root + '/hii.config.' + map[env]);
         log.debug('merge', ('`hii.config.' + map[env] + '.js`').bold.green, 'to', '`hii.config.js`'.bold.green);
-        return extend(true, {}, baseConfig, envConfig)
+        return extend({}, baseConfig, envConfig)
     }catch(e){
         log.debug(('`hii.config.' + map[env] + '.js`').bold.yellow, 'not exists, return', '`hii.config.js`'.bold.green);
         return baseConfig

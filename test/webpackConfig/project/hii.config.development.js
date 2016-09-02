@@ -11,25 +11,27 @@
 // console.log('---------- visit global variable -----------');
 
 module.exports = {
+    supportIE8: false,
+    thread: 6,
     /**
      * 需要单独打包的第三方库
      * 例如: {lib: ['react', 'react-dom']}
      * 会把'react'和'react-dom'打包到lib.js
      */
     library: {
-        lib: ['jquery', 'backbone']
+        lib: ['react', 'redux', 'flux']
     },
     /**
      * 业务代码入口
      */
     entry: {
-        main: "src/main",
+        main_dev: "src/main",
     },
     /**
      * 别名
      */
     alias: {
-        'root': 'src/'
+        'root_dev': 'src'
     },
     /**
      * 测试框架配置, 目前只支持mocha
@@ -61,24 +63,18 @@ module.exports = {
             },
             {
                 'date-format': function(dateFormat, pkgPath){
-                    console.log('callback2: data-format,', dateFormat, pkgPath);
+                    // console.log('callback2: data-format,', dateFormat, pkgPath);
                     return function(){
                         console.log('custom plugin 2, date =>', dateFormat('yyyy-MM/dd hh||mm//ss.SSS', new Date()));
                     }
                 },
                 'underscore float-math': function(_, math, _path, mathPath){
-                    console.log('callback3: data-utils,', _, math, _path, mathPath);
+                    // console.log('callback3: data-utils,', _, math, _path, mathPath);
                     return function(){
                         console.log('custom plugin 3', 0.3 - 0.2, math.sub(0.3, 0.2), _.isEmpty([1, 2, 3]), _path, mathPath);
                     }
                 }
             }
         ]
-    },
-    // babel: {
-    //     plugins: null,
-    //     presets: ['babel-preset-react', 'babel-preset-es2015-loose'],
-    //     include: null,
-    //     exclude: null
-    // }
+    }
 };

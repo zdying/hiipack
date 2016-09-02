@@ -13,7 +13,6 @@ var configLocFunc = require('./loc/config');
 var dllConfigLocFunc = require('./loc/config.dll');
 
 var getUserConfig = require('./utils/getUserConfig');
-var mergeConfig = require('./utils/mergeConfig');
 
 module.exports = {
     // 线上环境配置

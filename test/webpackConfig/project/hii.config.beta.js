@@ -11,25 +11,27 @@
 // console.log('---------- visit global variable -----------');
 
 module.exports = {
+    supportIE8: false,
+    thread: 6,
     /**
      * 需要单独打包的第三方库
      * 例如: {lib: ['react', 'react-dom']}
      * 会把'react'和'react-dom'打包到lib.js
      */
     library: {
-        lib: ['jquery', 'backbone']
+        lib: ['react', 'redux', 'flux']
     },
     /**
      * 业务代码入口
      */
     entry: {
-        main: "src/main",
+        main_dev: "src/main",
     },
     /**
      * 别名
      */
     alias: {
-        'root': 'src/'
+        'root_dev': 'src'
     },
     /**
      * 测试框架配置, 目前只支持mocha
@@ -75,10 +77,10 @@ module.exports = {
             }
         ]
     },
-    // babel: {
-    //     plugins: null,
-    //     presets: ['babel-preset-react', 'babel-preset-es2015-loose'],
-    //     include: null,
-    //     exclude: null
-    // }
+    babel: {
+        plugins: ['babel-plugin-add-module-exports', 'babel-plugin-transform-object-assign'],
+        presets: ['babel-preset-react', 'babel-preset-es2015-loose'],
+        include: ['src', 'app'],
+        exclude: /^(lib|test)$/
+    }
 };
