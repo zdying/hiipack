@@ -152,6 +152,9 @@ function Server(port, openBrowser){
                             res.setHeader('Content-Type', 'text/html');
 
                             var html = [
+                                '<header>',
+                                    '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">',
+                                '</header>',
                                 '<style>',
                                     'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
                                     'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
@@ -225,6 +228,9 @@ function Server(port, openBrowser){
         console.log('hiipack started at', url.green.bold);
 
         var proxy = require('../proxy');
+        setTimeout(function(){
+            log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
+        }, 200)
     });
 
     process.on("SIGINT", function(){

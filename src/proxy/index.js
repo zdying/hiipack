@@ -51,7 +51,20 @@ var ser = http.createServer(function(request, response) {
 }).listen(4936);
 
 ser.on('listening', function(){
-    var hosts = fs.readFileSync(__dirname + '/hosts');
+    parseHosts();
+    
+    fs.watchFile(__dirname + '/hosts', function(){
+        parseHosts()
+    });
+
+    console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
+    console.log()
+});
+
+function parseHosts(hosts){
+    hostRules = {};
+
+    hosts = hosts || fs.readFileSync(__dirname + '/hosts');
 
     hosts.toString().split(/\n\r?/).forEach(function(line){
         line = line.replace(/#.*$/, '');
@@ -63,17 +76,17 @@ ser.on('listening', function(){
         var arr = line.split(/\s+/);
 
         if(arr.length < 2){
-            log.debug('hosts -', line.bold.yellow, 'ignored')
+            setTimeout(function(){
+                log.debug('hosts -', line.bold.yellow, 'ignored')
+            }, 0)
         }
 
         for(var i = 1, len = arr.length; i < len; i++){
             hostRules[arr[i]] = arr[0];
         }
     });
-    console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
-    console.log();
 
-    log.debug('hosts -', JSON.stringify(hostRules));
-    log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
-    console.log()
-});
+    setTimeout(function(){
+        log.debug('hosts - hosts file parsed: ', JSON.stringify(hostRules));
+    }, 100);
+}
