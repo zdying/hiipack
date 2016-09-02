@@ -66,7 +66,9 @@ ser.on('listening', function(){
             log.debug('hosts -', line.bold.yellow, 'ignored')
         }
 
-        hostRules[arr[1]] = arr[0];
+        for(var i = 1, len = arr.length; i < len; i++){
+            hostRules[arr[i]] = arr[0];
+        }
     });
     console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
     console.log();
