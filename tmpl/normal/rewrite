@@ -1,0 +1,27 @@
+## url rewrite rules
+## add next main version
+page.example.com => other.example.com
+
+## rewrite folder
+aip.example.com/user/ => {
+    target other.example.com/user/;
+
+    # disable_header;
+    set_header host api.example.com;
+    set_header other value;
+    del_header abc def;
+
+    # disable_cookit;
+    set_cookie userid 20150910121359;
+    del_cookie sessionid;
+
+    # disable_response_header
+    set_res_header Access-Control-Allow-Origin *;
+}
+
+## rewrite url
+api.example.com/user/login.do => {
+    target http://127.0.0.1:8800/mock/user/login.do.json;
+
+    set_res_header Access-Control-Allow-Origin *;
+}

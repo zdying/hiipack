@@ -1,0 +1,4 @@
+# hosts with port
+# add next main version
+127.0.0.1:8800 page.example.com
+127.0.0.1:9900 api.example.com rest.example.com
