@@ -19,7 +19,9 @@ module.exports = {
         if(fs.existsSync(__hii__.cwd + '/hii.config.js')){
             console.log('');
             log.warn(__hii__.cwd.bold.yellow , 'looks like a hiipack project, try starting the service from the parent.');
+            console.log('');
         }
+
         return new Server(port, openBrowser);
     }
 };

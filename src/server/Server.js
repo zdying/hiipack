@@ -221,11 +221,10 @@ function Server(port, openBrowser){
         openBrowser && open(url);
 
         console.log();
-        console.log('hiipack started at', url.green.bold);
         console.log('current workspace ', __hiipack__.cwd.green.bold);
-        console.log();
+        console.log('hiipack started at', url.green.bold);
 
-        logger.debug('__hii__', '-',  JSON.stringify(__hiipack__));
+        var proxy = require('../proxy');
     });
 
     process.on("SIGINT", function(){
