@@ -2,6 +2,7 @@
  * @file
  * @author zdying
  */
+var pkg = require('../../helpers/package');
 module.exports = function parsePlugins(customPlugins){
     var plugins = [];
 

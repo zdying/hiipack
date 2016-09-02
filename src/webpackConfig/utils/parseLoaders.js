@@ -6,7 +6,6 @@
 var pkg = require('../../helpers/package');
 
 module.exports = function parseLoaders(customLoaders){
-    var self = this;
     var loaders = [];
 
     if(!customLoaders || Array.isArray(customLoaders) === false){
@@ -43,10 +42,10 @@ module.exports = function parseLoaders(customLoaders){
 
                     if(currLoaderType === 'function'){
                         // type2
-                        loaderResult = self.installCustomDependencies(denpendence, 'loaders', currLoader);
+                        loaderResult = installCustomDependencies(denpendence, 'loaders', currLoader);
                     }else if(currLoaderType === 'object' && currLoader !== null){
                         // type3
-                        self.installCustomDependencies(denpendence, 'loaders', null);
+                        installCustomDependencies(denpendence, 'loaders', null);
 
                         log.debug('loader config is object:', JSON.stringify(currLoader));
                         loaderResult = currLoader
@@ -92,4 +91,23 @@ function installLoader(loader){
     }
 
     return installed
+}
+
+function installCustomDependencies(pkgs, type, cbk){
+    var installed = pkg.installPackageAndDependencies(pkgs, type);
+
+    var params = pkgs.split(' ').map(function(pkgName){
+        return pkg.getPackagePath(pkgName);
+    });
+    var modules = params.map(function(p){
+        return require(p)
+    });
+
+    if(typeof cbk === 'function'){
+        log.debug('call plugin config callback ...');
+        var result = cbk.apply(null, modules.concat(params));
+        log.debug('loader config callback result:', typeof result === 'function' ? result : JSON.stringify(result));
+
+        return result
+    }
 }
