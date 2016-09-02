@@ -9,12 +9,14 @@ var path = require('path');
 
 var color = require('colors');
 var webpack = require('webpack');
-// var WriteFilePlugin = require('write-file-webpack-plugin');
-var common = require('../common');
+
+var utils = require('../../helpers/utils');
+var getBabelLoader = require('../utils/getBabelLoader');
+var mergeConfig = require('../utils/mergeConfig');
+var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
-    // var userConfig = require('../hii.config');
-    var projTmp = common.getProjectTMPDIR(root);
+    var projTmp = utils.getProjectTMPDIR(root);
     var config = {
         env: 'loc',
         context: root,
@@ -27,7 +29,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                common.getBabelLoader(userConfig, 'loc'),
+                getBabelLoader(userConfig, 'loc'),
                 { test: /\.css$/, loader: "style!css?sourceMap" },
                 { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat" },
                 { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap" }
@@ -55,7 +57,7 @@ module.exports = function(root, userConfig){
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
-            alias: common.fixAlias(userConfig.alias)
+            alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
@@ -68,11 +70,7 @@ module.exports = function(root, userConfig){
         }
     };
 
-    config = common.setConfig(config, userConfig, 'loc', root);
-
-    // config = common.extendCustomConfig(root, userConfig, config);
-    // config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
-    // config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'loc');
+    config = mergeConfig(config, userConfig, 'loc', root);
 
     return config;
 };

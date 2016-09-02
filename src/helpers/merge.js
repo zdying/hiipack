@@ -111,6 +111,8 @@ module.exports = merge;
 //         }
 //     ]
 // };
-// var res = merge(target, source);
+// var res = merge(true, {}, target, source);
+// // var res = merge(true, target, source);
+// // var res = merge(target, source);
 //
 // debugger;

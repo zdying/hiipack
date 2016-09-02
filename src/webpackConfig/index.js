@@ -12,7 +12,8 @@ var dllConfigDevFunc = require('./dev/config.dll');
 var configLocFunc = require('./loc/config');
 var dllConfigLocFunc = require('./loc/config.dll');
 
-var common = require('./common');
+var getUserConfig = require('./utils/getUserConfig');
+var mergeConfig = require('./utils/mergeConfig');
 
 module.exports = {
     // 线上环境配置
@@ -27,5 +28,6 @@ module.exports = {
     getLocConfig: configLocFunc,
     getLocDLLConfig: dllConfigLocFunc,
 
-    getUserConfig: common.getUserConfig
+    // 获取用户配置
+    getUserConfig: getUserConfig
 };

@@ -8,11 +8,13 @@ var fs = require('fs');
 var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
-// var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
 
-var common = require('../common');
+var utils = require('../../helpers/utils');
+var getBabelLoader = require('../utils/getBabelLoader');
+var mergeConfig = require('../utils/mergeConfig');
+var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var config = {
@@ -25,7 +27,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                common.getBabelLoader(userConfig, 'dev'),
+                getBabelLoader(userConfig, 'dev'),
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
                 { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
@@ -61,7 +63,7 @@ module.exports = function(root, userConfig){
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
-            alias: common.fixAlias(userConfig.alias)
+            alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
@@ -71,11 +73,7 @@ module.exports = function(root, userConfig){
         }
     };
 
-    config = common.setConfig(config, userConfig, 'dev', root);
-
-    // config = common.extendCustomConfig(root, userConfig, config);
-    // config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
-    // config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'dev');
+    config = mergeConfig(config, userConfig, 'dev', root);
 
     return config;
 };

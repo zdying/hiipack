@@ -4,11 +4,11 @@
  */
 
 var webpack = require("webpack");
-var common = require('../common');
+var utils = require('../../helpers/utils');
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 
 module.exports = function(root, userConfig){
-    var projTmp = common.getProjectTMPDIR(root);
+    var projTmp = utils.getProjectTMPDIR(root);
 
     return {
         context: root,

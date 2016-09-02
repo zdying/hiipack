@@ -11,7 +11,11 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
-var common = require('../common');
+
+var utils = require('../../helpers/utils');
+var getBabelLoader = require('../utils/getBabelLoader');
+var mergeConfig = require('../utils/mergeConfig');
+var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var config = {
@@ -25,7 +29,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                common.getBabelLoader(userConfig, 'prd'),
+                getBabelLoader(userConfig, 'prd'),
                 { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
                 { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
@@ -78,7 +82,7 @@ module.exports = function(root, userConfig){
             root: root,
             fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
-            alias: common.fixAlias(userConfig.alias)
+            alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
@@ -88,11 +92,7 @@ module.exports = function(root, userConfig){
         }
     };
 
-    config = common.setConfig(config, userConfig, 'prd', root);
-
-    // config = common.extendCustomConfig(root, userConfig, config);
-    // config.module.loaders = common.extendLoaders(config.module.loaders, root, userConfig, config);
-    // config.plugins = common.extendPlugins(config.plugins, ['CopyWebpackPlugin', 'DllPlugin'], root, userConfig, 'prd');
+    config = mergeConfig(config, userConfig, 'prd', root);
 
     return config;
 };
