@@ -4,17 +4,28 @@
  */
 var http = require('http');
 var url = require('url');
+var net = require('net');
 var fs = require('fs');
+
+var parseHosts = require('./parseHosts');
 
 var hostRules = {};
 
-var ser = http.createServer(function(request, response) {
+http.createServer()
+    .on('listening', listeningHandler)
+    .on('request', requestHandler)
+    .on('connect', connectHandler)
+    .listen(4936);
+
+function requestHandler(request, response){
     var uri = url.parse(request.url);
     var start = Date.now();
 
     var hostname = uri.hostname;
     var port = uri.port;
     var host = hostRules[hostname];
+
+    request.headers.host = uri.host;
 
     if(host){
         hostname = host.split(':')[0];
@@ -25,7 +36,8 @@ var ser = http.createServer(function(request, response) {
         host: hostname,
         port: port || 80,
         path: uri.path,
-        method: request.method
+        method: request.method,
+        headers: request.headers
     }, function(res){
         // response.pipe(res);
         response.writeHead(res.statusCode, res.headers);
@@ -48,45 +60,37 @@ var ser = http.createServer(function(request, response) {
 
     proxy.write('');
     proxy.end();
-}).listen(4936);
+}
 
-ser.on('listening', function(){
-    parseHosts();
+function connectHandler(request, socket, head){
+    var _url = url.parse('http://' + request.url);
+
+    log.info('direc -', request.url.bold);
+
+    var proxySocket = net.connect(_url.port || 80, _url.hostname, function(){
+        socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+        proxySocket.pipe(socket);
+    }).on('error', function(e){
+        console.log('e', e.message);
+        socket.end();
+    });
+
+    socket.pipe(proxySocket);
+}
+
+function listeningHandler(){
+    _parseHosts();
     
     fs.watchFile(__dirname + '/hosts', function(){
-        parseHosts()
+        _parseHosts()
     });
 
     console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
     console.log()
-});
+}
 
-function parseHosts(hosts){
-    hostRules = {};
+function _parseHosts(){
+    hostRules = parseHosts(__dirname + '/hosts');
 
-    hosts = hosts || fs.readFileSync(__dirname + '/hosts');
-
-    hosts.toString().split(/\n\r?/).forEach(function(line){
-        line = line.replace(/#.*$/, '');
-
-        if(line.trim() === ''){
-            return
-        }
-
-        var arr = line.split(/\s+/);
-
-        if(arr.length < 2){
-            setTimeout(function(){
-                log.debug('hosts -', line.bold.yellow, 'ignored')
-            }, 0)
-        }
-
-        for(var i = 1, len = arr.length; i < len; i++){
-            hostRules[arr[i]] = arr[0];
-        }
-    });
-
-    setTimeout(function(){
-        log.debug('hosts - hosts file parsed: ', JSON.stringify(hostRules));
-    }, 100);
+    console.log(JSON.stringify(hostRules, null, 4))
 }
