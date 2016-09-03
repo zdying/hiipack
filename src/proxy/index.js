@@ -7,8 +7,12 @@ var url = require('url');
 var net = require('net');
 var fs = require('fs');
 
+var commands = require('./commands');
+
 var parseHosts = require('./parseHosts');
-var getProxyOption = require('./proxyOption');
+var getProxyInfo = require('./getProxyInfo');
+
+//TODO 支持rewrite到hosts中的host时
 
 http.createServer()
     .on('listening', listeningHandler)
@@ -20,9 +24,26 @@ function requestHandler(request, response){
     var uri = url.parse(request.url);
     var start = Date.now();
 
-    var proxyOption = getProxyOption(request, __dirname + '/hosts', __dirname + '/rewrite');
+    setRequest(request);
 
-    var proxy = http.request(proxyOption, function(res){
+    var proxy = http.request(request.proxy_options, function(res){
+        var hosts_rule = request.hosts_rule;
+        var rewrite_rule = request.rewrite_rule;
+        var context = {
+            response: res
+        };
+
+        // call response commands
+        var resCommands = rewrite_rule && rewrite_rule.funcs;
+
+        if(Array.isArray(resCommands)){
+            resCommands.forEach(function(command){
+                if(!command.func.match(/^proxy/)){
+                    commands[command.func].apply(context, command.params)
+                }
+            })
+        }
+
         // response.pipe(res);
         response.writeHead(res.statusCode, res.headers);
         res.on('data', function(chunk){
@@ -30,7 +51,7 @@ function requestHandler(request, response){
         });
         res.on('end', function(){
             response.end();
-            if(proxyOption.HIIPACK_PROXY){
+            if(request.HIIPACK_PROXY){
                 log.info('proxy -', request.url.bold, '==>', (uri.protocol + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path).bold, Date.now() - start, 'ms');
             }else{
                 log.info('direc -', request.url.bold, Date.now() - start, 'ms');
@@ -65,4 +86,14 @@ function requestHandler(request, response){
 function listeningHandler(){
     console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
     console.log()
+}
+
+function setRequest(request){
+    var proxyInfo = getProxyInfo(request, __dirname + '/hosts', __dirname + '/rewrite');
+
+    request.proxy_options = proxyInfo.proxy_options;
+    request.hosts_rule = proxyInfo.hosts_rule;
+    request.rewrite_rule = proxyInfo.rewrite_rule;
+
+    return request;
 }

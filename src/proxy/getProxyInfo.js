@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 获取代理相关的信息
  * @author zdying
  */
 
@@ -8,6 +8,8 @@ var parseRewrite = require('./parseRewrite');
 
 var url = require('url');
 var fs = require('fs');
+
+var commands = require('./commands');
 
 var hostRules = null;
 var rewriteRules = null;
@@ -20,7 +22,7 @@ var rewriteRules = null;
 //     _parseHosts()
 // });
 
-module.exports = function getProxyOption(request, hostsPath, rewritePath){
+module.exports = function getProxyInfo(request, hostsPath, rewritePath){
     if(!hostRules){
         hostRules = parseHosts(hostsPath);
     }
@@ -29,6 +31,9 @@ module.exports = function getProxyOption(request, hostsPath, rewritePath){
         rewriteRules = parseRewrite(rewritePath)
     }
 
+    log.debug('getProxyInfo - hostRules', JSON.stringify(hostRules));
+    log.debug('getProxyInfo - rewriteRules', JSON.stringify(rewriteRules));
+
     var uri = url.parse(request.url);
     var rewrite = getRewriteRule(uri);
     var host = hostRules[uri.hostname];
@@ -36,16 +41,31 @@ module.exports = function getProxyOption(request, hostsPath, rewritePath){
     var hostname, port, path, proxyName;
 
     if(rewrite){
-        var target = rewrite.target[0];
+        var proxy = rewrite.proxy[0];
         var reg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
+        var context = {
+            request: request
+        };
 
-        if(target.match(reg)){
+        // 如果代理地址中包含具体协议，删除原本url中的协议
+        // 最终替换位代理地址的协议
+        if(proxy.match(reg)){
             request.url = request.url.replace(reg, '')
         }
 
-        newUrl = request.url.replace(rewrite.source, target);
+        // 将原本url中的部分替换为代理地址
+        newUrl = request.url.replace(rewrite.source, proxy);
         newUrlObj = url.parse(newUrl);
+
+        if(Array.isArray(rewrite.funcs)){
+            rewrite.funcs.forEach(function(obj){
+                // 以`proxy`开头的指令是proxy request指令
+                if(obj.func.match(/^proxy/)){
+                    commands[obj.func].apply(context, obj.params)
+                }
+            })
+        }
 
         hostname = newUrlObj.hostname;
         port = newUrlObj.port || 80;
@@ -65,12 +85,16 @@ module.exports = function getProxyOption(request, hostsPath, rewritePath){
     request.headers.host = uri.host;
 
     return {
-        host: hostname,
-        port: port || 80,
-        path: path,
-        method: request.method,
-        headers: request.headers,
-        HIIPACK_PROXY: proxyName
+        proxy_options: {
+            host: hostname,
+            port: port || 80,
+            path: path,
+            method: request.method,
+            headers: request.headers
+        },
+        HIIPACK_PROXY: proxyName,
+        hosts_rule: host,
+        rewrite_rule: rewrite
     }
 };
 
@@ -91,7 +115,7 @@ function getRewriteRule(urlObj){
         }
     }
 
-    log.debug(host, path, rewriteRule);
+    log.debug('getProxyInfo -', host + path, JSON.stringify(rewriteRule));
 
     return rewriteRule
 }

@@ -4,17 +4,20 @@
  */
 var fs = require('fs');
 
-var PROP_CMD = ['target'];
+var PROP_CMD = ['proxy'];
 var FUNC_CMD = [
+    // proxy request config
+    'proxy_set_header',
+    'proxy_del_header',
+
+    'proxy_set_cookie',
+    'proxy_del_cookie',
+
+    // response config
+    'hide_cookie',
+    'hide_header',
     'set_header',
-    'del_header',
-    'disable_header',
-
-    'set_cookie',
-    'del_cookie',
-    'disable_cookit',
-
-    'set_res_header'
+    'set_cookie'
 ];
 
 /**
@@ -28,15 +31,14 @@ module.exports = function parseRewrite(filePath){
     var hosts = fs.readFileSync(filePath);
     var pureContent = hosts.toString();
 
-    console.log(pureContent);
-
-    console.log('------------------------------------');
+    // console.log(pureContent);
+    // console.log('------------------------------------');
 
     pureContent = pureContent
                     .replace(/\s*#.*$/gm, '')
                     .replace(/^\s+$/gm, '');
 
-    console.log(pureContent);
+    // console.log(pureContent);
 
     var rules = parseRule(pureContent);
     var simpleRules = parseBaseRule(pureContent);
@@ -46,7 +48,7 @@ module.exports = function parseRewrite(filePath){
     rules.forEach(function(rule){
         var source = rule.source;
 
-        delete rule._target;
+        delete rule.commands;
 
         res[source] = rule;
     });
@@ -57,15 +59,15 @@ module.exports = function parseRewrite(filePath){
 };
 
 function parseBaseRule(pureContent){
-    var reg = /^(.*?)\s*=>\s*([^\{\}}]*)$/gm;
+    var reg = /^(.*?)\s*=>\s*([^\{\}\n\r]*)$/gm;
     var baseRules = [];
     var result;
 
     while((result = reg.exec(pureContent)) !== null){
         // console.log('result =>', result[1], result[2]);
         baseRules.push({
-            source: result[1],
-            target: result[2]
+            source: result[1].trim(),
+            proxy: [result[2].trim().replace(/;$/, '')]
         })
     }
 
@@ -86,17 +88,17 @@ function parseRule(pureContent){
         // console.log('result =>', result[1], result[2]);
         rules.push({
             source: result[1],
-            _target: result[2].trim()
+            commands: result[2].trim()
         })
     }
 
     rules.forEach(function(rule){
         // var source = rule.source;
-        var targetLines = rule._target.split(/\n\r?/);
+        var commands = rule.commands.split(/\n\r?/);
 
         rule.funcs = [];
 
-        targetLines.forEach(function(line){
+        commands.forEach(function(line){
             line = line.trim().replace(/;\s*$/, '');
 
             if(!line){
