@@ -23,7 +23,7 @@ var FUNC_CMD = [
  * @returns {{}}
  */
 module.exports = function parseRewrite(filePath){
-    var res = [];
+    var res = {};
 
     var hosts = fs.readFileSync(filePath);
     var pureContent = hosts.toString();
@@ -41,7 +41,17 @@ module.exports = function parseRewrite(filePath){
     var rules = parseRule(pureContent);
     var simpleRules = parseBaseRule(pureContent);
 
-    res = rules.concat(simpleRules);
+    rules = rules.concat(simpleRules);
+
+    rules.forEach(function(rule){
+        var source = rule.source;
+
+        delete rule._target;
+
+        res[source] = rule;
+    });
+
+    log.debug(JSON.stringify(res));
 
     return res
 };
@@ -59,10 +69,10 @@ function parseBaseRule(pureContent){
         })
     }
 
-    console.log('============================================');
-    console.log(JSON.stringify(baseRules, null, 4));
-    console.log('total', baseRules.length, 'base rules');
-    console.log('============================================');
+    // console.log('============================================');
+    // console.log(JSON.stringify(baseRules, null, 4));
+    // console.log('total', baseRules.length, 'base rules');
+    // console.log('============================================');
 
     return baseRules;
 }
@@ -114,10 +124,10 @@ function parseRule(pureContent){
         });
     });
 
-    console.log('============================================');
-    console.log(JSON.stringify(rules, null, 4));
-    console.log('total', rules.length, 'rules');
-    console.log('============================================');
+    // console.log('============================================');
+    // console.log(JSON.stringify(rules, null, 4));
+    // console.log('total', rules.length, 'rules');
+    // console.log('============================================');
 
     return rules;
 }

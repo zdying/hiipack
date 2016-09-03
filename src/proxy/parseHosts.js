@@ -46,9 +46,7 @@ module.exports = function parseHosts(filePath){
         }
     });
 
-    setTimeout(function(){
-        log.debug('hosts - hosts file parsed: ', JSON.stringify(hostRules));
-    }, 100);
+    log.debug('hosts - hosts file parsed: ', JSON.stringify(hostRules));
 
     return hostRules
 };
