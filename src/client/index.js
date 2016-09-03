@@ -52,7 +52,10 @@ module.exports = {
         logger.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
 
         try{
-            execSync('rm -rdf ./' + dir[env].join(' ./'));
+            // execSync('rm -rdf ./' + dir[env].join(' ./'));
+            dir[env].forEach(function(folder){
+                 fse.removeSync(folder)
+            });
             compiler.compile(env, {watch: false}, callback);
         }catch(e){
             logger.error(e);

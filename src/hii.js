@@ -89,7 +89,12 @@ program
     .command('clear')
     .description('clear resulting folders of hiipack')
     .action(function(){
-        child_process.exec('rm -rdf dll loc dev prd ver')
+        fse.remove('dev');
+        fse.remove('prd');
+        fse.remove('ver');
+        fse.remove('loc');
+        fse.remove('dll');
+        // child_process.exec('rm -rdf dll loc dev prd ver')
     });
 
 program.on('--help', function(){
