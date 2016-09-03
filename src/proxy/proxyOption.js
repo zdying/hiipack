@@ -30,26 +30,36 @@ module.exports = function getProxyOption(request, hostsPath, rewritePath){
     }
 
     var uri = url.parse(request.url);
-
-    var hostname = uri.hostname;
-    var port = uri.port;
-    var host = hostRules[hostname];
-    var path = uri.path;
-
     var rewrite = getRewriteRule(uri);
-    var proxyName = undefined;
+    var host = hostRules[uri.hostname];
+
+    var hostname, port, path, proxyName;
 
     if(rewrite){
         var target = rewrite.target[0];
-        var targetObj = url.parse(target);
-        hostname = targetObj.hostname;
-        port = targetObj.port || 80;
-        path = targetObj.path;
+        var reg = /^(\w+:\/\/)/;
+        var newUrl, newUrlObj;
+
+        if(target.match(reg)){
+            request.url = request.url.replace(reg, '')
+        }
+
+        newUrl = request.url.replace(rewrite.source, target);
+        newUrlObj = url.parse(newUrl);
+
+        hostname = newUrlObj.hostname;
+        port = newUrlObj.port || 80;
+        path = newUrlObj.path;
         proxyName = 'HIIPACK_PROXY';
     }else if(host){
         hostname = host.split(':')[0];
         port = Number(host.split(':')[1]);
+        path = uri.path;
         proxyName = 'HIIPACK_PROXY';
+    }else{
+        hostname = uri.hostname;
+        port = uri.port || 80;
+        path = uri.path;
     }
 
     request.headers.host = uri.host;
@@ -75,7 +85,7 @@ function getRewriteRule(urlObj){
     while(len--){
         tryPath = host + pathArr.slice(0, len + 1).join('/');
 
-        if(tryPath in rewriteRules){
+        if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
             rewriteRule = rewriteRules[tryPath];
             break;
         }

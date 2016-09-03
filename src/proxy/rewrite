@@ -24,8 +24,14 @@ api.example.com/user/ => {
 usercenter.example.com => userinfo.example.com
 
 ## rewrite url
+api.example.com/user/ => {
+    target http://127.0.0.1:8800/news/src/mock/;
+
+    set_res_header Access-Control-Allow-Origin *;
+}
+
+## rewrite url
 api.example.com/user/login.do => {
     target http://127.0.0.1:8800/news/src/mock/list.json;
-
     set_res_header Access-Control-Allow-Origin *;
 }
