@@ -1,5 +1,4 @@
 ## url rewrite rules
-## add next main version
 
 page.example.com => hii.com;
 
@@ -24,18 +23,19 @@ json.example.com => 127.0.0.1:8800;
 #     hide_cookie key;
 # }
 
-# user center
 
+## simple rewrite rule
 usercenter.example.com => userinfo.example.com
 
-## rewrite url
+## standard rewrite url
 api.example.com/user/ => {
+    # proxy target url
     proxy http://127.0.0.1:8800/news/src/mock/;
 
+    # set proxy request header
     set_header Access-Control-Allow-Origin *;
 }
 
-## rewrite url
 api.example.com/user/login.do => {
     proxy http://127.0.0.1:8800/news/src/mock/list.json;
     set_header Access-Control-Allow-Origin *;

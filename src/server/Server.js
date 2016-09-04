@@ -9,8 +9,8 @@ var fs = require('fs');
 var open = require("open");
 
 var logger = log.namespace('Server');
-// var Compiler = require('./Compiler');
 var Compiler = require('../compiler');
+var ProxyServer = require('../proxy');
 
 var clients = {};
 var clientId = 0;
@@ -22,6 +22,7 @@ var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Fold
 function Server(port, openBrowser){
     this.app = express();
     this.compilers = {};
+    this.proxyServer = null;
 
 
     this.app.all('*', function(req, res, next){
@@ -70,6 +71,7 @@ function Server(port, openBrowser){
             var env = projInfo.env;
             var compiler = this.compilers[projectName];
 
+            // 第一次请求这个项目，新建一个compiler
             if(!compiler){
                 compiler = this.compilers[projectName] = new Compiler(projectName);
             }
@@ -227,15 +229,14 @@ function Server(port, openBrowser){
         console.log('current workspace ', __hiipack__.cwd.green.bold);
         console.log('hiipack started at', url.green.bold);
 
-        var ProxyServer = require('../proxy');
-
-        var proxyServer = new ProxyServer();
-        proxyServer.start(4936);
+        // 启动代理服务
+        this.proxyServer = new ProxyServer();
+        this.proxyServer.start(4936);
 
         setTimeout(function(){
             log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
         }, 200)
-    });
+    }.bind(this));
 
     process.on("SIGINT", function(){
         console.log('\b\b  ');
@@ -305,18 +306,18 @@ Server.prototype = {
     }
 };
 
-function publish(data){
-    for(var id in clients){
-        clients[id].write("data: " + JSON.stringify(data) + "\n\n");
-    }
-}
-
-function buildModuleMap(modules){
-    var map = {};
-    modules.forEach(function(module){
-        map[module.id] = module.name;
-    });
-    return map;
-}
+// function publish(data){
+//     for(var id in clients){
+//         clients[id].write("data: " + JSON.stringify(data) + "\n\n");
+//     }
+// }
+//
+// function buildModuleMap(modules){
+//     var map = {};
+//     modules.forEach(function(module){
+//         map[module.id] = module.name;
+//     });
+//     return map;
+// }
 
 module.exports = Server;

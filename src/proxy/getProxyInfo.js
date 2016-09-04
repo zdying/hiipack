@@ -11,32 +11,10 @@ var fs = require('fs');
 
 var commands = require('./commands');
 
-var hostRules = null;
-var rewriteRules = null;
-
-// fs.watchFile(__dirname + '/hosts', function(){
-//     _parseHosts()
-// });
-//
-// fs.watchFile(__dirname + '/hosts', function(){
-//     _parseHosts()
-// });
-
-module.exports = function getProxyInfo(request, hostsPath, rewritePath){
-    if(!hostRules){
-        hostRules = parseHosts(hostsPath);
-    }
-
-    if(!rewriteRules){
-        rewriteRules = parseRewrite(rewritePath)
-    }
-
-    log.debug('getProxyInfo - hostRules', JSON.stringify(hostRules));
-    log.debug('getProxyInfo - rewriteRules', JSON.stringify(rewriteRules));
-
+module.exports = function getProxyInfo(request, hostsRules, rewriteRules){
     var uri = url.parse(request.url);
-    var rewrite = getRewriteRule(uri);
-    var host = hostRules[uri.hostname];
+    var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules);
+    var host = !!hostsRules && hostsRules[uri.hostname];
 
     var hostname, port, path, proxyName;
 
@@ -98,7 +76,7 @@ module.exports = function getProxyInfo(request, hostsPath, rewritePath){
     }
 };
 
-function getRewriteRule(urlObj){
+function getRewriteRule(urlObj, rewriteRules){
     var host = urlObj.hostname;
     var path = urlObj.path;
     var pathArr = path.split('/');
