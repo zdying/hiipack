@@ -48,12 +48,12 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules){
         hostname = newUrlObj.hostname;
         port = newUrlObj.port || 80;
         path = newUrlObj.path;
-        proxyName = 'HIIPACK_PROXY';
+        proxyName = 'HIIPACK';
     }else if(host){
         hostname = host.split(':')[0];
         port = Number(host.split(':')[1]);
         path = uri.path;
-        proxyName = 'HIIPACK_PROXY';
+        proxyName = 'HIIPACK';
     }else{
         hostname = uri.hostname;
         port = uri.port || 80;
@@ -70,7 +70,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules){
             method: request.method,
             headers: request.headers
         },
-        HIIPACK_PROXY: proxyName,
+        PROXY: proxyName,
         hosts_rule: host,
         rewrite_rule: rewrite
     }

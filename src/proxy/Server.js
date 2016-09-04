@@ -105,6 +105,8 @@ Server.prototype = {
         var uri = url.parse(request.url);
         var start = Date.now();
 
+        request._startTime = start;
+
         this.setRequest(request);
 
         var proxy = http.request(request.proxy_options, function(res){
@@ -131,18 +133,29 @@ Server.prototype = {
                 response.write(chunk);
             });
             res.on('end', function(){
+                var proxyOption = request.proxy_options;
+                request.res = res;
                 response.end();
-                if(request.HIIPACK_PROXY){
-                    logger.info('proxy -', request.url.bold, '==>', (uri.protocol + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path).bold, Date.now() - start, 'ms');
+                if(request.PROXY){
+                    logger.access(request, uri.protocol + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
                 }else{
-                    logger.info('direc -', request.url.bold, Date.now() - start, 'ms');
+                    logger.access(request);
+                    // logger.info('direc -', request.url.bold, Date.now() - start, 'ms');
                 }
             });
         });
 
         proxy.on('error', function(e){
-            logger.error(e.message);
-            response.end(e.stack);
+            if(e.code === 'ENOTFOUND'){
+                response.statusCode = 404;
+                response.end();
+            }else{
+                logger.error('proxy error:', request.url);
+                logger.detail(e.stack);
+                response.end(e.stack);
+            }
+            request.res = response;
+            log.access(request)
         });
 
         proxy.write('');
@@ -177,6 +190,7 @@ Server.prototype = {
         request.proxy_options = proxyInfo.proxy_options;
         request.hosts_rule = proxyInfo.hosts_rule;
         request.rewrite_rule = proxyInfo.rewrite_rule;
+        request.PROXY = proxyInfo.PROXY;
 
         return request;
     }

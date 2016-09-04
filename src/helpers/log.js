@@ -14,7 +14,7 @@ module.exports = {
     debug: function(){
         program.debug && this.printMessage('debug', 'magenta', arguments)
     },
-    access: function(req){
+    access: function(req, proxy){
         var statusCode = req.res.statusCode;
         var colormap = {
             404: 'yellow',
@@ -26,7 +26,8 @@ module.exports = {
 
         this.printMessage('access', 'grey', true, [
             req.method.bold.grey,
-            req.originalUrl.grey,
+            (req.originalUrl || req.url).grey,
+            proxy ? ('==> ' + proxy).grey : '',
             String(statusCode)[colormap[statusCode] || 'grey'],
             ('(' + time + 'ms' + ')')[time >= 2000 ? 'yellow' : 'grey']
         ])
