@@ -227,7 +227,11 @@ function Server(port, openBrowser){
         console.log('current workspace ', __hiipack__.cwd.green.bold);
         console.log('hiipack started at', url.green.bold);
 
-        var proxy = require('../proxy');
+        var ProxyServer = require('../proxy');
+
+        var proxyServer = new ProxyServer();
+        proxyServer.start(4936);
+
         setTimeout(function(){
             log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
         }, 200)
