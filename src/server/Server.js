@@ -181,7 +181,7 @@ function Server(port, openBrowser){
 
                                 return [
                                     '<li>',
-                                        '<a title="' + fileName + '" href="' + url.replace(/\/$/, '') + '/' + fileName + '">',
+                                        '<a title="' + fileName + '" href="' + (isFile ? fileName : fileName + '/') + '">',
                                             isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
                                             fileName,
                                         '</a>',
