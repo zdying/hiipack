@@ -1,27 +1,42 @@
 ## url rewrite rules
-## add next main version
-page.example.com => other.example.com
+
+page.example.com => hii.com;
+
+json.example.com => 127.0.0.1:8800;
 
 ## rewrite folder
-aip.example.com/user/ => {
-    target other.example.com/user/;
+# api.example.com/user/ => {
+#     proxy other.example.com/user/;
+#
+#     ## proxy request config
+#     proxy_set_header host api.example.com;
+#     proxy_set_header other value;
+#     proxy_hide_header key;
+#
+#     proxy_set_cookie userid 20150910121359;
+#     proxy_hide_cookie sessionid;
+#
+#     ## response config
+#     set_header Access-Control-Allow-Origin *; ## allow CORS
+#     set_cookie sessionID E3BF86A90ACDD6C5FF49ACB09;
+#     hide_header key;
+#     hide_cookie key;
+# }
 
-    # disable_header;
-    set_header host api.example.com;
-    set_header other value;
-    del_header abc def;
 
-    # disable_cookit;
-    set_cookie userid 20150910121359;
-    del_cookie sessionid;
+## simple rewrite rule
+usercenter.example.com => userinfo.example.com
 
-    # disable_response_header
-    set_res_header Access-Control-Allow-Origin *;
+## standard rewrite url
+api.example.com/user/ => {
+    # proxy target url
+    proxy http://127.0.0.1:8800/news/src/mock/;
+
+    # set proxy request header
+    set_header Access-Control-Allow-Origin *;
 }
 
-## rewrite url
 api.example.com/user/login.do => {
-    target http://127.0.0.1:8800/mock/user/login.do.json;
-
-    set_res_header Access-Control-Allow-Origin *;
+    proxy http://127.0.0.1:8800/news/src/mock/list.json;
+    set_header Access-Control-Allow-Origin *;
 }

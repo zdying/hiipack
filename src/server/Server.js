@@ -19,10 +19,11 @@ var docSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Documen
 var fileSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'File.svg'));
 var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Folder.svg'));
 
-function Server(port, openBrowser){
+function Server(port, openBrowser, proxy){
     this.app = express();
     this.compilers = {};
     this.proxyServer = null;
+    this.proxy = proxy;
 
 
     this.app.all('*', function(req, res, next){
@@ -229,9 +230,11 @@ function Server(port, openBrowser){
         console.log('current workspace ', __hiipack__.cwd.green.bold);
         console.log('hiipack started at', url.green.bold);
 
-        // 启动代理服务
-        this.proxyServer = new ProxyServer();
-        this.proxyServer.start(4936);
+        if(this.proxy){
+            // 启动代理服务
+            this.proxyServer = new ProxyServer();
+            this.proxyServer.start(4936);
+        }
 
         setTimeout(function(){
             log.debug('__hii__', '-',  JSON.stringify(__hiipack__));

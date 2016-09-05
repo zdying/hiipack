@@ -41,7 +41,8 @@ program
     .option('-D, --detail', 'print debug and error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
-    .option('--no-color', 'disable log color');
+    .option('--no-color', 'disable log color')
+    .option('--proxy', 'start the proxy server');
 
 program
     .command('init <name>')
@@ -54,7 +55,7 @@ program
     .command('start')
     .description('create a local server')
     .action(function(){
-        server.start(program.port, program.open);
+        server.start(program.port, program.open, program.proxy);
     });
 
 program
