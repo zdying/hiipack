@@ -36,7 +36,7 @@ module.exports = function getBabelLoader(userConfig, env){
         include: include,
         loader: 'babel',
         query: {
-            // cacheDirectory: true,
+            cacheDirectory: (env === 'loc' || env === 'dev') ? __hii__.codeTmpdir + '/__babel_cache__' : false,
             presets: (presets).map(__hii__.resolve),
             plugins: (plugins).map(__hii__.resolve)
         }

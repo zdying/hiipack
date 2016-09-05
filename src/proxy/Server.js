@@ -23,6 +23,7 @@ function Server(){
     this.server = null;
     this.hostsRules = null;
     this.rewriteRules = null;
+    this.domainCache = {};
 }
 
 Server.prototype = {
@@ -76,6 +77,8 @@ Server.prototype = {
             this.hostsRules = merge(this.hostsRules, hosts)
         }
 
+        this.updateDomainCache();
+
         logger.debug('hostsRules updated =>', JSON.stringify(this.hostsRules));
     },
 
@@ -87,6 +90,8 @@ Server.prototype = {
         }else{
             this.rewriteRules = merge(this.rewriteRules, rewrite)
         }
+
+        this.updateDomainCache();
 
         logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
@@ -185,7 +190,7 @@ Server.prototype = {
 
     setRequest: function(request){
         // var proxyInfo = getProxyInfo(request, __dirname + '/hosts', __dirname + '/rewrite');
-        var proxyInfo = getProxyInfo(request, this.hostsRules, this.rewriteRules);
+        var proxyInfo = getProxyInfo(request, this.hostsRules, this.rewriteRules, this.domainCache);
 
         request.proxy_options = proxyInfo.proxy_options;
         request.hosts_rule = proxyInfo.hosts_rule;
@@ -193,6 +198,26 @@ Server.prototype = {
         request.PROXY = proxyInfo.PROXY;
 
         return request;
+    },
+
+    /**
+     * 缓存hosts和rewrite中的域名, 提高匹配效率
+     */
+    updateDomainCache: function(){
+        var domainCache = this.domainCache = {};
+        var hosts = this.hostsRules;
+        var rewrite = this.rewriteRules;
+
+        for(var domain in hosts){
+            domainCache[domain] = 1;
+        }
+
+        for(var url in rewrite){
+            url = url.split('/')[0];
+            domainCache[url] = 1;
+        }
+
+        logger.debug('domain cache updated', JSON.stringify(domainCache))
     }
 };
 

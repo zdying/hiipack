@@ -35,7 +35,7 @@ module.exports = function parseHosts(filePath){
 
         var arr = line.split(/\s+/);
 
-        if(arr.length < 2){
+        if(arr.length < 2 || line.indexOf('/') !== -1){
             setTimeout(function(){
                 log.debug('hosts -', line.bold.yellow, 'ignored')
             }, 0)

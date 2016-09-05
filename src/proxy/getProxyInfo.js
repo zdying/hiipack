@@ -11,9 +11,17 @@ var fs = require('fs');
 
 var commands = require('./commands');
 
-module.exports = function getProxyInfo(request, hostsRules, rewriteRules){
+/**
+ * 获取代理信息, 用于请求代理的地址
+ * @param {Object} request 请求对象
+ * @param {Object} hostsRules 解析后的hosts规则
+ * @param {Object} rewriteRules 解析后的rewrite规则
+ * @param {Object} [domainCache={}] domain缓存对象, 存储hosts和rewrite中存在的域名, 提高匹配效率
+ * @returns {Object}
+ */
+module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domainCache){
     var uri = url.parse(request.url);
-    var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules);
+    var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {});
     var host = !!hostsRules && hostsRules[uri.hostname];
 
     var hostname, port, path, proxyName;
@@ -76,10 +84,23 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules){
     }
 };
 
-function getRewriteRule(urlObj, rewriteRules){
+/**
+ * 根据url查找对应的rewrite规则
+ * @param urlObj
+ * @param rewriteRules
+ * @param domainCache
+ * @returns {*}
+ */
+function getRewriteRule(urlObj, rewriteRules, domainCache){
+    // 如果domain cache中不存在请求的域名, 直接返回
+    if(!((urlObj.host || urlObj.hostname) in domainCache)){
+        return null
+    }
+
     var host = urlObj.hostname;
     var path = urlObj.path;
-    var pathArr = path.split('/');
+    var pathWithNoQuery = path.replace(/[\?\#](.*)$/, '');
+    var pathArr = pathWithNoQuery.split('/');
     var len = pathArr.length;
     var rewriteRule = null;
     var tryPath = '';
@@ -87,13 +108,15 @@ function getRewriteRule(urlObj, rewriteRules){
     while(len--){
         tryPath = host + pathArr.slice(0, len + 1).join('/');
 
+        log.debug('getProxyInfo - try path', tryPath.bold.green);
+
         if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
             rewriteRule = rewriteRules[tryPath];
             break;
         }
     }
 
-    log.debug('getProxyInfo -', host + path, JSON.stringify(rewriteRule));
+    log.debug('getProxyInfo -', host + path, '==>', JSON.stringify(rewriteRule));
 
     return rewriteRule
 }
