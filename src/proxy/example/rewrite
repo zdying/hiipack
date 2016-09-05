@@ -22,6 +22,12 @@ json.example.com => 127.0.0.1:8800;
 #     hide_header key;
 #     hide_cookie key;
 # }
+## regexp support
+# ~ /\/(demo|example)\/([^\/]*\.(html|htm))$/ => {
+#    proxy http://127.0.0.1:9999/$1/src/$2;
+#
+#    set_header Access-Control-Allow-Origin *;
+# }
 
 
 ## simple rewrite rule
