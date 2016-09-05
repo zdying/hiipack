@@ -24,6 +24,7 @@ function Server(){
     this.hostsRules = null;
     this.rewriteRules = null;
     this.domainCache = {};
+    this.regexpCache = [];
 }
 
 Server.prototype = {
@@ -114,6 +115,8 @@ Server.prototype = {
 
         this.setRequest(request);
 
+        log.debug('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
+
         var proxy = http.request(request.proxy_options, function(res){
             var hosts_rule = request.hosts_rule;
             var rewrite_rule = request.rewrite_rule;
@@ -189,8 +192,7 @@ Server.prototype = {
     },
 
     setRequest: function(request){
-        // var proxyInfo = getProxyInfo(request, __dirname + '/hosts', __dirname + '/rewrite');
-        var proxyInfo = getProxyInfo(request, this.hostsRules, this.rewriteRules, this.domainCache);
+        var proxyInfo = getProxyInfo(request, this.hostsRules, this.rewriteRules, this.domainCache, this.regexpCache);
 
         request.proxy_options = proxyInfo.proxy_options;
         request.hosts_rule = proxyInfo.hosts_rule;
@@ -205,19 +207,27 @@ Server.prototype = {
      */
     updateDomainCache: function(){
         var domainCache = this.domainCache = {};
+        var regexpCache = this.regexpCache = [];
         var hosts = this.hostsRules;
         var rewrite = this.rewriteRules;
+
+        //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
         for(var domain in hosts){
             domainCache[domain] = 1;
         }
 
         for(var url in rewrite){
-            url = url.split('/')[0];
-            domainCache[url] = 1;
+            if(url.indexOf('~') === 0){
+                regexpCache.push(rewrite[url])
+            }else{
+                url = url.split('/')[0];
+                domainCache[url] = 1;
+            }
         }
 
-        logger.debug('domain cache updated', JSON.stringify(domainCache))
+        logger.debug('domain cache updated', JSON.stringify(domainCache));
+        logger.debug('regexp cache updated', JSON.stringify(regexpCache));
     }
 };
 

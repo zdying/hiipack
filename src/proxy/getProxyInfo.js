@@ -17,18 +17,20 @@ var commands = require('./commands');
  * @param {Object} hostsRules 解析后的hosts规则
  * @param {Object} rewriteRules 解析后的rewrite规则
  * @param {Object} [domainCache={}] domain缓存对象, 存储hosts和rewrite中存在的域名, 提高匹配效率
+ * @param {Array} [regexpCache=[]] regexp缓存对象, 存储hosts和rewrite中存在的正则表达式, 提高匹配效率
  * @returns {Object}
  */
-module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domainCache){
+module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domainCache, regexpCache){
     var uri = url.parse(request.url);
-    var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {});
+    var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {}, regexpCache || {});
     var host = !!hostsRules && hostsRules[uri.hostname];
 
     var hostname, port, path, proxyName;
 
+    // rewrite 优先级高于 hosts
     if(rewrite){
         var proxy = rewrite.proxy[0];
-        var reg = /^(\w+:\/\/)/;
+        var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
         var context = {
             request: request
@@ -36,12 +38,32 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
-        if(proxy.match(reg)){
-            request.url = request.url.replace(reg, '')
+        if(proxy.match(protocolReg)){
+            request.url = request.url.replace(protocolReg, '')
         }
 
         // 将原本url中的部分替换为代理地址
-        newUrl = request.url.replace(rewrite.source, proxy);
+        if(rewrite.source.indexOf('~') === 0){
+            // 正则表达式
+            var sourceReg = null;
+            var urlMatch = null;
+
+            if(proxy.match(/\$\d/g)){
+                sourceReg = toRegExp(rewrite.source, '');
+                urlMatch = request.url.match(sourceReg);
+
+                // 这里可以不用判断urlMath是否为空, 因为getRewriteRule里面已经测试过
+                newUrl = proxy.replace(/\$(\d)/g, function(match, groupID){
+                    return urlMatch[groupID]
+                })
+            }else{
+                newUrl = proxy;
+            }
+        }else{
+            // 普通地址字符串
+            newUrl = request.url.replace(rewrite.source, proxy);
+        }
+
         newUrlObj = url.parse(newUrl);
 
         if(Array.isArray(rewrite.funcs)){
@@ -89,34 +111,49 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
  * @param urlObj
  * @param rewriteRules
  * @param domainCache
+ * @param regexpCache
  * @returns {*}
  */
-function getRewriteRule(urlObj, rewriteRules, domainCache){
-    // 如果domain cache中不存在请求的域名, 直接返回
-    if(!((urlObj.host || urlObj.hostname) in domainCache)){
-        return null
-    }
-
+function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
     var host = urlObj.hostname;
     var path = urlObj.path;
+    var href = urlObj.href;
     var pathWithNoQuery = path.replace(/[\?\#](.*)$/, '');
     var pathArr = pathWithNoQuery.split('/');
     var len = pathArr.length;
     var rewriteRule = null;
     var tryPath = '';
 
-    while(len--){
-        tryPath = host + pathArr.slice(0, len + 1).join('/');
+    // 普通字符串匹配优先级高于正则表达式
+    if(((urlObj.host || urlObj.hostname) in domainCache)){
+        while(len--){
+            tryPath = host + pathArr.slice(0, len + 1).join('/');
 
-        log.debug('getProxyInfo - try path', tryPath.bold.green);
+            log.debug('getProxyInfo - try path', tryPath.bold.green);
 
-        if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
-            rewriteRule = rewriteRules[tryPath];
-            break;
+            if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
+                rewriteRule = rewriteRules[tryPath];
+                break;
+            }
         }
+    }else{
+        regexpCache.forEach(function(rule){
+            var reg = toRegExp(rule.source);
+
+            if(reg.test(href)){
+                // 这里匹配成功后还是继续往后匹配下一个正则表达式
+                // 也就是后面匹配到的规则会覆盖前面匹配到的规则
+                rewriteRule = rule;
+            }
+        })
     }
 
-    log.debug('getProxyInfo -', host + path, '==>', JSON.stringify(rewriteRule));
+    log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule));
 
     return rewriteRule
+}
+
+function toRegExp(str, flags){
+    /^~\s*\/(.*)\/(\w*)/g.exec(str);
+    return new RegExp(RegExp.$1, flags === undefined ? RegExp.$2 : flags)
 }
