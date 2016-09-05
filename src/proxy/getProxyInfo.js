@@ -124,7 +124,6 @@ function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
     var rewriteRule = null;
     var tryPath = '';
 
-    // 普通字符串匹配优先级高于正则表达式
     if(((urlObj.host || urlObj.hostname) in domainCache)){
         while(len--){
             tryPath = host + pathArr.slice(0, len + 1).join('/');
@@ -137,16 +136,18 @@ function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
             }
         }
     }else{
-        regexpCache.forEach(function(rule){
-            var reg = toRegExp(rule.source);
 
-            if(reg.test(href)){
-                // 这里匹配成功后还是继续往后匹配下一个正则表达式
-                // 也就是后面匹配到的规则会覆盖前面匹配到的规则
-                rewriteRule = rule;
-            }
-        })
     }
+
+    regexpCache.forEach(function(rule){
+        var reg = toRegExp(rule.source, 'i');
+
+        if(reg.test(href)){
+            // 这里匹配成功后还是继续往后匹配下一个正则表达式
+            // 也就是后面匹配到的规则会覆盖前面匹配到的规则
+            rewriteRule = rule;
+        }
+    });
 
     log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule));
 

@@ -115,7 +115,7 @@ Server.prototype = {
 
         this.setRequest(request);
 
-        log.debug('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
+        log.detail('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
 
         var proxy = http.request(request.proxy_options, function(res){
             var hosts_rule = request.hosts_rule;
