@@ -19,9 +19,9 @@ hiipack is a front end development tool based on webpack.
       sync         synchronize the current directory to remote server
       test         run unit test
       clear        clear resulting folders of hiipack
-
+      
   Options:
-
+  
       -h, --help                 output usage information
       -v, --version              output the version number
       -o, --open                 open in browser
@@ -29,8 +29,9 @@ hiipack is a front end development tool based on webpack.
       -r, --registry <registry>  npm registry address
       -d, --debug                print debug log
       -D, --detail               print debug and error detail log
-      -C, --no-color             disable log color
       -t, --type <type>          project type: one of react|react-redux|es6|vue|normal|empty
+      --no-color                 disable log color
+      --proxy                    start the proxy server
 
   Examples:
 
