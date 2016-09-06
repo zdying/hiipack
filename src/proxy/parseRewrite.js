@@ -6,6 +6,9 @@ var fs = require('fs');
 
 var PROP_CMD = ['proxy'];
 var FUNC_CMD = [
+    // global command
+    'set',
+
     // proxy request config
     'proxy_set_header',
     'proxy_del_header',
@@ -19,6 +22,8 @@ var FUNC_CMD = [
     'set_header',
     'set_cookie'
 ];
+
+var cmdFuncs = require('./commands');
 
 /**
  * parse rewrite file to javascript object
@@ -40,17 +45,36 @@ module.exports = function parseRewrite(filePath){
 
     // console.log(pureContent);
 
-    var rules = parseRule(pureContent);
-    var simpleRules = parseBaseRule(pureContent);
+    var blocks = parseBlock(pureContent);
+
+    var rules = parseRule(blocks);
+    var simpleRules = parseBaseRule(blocks);
+    var globalCmds = parseCmd(blocks, res);
+    var props = res.props;
 
     rules = rules.concat(simpleRules);
 
+    globalCmds.funcs.forEach(function(cmd){
+        var name = cmd.func;
+        var params = cmd.params;
+        var fun = cmdFuncs[name];
+        var context = res;
+
+        if(typeof fun === 'function'){
+            fun.apply(context, params)
+        }else{
+            log.error('unknow global command', name.bold.yellow);
+        }
+    });
+
     rules.forEach(function(rule){
-        var source = rule.source;
+        rule.source = rule.source.replace(/\$[\w\d_]+/g, function(match){
+            return (match in props) ? props[match] : match
+        });
 
         delete rule.commands;
 
-        res[source] = rule;
+        res[rule.source] = rule;
     });
 
     log.debug(JSON.stringify(res));
@@ -58,31 +82,50 @@ module.exports = function parseRewrite(filePath){
     return res
 };
 
-function parseBaseRule(pureContent){
-    var reg = /^(.*?)\s*=>\s*([^\{\}\n\r]*)$/gm;
+function parseBlock(pureContent){
+    var blocks = {
+        base_rule: [],
+        rule: [],
+        cmd: []
+    };
+    // var types = ['rule', 'base_rule', 'cmds'];
+    var fullreg = /(.*?\s*=>\s*\{[\s\S]*?\})|(.*?\s*=>\s*[^\{\}\n\r;]*)|(\w+(?:\s+[^\n\r;]+)+)/g;
+
+    pureContent.replace(fullreg, function(match, rule, base_rule, cmd){
+        if(rule) blocks.rule.push(rule);
+        if(base_rule) blocks.base_rule.push(base_rule);
+        if(cmd) blocks.cmd.push(cmd);
+
+        // if(cmd){
+        //     console.log('cmddddd= >>>', cmd);
+        // }
+        //
+        // if(base_rule){
+        //     console.log('base_ruledddd= >>>', base_rule);
+        // }
+        //
+        // if(rule){
+        //     console.log('ruledddd= >>>', rule);
+        // }
+    });
+
+    return blocks
+}
+
+function parseBaseRule(blocks){
+    var reg = /^(.*?)\s*=>\s*([^\{\}\n\r]*)$/;
     var baseRules = [];
     var result;
-
-
-    // var type = ['base_rule', 'rule', 'set'];
-    // var fullreg = /(.*?\s*=>\s*\{[\s\S]*?\})|(.*?\s*=>\s*[^\{\}\n\r]*)|(set\s+\$\w+\s+\w+)/g;
-    //
-    // var fullText = pureContent.replace(fullreg, function(match, base_rule, rule, set){
-    //     console.log('++++++++++++++++++++++++');
-    //     console.log(arguments);
-    //     console.log('------------------------');
-    //     console.log(match, base_rule, rule, set);
-    //     console.log('++++++++++++++++++++++++');
-    // });
-
-
-    while((result = reg.exec(pureContent)) !== null){
-        // console.log('result =>', result[1], result[2]);
+    
+    blocks.base_rule.forEach(function(baseRule){
+        result = baseRule.match(reg);
         baseRules.push({
             source: result[1].trim(),
-            proxy: [result[2].trim().replace(/;$/, '')]
+            props: {
+                proxy: [result[2].trim().replace(/;$/, '')]
+            }
         })
-    }
+    });
 
     // console.log('============================================');
     // console.log(JSON.stringify(baseRules, null, 4));
@@ -92,51 +135,26 @@ function parseBaseRule(pureContent){
     return baseRules;
 }
 
-function parseRule(pureContent){
-    var reg = /(.*?)\s*=>\s*\{([\s\S]*?)\}/g;
+function parseRule(blocks){
+    var reg = /(.*?)\s*=>\s*\{([\s\S]*?)\}/;
     var rules = [];
     var result;
 
-    while((result = reg.exec(pureContent)) !== null){
-        // console.log('result =>', result[1], result[2]);
+    blocks.rule.forEach(function(rule){
+        result = rule.match(reg);
         rules.push({
             source: result[1],
             commands: result[2].trim()
         })
-    }
+    });
 
     rules.forEach(function(rule){
         // var source = rule.source;
         var commands = rule.commands.split(/\n\r?/);
 
-        rule.funcs = [];
-
-        commands.forEach(function(line){
-            line = line.trim().replace(/;\s*$/, '');
-
-            if(!line){
-                return
-            }
-
-            var tokens = line.split(/\s+/);
-            var command, params;
-
-            if(tokens && tokens.length){
-                command = tokens[0];
-                params = tokens.slice(1);
-
-                if(FUNC_CMD.indexOf(command) !== -1){
-                    rule.funcs.push({
-                        func: command,
-                        params: params
-                    })
-                }else if(PROP_CMD.indexOf(command) !== -1){
-                    rule[command] = params;
-                }else{
-                    console.log('[error] unexpected command', command);
-                }
-            }
-        });
+        parseCmd({
+            cmd: commands
+        }, rule);
     });
 
     // console.log('============================================');
@@ -147,6 +165,42 @@ function parseRule(pureContent){
     return rules;
 }
 
+function parseCmd(blocks, target){
+    target = target || {};
+
+    if(!target.funcs) target.funcs = [];
+    if(!target.props) target.props = {};
+
+    blocks.cmd.forEach(function(cmd){
+        cmd = cmd.trim().replace(/;\s*$/, '');
+
+        if(!cmd){
+            return
+        }
+
+        var tokens = cmd.split(/\s+/);
+        var command, params;
+
+        if(tokens && tokens.length){
+            command = tokens[0];
+            params = tokens.slice(1);
+
+            if(FUNC_CMD.indexOf(command) !== -1){
+                target.funcs.push({
+                    func: command,
+                    params: params
+                })
+            }else if(PROP_CMD.indexOf(command) !== -1){
+                target.props[command] = params;
+            }else{
+                console.log('[error] unexpected command', command);
+            }
+        }
+    });
+
+    return target
+}
+
 // test
 // require(__dirname + '/../global');
-// module.exports(__dirname + '/example/rewrite');
+// var rules = module.exports(__dirname + '/example/rewrite');

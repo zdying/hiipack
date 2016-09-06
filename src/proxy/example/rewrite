@@ -34,6 +34,7 @@ json.example.com => 127.0.0.1:8800;
 usercenter.example.com => userinfo.example.com
 
 set $domain api.example.com;
+set $local 127.0.0.1:8800;
 
 ## standard rewrite url
 $domain/user/ => {
@@ -45,6 +46,6 @@ $domain/user/ => {
 }
 
 api.example.com/user/login.do => {
-    proxy http://127.0.0.1:8800/news/src/mock/list.json;
+    proxy http://$local/news/src/mock/list.json;
     set_header Access-Control-Allow-Origin *;
 }

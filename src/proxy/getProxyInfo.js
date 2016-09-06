@@ -29,12 +29,15 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
     // rewrite 优先级高于 hosts
     if(rewrite){
-        var proxy = rewrite.proxy[0];
+        var proxy = rewrite.props.proxy[0];
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
         var context = {
-            request: request
+            request: request,
+            props: rewrite.props
         };
+
+        proxy = replaceVar(proxy, rewrite, rewriteRules);
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
@@ -70,7 +73,10 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             rewrite.funcs.forEach(function(obj){
                 // 以`proxy`开头的指令是proxy request指令
                 if(obj.func.match(/^proxy/)){
-                    commands[obj.func].apply(context, obj.params)
+                    var params = obj.params.map(function(param){
+                        return replaceVar(param, rewrite, rewriteRules)
+                    });
+                    commands[obj.func].apply(context, params)
                 }
             })
         }
@@ -90,7 +96,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         path = uri.path;
     }
 
-    request.headers.host = uri.host;
+    request.headers.Host = uri.host;
 
     return {
         proxy_options: {
@@ -157,4 +163,16 @@ function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
 function toRegExp(str, flags){
     /^~\s*\/(.*)\/(\w*)/g.exec(str);
     return new RegExp(RegExp.$1, flags === undefined ? RegExp.$2 : flags)
+}
+
+function replaceVar(str, rewrite, rewriteRules){
+    return str.replace(/\$[\w\d_]+/, function(match){
+        if(match in rewrite.props){
+            return rewrite.props[match]
+        }else if(match in rewriteRules.props){
+            return rewriteRules.props[match]
+        }else{
+            return match
+        }
+    });
 }

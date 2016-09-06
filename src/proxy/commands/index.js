@@ -35,5 +35,10 @@ module.exports = {
     'set_cookie': function(key, value){
         log.debug('set_cookie -', this, key, value);
         this.response.headers['Set-Cookie'] = key + '=' + value;
+    },
+
+    // global commands
+    'set': function(key, value){
+        this.props[key] = value;
     }
 };
