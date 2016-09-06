@@ -33,8 +33,10 @@ json.example.com => 127.0.0.1:8800;
 ## simple rewrite rule
 usercenter.example.com => userinfo.example.com
 
+set $domain api.example.com;
+
 ## standard rewrite url
-api.example.com/user/ => {
+$domain/user/ => {
     # proxy target url
     proxy http://127.0.0.1:8800/news/src/mock/;
 

@@ -63,6 +63,19 @@ function parseBaseRule(pureContent){
     var baseRules = [];
     var result;
 
+
+    // var type = ['base_rule', 'rule', 'set'];
+    // var fullreg = /(.*?\s*=>\s*\{[\s\S]*?\})|(.*?\s*=>\s*[^\{\}\n\r]*)|(set\s+\$\w+\s+\w+)/g;
+    //
+    // var fullText = pureContent.replace(fullreg, function(match, base_rule, rule, set){
+    //     console.log('++++++++++++++++++++++++');
+    //     console.log(arguments);
+    //     console.log('------------------------');
+    //     console.log(match, base_rule, rule, set);
+    //     console.log('++++++++++++++++++++++++');
+    // });
+
+
     while((result = reg.exec(pureContent)) !== null){
         // console.log('result =>', result[1], result[2]);
         baseRules.push({
@@ -135,4 +148,5 @@ function parseRule(pureContent){
 }
 
 // test
-// module.exports(__dirname + '/rewrite');
+// require(__dirname + '/../global');
+// module.exports(__dirname + '/example/rewrite');
