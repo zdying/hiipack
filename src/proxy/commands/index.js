@@ -37,6 +37,10 @@ module.exports = {
         this.response.headers['Set-Cookie'] = key + '=' + value;
     },
 
+    proxy: function(value){
+        this.props.proxy = value;
+    },
+
     // global commands
     'set': function(key, value){
         this.props[key] = value;

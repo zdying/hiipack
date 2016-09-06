@@ -77,7 +77,7 @@ module.exports = function parseRewrite(filePath){
         res[rule.source] = rule;
     });
 
-    log.debug(JSON.stringify(res));
+    console.log('rewrite result:', JSON.stringify(res, null, 4));
 
     return res
 };
@@ -202,5 +202,5 @@ function parseCmd(blocks, target){
 }
 
 // test
-// require(__dirname + '/../global');
-// var rules = module.exports(__dirname + '/example/rewrite');
+require(__dirname + '/../global');
+var rules = module.exports(__dirname + '/example/rewrite');

@@ -1,9 +1,9 @@
 ## url rewrite rules
 
-# page.example.com => hii.com;
-#
-# json.example.com => 127.0.0.1:8800;
-#
+page.example.com => hii.com;
+
+json.example.com => 127.0.0.1:8800;
+
 ## rewrite folder
 # api.example.com/user/ => {
 #     proxy other.example.com/user/;
@@ -32,30 +32,20 @@
 
 ## simple rewrite rule
 usercenter.example.com => userinfo.example.com
-flight.qunar.com/flight_qzz => 127.0.0.1:8800/flight_qzz;
 
 set $domain api.example.com;
 set $local 127.0.0.1:8800;
 
 ## standard rewrite url
-$domain => {
+$domain/user/ => {
     # proxy target url
     proxy http://127.0.0.1:8800/news/src/mock/;
 
     # set proxy request header
-    set_header Access-Control-Allow-Origin *;}
-
-# api.example.com => {
-#     proxy http://$local/news/src/mock/list.json;
-#     set_header Access-Control-Allow-Origin *;
-# }
-
-api.qunar.com => {
     set_header Access-Control-Allow-Origin *;
+}
 
-    location /user/ {
-        proxy http://127.0.0.1:3008/user/;
-
-        set_header Set-Cookie userID 200908204140;
-    }
+api.example.com/user/login.do => {
+    proxy http://$local/news/src/mock/list.json;
+    set_header Access-Control-Allow-Origin *;
 }
