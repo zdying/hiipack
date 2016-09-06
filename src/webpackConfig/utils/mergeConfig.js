@@ -69,6 +69,10 @@ function mergePluginsAndLoaders(config, userConfig, env, root){
         if(plugins || loaders){
             config = merge(true, config, extendFields);
         }
+    }else{
+        config = merge(true, config, {
+            plugins: plugins
+        })
     }
 
     return config
