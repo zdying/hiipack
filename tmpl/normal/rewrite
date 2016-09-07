@@ -1,26 +1,28 @@
 ## url rewrite rules
 
-page.example.com => hii.com;
-
-json.example.com => 127.0.0.1:8800;
+# page.example.com => hii.com;
+# json.example.com => 127.0.0.1:8800;
 
 ## rewrite folder
-# api.example.com/user/ => {
-#     proxy other.example.com/user/;
+# api.example.com => {
+#     location /user/ {
 #
-#     ## proxy request config
-#     proxy_set_header host api.example.com;
-#     proxy_set_header other value;
-#     proxy_hide_header key;
+#         proxy other.example.com/user/;
 #
-#     proxy_set_cookie userid 20150910121359;
-#     proxy_hide_cookie sessionid;
+#         ## proxy request config
+#         proxy_set_header host api.example.com;
+#         proxy_set_header other value;
+#         proxy_hide_header key;
 #
-#     ## response config
-#     set_header Access-Control-Allow-Origin *; ## allow CORS
-#     set_cookie sessionID E3BF86A90ACDD6C5FF49ACB09;
-#     hide_header key;
-#     hide_cookie key;
+#         proxy_set_cookie userid 20150910121359;
+#         proxy_hide_cookie sessionid;
+#
+#         ## response config
+#         set_header Access-Control-Allow-Origin *; ## allow CORS
+#         set_cookie sessionID E3BF86A90ACDD6C5FF49ACB09;
+#         hide_header key;
+#         hide_cookie key;
+#     }
 # }
 
 
@@ -28,15 +30,19 @@ json.example.com => 127.0.0.1:8800;
 usercenter.example.com => userinfo.example.com
 
 ## standard rewrite url
-api.example.com/user/ => {
-    # proxy target url
-    proxy http://127.0.0.1:8800/news/src/mock/;
+api.example.com => {
+    location /user/ {
+        # proxy target url
+        proxy http://127.0.0.1:8800/news/src/mock/;
 
-    # set proxy request header
-    set_header Access-Control-Allow-Origin *;
+        # set proxy request header
+        set_header Access-Control-Allow-Origin *;
+    }
 }
 
-api.example.com/user/login.do => {
-    proxy http://127.0.0.1:8800/news/src/mock/list.json;
-    set_header Access-Control-Allow-Origin *;
+api.example.com => {
+    location /user/login.do {
+        proxy http://127.0.0.1:8800/news/src/mock/list.json;
+        set_header Access-Control-Allow-Origin *;
+    }
 }
