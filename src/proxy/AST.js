@@ -2,14 +2,13 @@
  * @file parse rewrite file to javascript object
  * @author zdying
  */
-var fs = require('fs');
 
 /**
  * Parse rewrite source file to AST tree
- * @param filePath
+ * @param sourceCode
  * @returns {{}}
  */
-module.exports = function parseRewrite(filePath){
+module.exports = function parseRewrite(sourceCode){
     var res = {
         baseRules: [],
         domains: [],
@@ -18,8 +17,7 @@ module.exports = function parseRewrite(filePath){
     var target = res;
     var history = [];
 
-    var input = fs.readFileSync(filePath);
-    var pureContent = input.toString();
+    var pureContent = sourceCode.toString();
 
     pureContent = pureContent
         // 去掉注释
@@ -29,29 +27,29 @@ module.exports = function parseRewrite(filePath){
         // 将末尾的·}·换行
         .replace(/([^\s]+)\}$/gm, '$1\n}')
         // 将换行后的·;·取消换行
-        .replace(/\n\r?\s+;\s*$/gm, ';');
+        .replace(/\n\r?\s*;\s*$/gm, ';');
 
-    console.log();
-    console.log(':::pureContent:::');
-    console.log(pureContent);
+    // console.log();
+    // console.log(':::pureContent:::');
+    // console.log(pureContent);
 
     var lines = pureContent.split(/\n\r?/);
-    // var regSpace = /\s+/g;
+    var regSpace = /\s+/g;
     var regs = {
-        cmd: /^(\w+(?:\s+[^=>\{]+)+)$/,
         baseRule: /^(.*?\s*=>\s*[^\{\}]*)$/,
+        cmd: /^(\w+(?:\s[^\{]+)+)$/,
         // rule: /(.*?\s*=>\s*\{[\s\S]*?\})/,
-        domainStart: /^([^\/]+)\s*=>\s*\{$/,
-        locationStart: /^location\s+(\/.*?)+\s+\{$/,
+        domainStart: /^([^\/]+) => \{$/,
+        locationStart: /^location\s((~\s*)?\/.*?)+\s\{$/,
         end: /^}$/
     };
+    // 注意: 正则表达式是有顺序的, baseRule必须在cmd之前;
 
     lines.forEach(function(line, index){
-        line = line.trim().replace(/;\s*$/, '');
+        line = line.trim().replace(/;\s*$/, '').replace(regSpace, ' ');
         // console.log((100 + index + '').slice(1), line);
         for(var type in regs){
             if(regs[type].test(line)){
-                // console.log('[' + type + ']\t', line);
                 switch(type){
                     case 'cmd':
                         target.commands.push(line);
@@ -66,6 +64,7 @@ module.exports = function parseRewrite(filePath){
                             domain: line.split(/\s*=>\s*/)[0],
                             commands: [],
                             location: [],
+                            props: {}
                         });
                         history.push(target);
                         target = target.domains[target.domains.length - 1];
@@ -73,17 +72,20 @@ module.exports = function parseRewrite(filePath){
 
                     case 'locationStart':
                         target.location.push({
-                            location: line.split(/\s+/)[1],
-                            commands: []
+                            location: line.replace(/~\s*/, '~').split(' ')[1],
+                            commands: [],
+                            props: {}
                         });
                         history.push(target);
-                        target = target.location[target.location.length - 1]
+                        target = target.location[target.location.length - 1];
                         break;
 
                     case 'end':
                         target = history.pop();
                         break;
                 }
+
+                break;
             }
         }
     });
@@ -92,7 +94,9 @@ module.exports = function parseRewrite(filePath){
 };
 
 // test
-var rules = module.exports(__dirname + '/example/rewrite');
-console.log();
-console.log(':::AST:::');
-console.log(JSON.stringify(rules, null, 4));
+// var fs = require('fs');
+// var sourceCode = fs.readFileSync(__dirname + '/example/rewrite');
+// var rules = module.exports(sourceCode);
+// console.log();
+// console.log(':::AST:::');
+// console.log(JSON.stringify(rules, null, 4));

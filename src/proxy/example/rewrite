@@ -31,19 +31,26 @@
 
 
 ## simple rewrite rule
-usercenter.example.com => userinfo.example.com
+usercenter.example.com => $domain/test;
 flight.qunar.com/flight_qzz => 127.0.0.1:8800/flight_qzz;
 
 set $domain api.example.com;
 set $local 127.0.0.1:8800;
+set $flight flight;
+set $test $flight.example.com;
+set $id 1234567;
 
 ## standard rewrite url
 $domain => {
-    # proxy target url
     proxy http://127.0.0.1:8800/news/src/mock/;
 
-    # set proxy request header
-    set_header Access-Control-Allow-Origin *;}
+    set $id 1234;
+    set $mock_user user_$id;
+
+    set_header Host $domain;
+    set_header UserID $mock_user;
+    set_header Access-Control-Allow-Origin *;
+}
 
 # api.example.com => {
 #     proxy http://$local/news/src/mock/list.json;
@@ -53,9 +60,22 @@ $domain => {
 api.qunar.com => {
     set_header Access-Control-Allow-Origin *;
 
-    location /user/ {
-        proxy http://127.0.0.1:3008/user/;
+    set $node_server 127.0.0.1:3008;
+    set $order order;
+    set $cookie1 login=true;expires=20160909;
 
+    location /$flight/$order/detail {
+        proxy http://$node_server/user/?domain=$domain;
         set_header Set-Cookie userID 200908204140;
+    }
+
+    location ~ /(usercenter|userinfo)/ {
+        set $cookie login=true;expires=20180808;
+        proxy http://127.0.0.1:3008/info/;
+        set_cookie userID 200908204140;
+
+        set $id user_iddddd;
+
+        set_cookie $flight zdy_$id;
     }
 }

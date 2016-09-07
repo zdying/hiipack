@@ -29,9 +29,11 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
     // rewrite 优先级高于 hosts
     if(rewrite){
-        var proxy = rewrite.props.proxy[0];
+        var proxy = rewrite.props.proxy;
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
+
+        //TODO 这里应该有个bug, props是共享的, 一个修改了,其他的也修改了
         var context = {
             request: request,
             props: rewrite.props
@@ -69,14 +71,15 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         newUrlObj = url.parse(newUrl);
 
-        if(Array.isArray(rewrite.funcs)){
-            rewrite.funcs.forEach(function(obj){
+        if(Array.isArray(rewrite.commands)){
+            rewrite.commands.forEach(function(obj){
+                //TODO 这里不能简单这么判断,要设置一个scope cmds 名单
                 // 以`proxy`开头的指令是proxy request指令
-                if(obj.func.match(/^proxy/)){
-                    var params = obj.params.map(function(param){
-                        return replaceVar(param, rewrite, rewriteRules)
-                    });
-                    commands[obj.func].apply(context, params)
+                if(obj.name.match(/^proxy/)){
+                    // var params = obj.params.map(function(param){
+                    //     return replaceVar(param, rewrite, rewriteRules)
+                    // });
+                    commands[obj.name].apply(context, obj.params)
                 }
             })
         }
@@ -95,8 +98,6 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         port = uri.port || 80;
         path = uri.path;
     }
-
-    request.headers.Host = uri.host;
 
     return {
         proxy_options: {
@@ -161,8 +162,11 @@ function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
 }
 
 function toRegExp(str, flags){
-    /^~\s*\/(.*)\/(\w*)/g.exec(str);
-    return new RegExp(RegExp.$1, flags === undefined ? RegExp.$2 : flags)
+    str = str.replace(/^~\s*\/(.*)\/(\w*)/, '$1 O_o $2');
+
+    var arr = str.split(' O_o ');
+
+    return new RegExp(arr[0], flags === undefined ? arr[2] : flags)
 }
 
 function replaceVar(str, rewrite, rewriteRules){

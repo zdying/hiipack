@@ -17,6 +17,15 @@ var findHostsAndRewrite = require('./findHostsAndRewrite');
 
 var logger = log.namespace('proxy -> Server');
 
+//TODO 多个工程的规则合并时, commands等有问题,但是不影响功能,待修复
+
+var responseScopeCmds = [
+    'set_header',
+    'set_cookie',
+    'hide_header',
+    'hide_cookie'
+];
+
 //TODO 支持rewrite到hosts中的host时
 
 function Server(){
@@ -125,12 +134,17 @@ Server.prototype = {
             };
 
             // call response commands
-            var resCommands = rewrite_rule && rewrite_rule.funcs;
+            var resCommands = rewrite_rule && rewrite_rule.commands;
 
             if(Array.isArray(resCommands)){
                 resCommands.forEach(function(command){
-                    if(!command.func.match(/^proxy/)){
-                        commands[command.func].apply(context, command.params)
+                    var inScope = responseScopeCmds.indexOf(command.name) !== -1;
+                    var isFunction = typeof commands[command.name] === 'function';
+
+                    if(inScope && isFunction){
+                        commands[command.name].apply(context, command.params)
+                    }else{
+                        log.debug(command.name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
                     }
                 })
             }
