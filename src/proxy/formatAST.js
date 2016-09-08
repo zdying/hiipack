@@ -10,7 +10,7 @@ var type = require('../helpers/type');
 var scopeCmds = {
     domain : ['set'],
     global : ['set'],
-    location : ['set', 'proxy']
+    location : ['set', 'proxy_pass']
 };
 
 // var requestScopeCmds = [];

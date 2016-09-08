@@ -52,11 +52,6 @@ module.exports = {
         this.response.headers['Set-Cookie'] = key + '=' + value;
     },
 
-    //TODO remove proxy and use proxy_pass
-    proxy: function(value){
-        this.props.proxy = value;
-    },
-
     proxy_pass: function(value){
         this.props.proxy = value;
     },
