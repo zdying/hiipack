@@ -3,6 +3,7 @@
  * @author zdying
  */
 var http = require('http');
+var path = require('path');
 var url = require('url');
 var net = require('net');
 var fs = require('fs');
@@ -232,16 +233,49 @@ Server.prototype = {
         }
 
         for(var url in rewrite){
-            if(url.indexOf('~') === 0){
-                regexpCache.push(rewrite[url])
-            }else{
-                url = url.split('/')[0];
-                domainCache[url] = 1;
+            if(!url.match(/^(commands|props)$/)){
+                if(url.indexOf('~') === 0){
+                    regexpCache.push(rewrite[url])
+                }else{
+                    url = url.split('/')[0];
+                    domainCache[url] = 1;
+                }
             }
         }
 
+        this.createPacFile(domainCache);
         logger.debug('domain cache updated', JSON.stringify(domainCache));
         logger.debug('regexp cache updated', JSON.stringify(regexpCache));
+    },
+    
+    createPacFile: function(domainsCache){
+        function FindProxyForURL(url, host) {
+            host = host.toLowerCase();
+
+            var hostArr = host.split('.');
+            var length = hostArr.length;
+            var subHost = "";
+
+            if(length > 1){
+                for(var i = 1; i <= length; i++){
+                    subHost = hostArr.slice(-i).join('.');
+                    if(subHost in DOMAINS){
+                        return PROXY;
+                    }
+                }
+            }
+
+            return DIRECT;
+        }
+
+        var txt = [
+            'var PROXY = "PROXY 127.0.0.1:4936";\n',
+            'var DIRECT = "DIRECT";\n\n',
+            'var DOMAINS = ' + JSON.stringify(domainsCache, null, 4) + ';\n\n',
+            FindProxyForURL.toString()
+        ];
+
+        fs.writeFile(path.resolve(__dirname, 'pac', 'hiipack.pac'), txt.join(''));
     }
 };
 

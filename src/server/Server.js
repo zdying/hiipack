@@ -227,10 +227,16 @@ function Server(port, openBrowser, proxy){
         // openBrowser && open(url);
 
         if(openBrowser){
+            // Firefox pac set
+            // http://www.indexdata.com/connector-platform/enginedoc/proxy-auto.html
+            // http://kb.mozillazine.org/Network.proxy.autoconfig_url
+            // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
+            // user_pref("network.proxy.type", 2);
             var chromePath = '/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome';
             var dataDir = __hii__.tmpdir;
-            var command = chromePath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
-            console.log(command);
+            var command = chromePath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+            // var command = chromePath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+            log.debug('open ==> ', command);
             require('child_process').exec(command, function(err){
                 if(err){
                     console.log(err);
