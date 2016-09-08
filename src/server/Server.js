@@ -6,7 +6,7 @@ var express = require('express');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
-var open = require("open");
+// var open = require("open");
 
 var logger = log.namespace('Server');
 var Compiler = require('../compiler');
@@ -224,7 +224,19 @@ function Server(port, openBrowser, proxy){
 
     server.on('listening', function(){
         var url = 'http://127.0.0.1:' + port;
-        openBrowser && open(url);
+        // openBrowser && open(url);
+
+        if(openBrowser){
+            var chromePath = '/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome';
+            var dataDir = __hii__.tmpdir;
+            var command = chromePath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+            console.log(command);
+            require('child_process').exec(command, function(err){
+                if(err){
+                    console.log(err);
+                }
+            });
+        }
 
         console.log();
         console.log('current workspace ', __hiipack__.cwd.green.bold);
