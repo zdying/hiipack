@@ -3,6 +3,7 @@
  * @author zdying
  */
 var fs = require('fs');
+var path = require('path');
 var child_process = require('child_process');
 var log = require('../helpers/log');
 var logger = log.namespace('package');
@@ -46,7 +47,7 @@ module.exports = {
         dirs.forEach(function(dir, index){
             dir = dir.replace(/\/node\_modules\/?$/, '');
             if(!finalPath){
-                var _path = dir + modulePath;
+                var _path = path.join(dir, modulePath);
                 var isExist  = fs.existsSync(_path);
 
                 if(isExist){

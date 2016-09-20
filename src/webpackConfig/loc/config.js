@@ -17,13 +17,15 @@ var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
+    console.log(projTmp);
     var config = {
         env: 'loc',
         context: root,
         devtool: 'cheap-module-inline-source-map',
         entry: {},
         output: {
-            path: projTmp + '/loc',
+            ppp: projTmp,
+            path: path.join(projTmp, 'loc'),
             filename: '[name].js',
             publicPath: '/loc/'
         },

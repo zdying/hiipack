@@ -188,7 +188,7 @@ Compiler.prototype = {
                     return value.toString()
                 }
                 return value
-            })
+            }, 4)
         );
 
         return config;
