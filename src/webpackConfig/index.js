@@ -12,6 +12,8 @@ var dllConfigDevFunc = require('./dev/config.dll');
 var configLocFunc = require('./loc/config');
 var dllConfigLocFunc = require('./loc/config.dll');
 
+var getUserConfig = require('./utils/getUserConfig');
+
 module.exports = {
     // 线上环境配置
     getPrdConfig: configFunc,
@@ -23,5 +25,8 @@ module.exports = {
 
     // 本地开发调试环境
     getLocConfig: configLocFunc,
-    getLocDLLConfig: dllConfigLocFunc
+    getLocDLLConfig: dllConfigLocFunc,
+
+    // 获取用户配置
+    getUserConfig: getUserConfig
 };

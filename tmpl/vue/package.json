@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "vue": "^1.0.26"
+  }
+}

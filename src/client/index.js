@@ -3,22 +3,19 @@
  * @author zdying
  */
 var colors = require('colors');
-var replace = require('replace');
 var webpack = require('webpack');
 var child_process = require('child_process');
 var exec = child_process.exec;
 var execSync = child_process.execSync;
 
-var configUtil = require('../webpackConfig');
+var Compiler = require('../compiler');
 
+var package = require('../helpers/package');
 var steps = require('../helpers/steps');
+var logger = log.namespace('client');
 
 var fse = require('fs-extra');
 var fs = require('fs');
-
-var logPrex = '[log]'.green.bold;
-var warnPrex = '[warn]'.yellow.bold;
-var errPrex = '[error]'.red.bold;
 
 module.exports = {
     /**
@@ -30,13 +27,12 @@ module.exports = {
         var templatePath = path.resolve(__dirname, '..', '..', 'tmpl', type);
         var targetPath = process.cwd() + '/' + projName;
 
-        // console.log(logPrex, '[copy]', templatePath.magenta.bold, 'to', targetPath.magenta.bold);
         steps.printTitle('copy template files');
 
         fse.copy(templatePath, targetPath, function(err){
             if(err){
                 steps.printErrorIcon();
-                console.error(err);
+                logger.error(err);
                 return
             }
             steps.printSuccessIcon();
@@ -44,65 +40,34 @@ module.exports = {
         }.bind(this));
     },
 
-    _build: function(config, callback){
-        var createCompiler = function(config, cbk){
-            var compiler = webpack(config);
-            var entry = Object.keys(config.entry);
-
-            var oldCwd = process.cwd();
-
-            process.chdir(__hiipack_root__);
-
-            compiler.plugin("compile", function(){
-                // this.isCompiling = true;
-                console.log('compiling: [' + entry.join('.js, ') + '.js]');
-            }.bind(this));
-
-            compiler.plugin("done", function(){
-                process.chdir(oldCwd)
-            });
-
-            compiler.run(function(err, state){
-                if(err){
-                    console.log(err);
-                }else{
-                    console.log(state.toString({
-                        colors: true,
-                        timings: true,
-                        chunks: false,
-                        children: false
-                    }));
-                    cbk && cbk(state)
-                }
-            });
-
-            return compiler
+    _build: function(env, callback){
+        var workPath = process.cwd();
+        var projectName = workPath.split('/').pop();
+        var compiler = new Compiler(projectName, workPath);
+        var dir = {
+            'dev': ['dev'],
+            'prd': ['prd', 'ver']
         };
 
-        createCompiler(config, callback)
+        logger.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
+
+        try{
+            // execSync('rm -rdf ./' + dir[env].join(' ./'));
+            dir[env].forEach(function(folder){
+                 fse.removeSync(folder)
+            });
+            compiler.compile(env, {watch: false}, callback);
+        }catch(e){
+            logger.error(e);
+        }
     },
 
     /**
      * 打包压缩线上版本代码
-     * @param cbk
+     * @param callback
      */
-    build: function(cbk){
-        var workPath = process.cwd();
-        var dllConfig = configUtil.getPrdDLLConfig(workPath);
-
-        steps.printTitle('clean ./prd/* && ./ver/*');
-
-        try{
-            execSync('rm -rdf ./prd && rm -rdf ./ver');
-            steps.printSuccessIcon();
-            this._build(dllConfig, function(){
-                var config = configUtil.getPrdConfig(workPath);
-                this._build(config, cbk)
-            }.bind(this))
-        }catch(e){
-            steps.printErrorIcon();
-            console.log(e.toString());
-        }
+    build: function(callback){
+        this._build('prd', callback)
     },
 
     /**
@@ -110,31 +75,7 @@ module.exports = {
      * @param callback
      */
     pack: function(callback){
-        var workPath = process.cwd();
-        var dllConfig = configUtil.getDevDLLConfig(workPath);
-        //TODO userConfig 可以直接作为参数传进去
-        var userConfig = require(workPath + '/config');
-        var hasLib = userConfig.library && Object.keys(userConfig.library).length > 0;
-
-        steps.printTitle('clean ./dev/*');
-
-        try{
-            execSync('rm -rdf ./dev');
-            steps.printSuccessIcon();
-
-            if(hasLib){
-                this._build(dllConfig, function(){
-                    var config = configUtil.getDevConfig(workPath);
-                    this._build(config)
-                }.bind(this))
-            }else{
-                var config = configUtil.getDevConfig(workPath);
-                this._build(config)
-            }
-        }catch(e){
-            steps.printErrorIcon();
-            console.log(e.toString());
-        }
+        this._build('dev', callback)
     },
 
     /**
@@ -150,6 +91,45 @@ module.exports = {
         }else{
             rsync.sync();
         }
+    },
+
+    /**
+     * 跑自动化测试
+     */
+    test: function(){
+        var root = __hii__.cwd;
+        var configPath = root + '/hii.config';
+        var config = require(configPath);
+        var autoTestConfig = config.autoTest || {};
+        var frameworks = autoTestConfig.framework || '';
+        var asserts = autoTestConfig.assertion || '';
+
+        if(frameworks){
+            package.installPackage(Array.isArray(frameworks) ? frameworks.join(' ') : frameworks);
+        }
+
+        if(asserts){
+            package.installPackage(Array.isArray(asserts) ? asserts.join(' ') : asserts);
+        }
+
+        var cmd = __hii__.root + "/node_modules/.bin/mocha --colors --compilers js:" + __hii__.resolve('babel-register');
+        // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
+        var rcFile = __hii__.cwd + '/.babelrc';
+        //TODO resolve时,如果不存在对应的依赖包, 自动安装
+        //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-register`
+        fs.writeFileSync(
+            rcFile,
+            JSON.stringify({
+                "presets": [__hii__.resolve("babel-preset-es2015")]
+            }, null, 4)
+        );
+        logger.debug('test', '-', 'exec command:', cmd.yellow);
+        logger.info('run testing...');
+        child_process.exec(cmd, {stdio: [0,1,2]}, function(err, stdout, stderr){
+            console.log(stdout);
+            console.log(stderr);
+            fs.unlink(rcFile);
+        });
     },
 
     /**
@@ -191,7 +171,7 @@ module.exports = {
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
                                 steps.printErrorIcon();
-                                console.log(err);
+                                logger.error(err);
                                 return
                             }
                             clearInterval(timer);
@@ -199,9 +179,10 @@ module.exports = {
                             steps.printTitle('installing dependencies');
                             steps.printSuccessIcon();
                             steps.showCursor();
-                            console.log('');
+                            console.log();
                             console.log('init success :)'.bold.green);
                             console.log('Now you may need to exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
+                            console.log();
                         });
                     }
                 };
@@ -212,7 +193,7 @@ module.exports = {
                     if(stat.isFile()){
                         fs.readFile(file, function(err, data){
                             if(err){
-                                return console.log(errPrex, err);
+                                return logger.error(err);
                             }
                             var fileContent = data.toString();
 
@@ -220,17 +201,10 @@ module.exports = {
 
                             fs.writeFile(file, fileContent, function(err){
                                 count++;
-                                // if(!err){
-                                //     console.log(logPrex, 'write file: '.green, file.bold);
-                                // }else{
-                                //     console.log(errPrex, 'write error: '.red, file.bold);
-                                //     console.log(err);
-                                // }
                                 finish();
                             });
                         })
                     }else if(stat.isDirectory()){
-                        // console.log(logPrex, 'copy directory: '.blue, file.bold);
                         count++;
                         finish();
                     }

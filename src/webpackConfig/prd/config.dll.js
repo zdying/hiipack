@@ -4,13 +4,11 @@
  */
 
 var webpack = require("webpack");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
-
+var utils = require('../../helpers/utils');
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 
-module.exports = function(root){
-    var userConfigPath = root + '/config';
-    var userConfig = require(userConfigPath);
+module.exports = function(root, userConfig){
+    var projTmp = utils.getProjectTMPDIR(root);
 
     return {
         context: root,
@@ -22,7 +20,7 @@ module.exports = function(root){
         },
         plugins: [
             new webpack.DllPlugin({
-                path: root + "/dll/[name]-manifest.json",
+                path: projTmp + "/dll/[name]-manifest.json",
                 name: "__lib__[name]__",
                 context: root
             }),
@@ -35,8 +33,7 @@ module.exports = function(root){
                     drop_debugger: true
                 }
             }),
-            new VersionPlugin(6),
-            new ProgressBarPlugin()
+            new VersionPlugin(6)
         ]
     }
 };

@@ -1,0 +1,15 @@
+{
+  "name": "hiipack_cache",
+  "version": "1.0.0",
+  "description": "hiipack cache diretory.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hiipack",
+    "cache"
+  ],
+  "author": "zdying@live.com",
+  "license": "MIT"
+}

@@ -12,24 +12,6 @@ var logPrex = '[log]'.green;
 var warnPrex = '[warn]'.yellow;
 var errPrex = '[error]'.red;
 
-// var IPReg = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/;
-//
-// function isIP(ip){
-//     var match = ip.match(IPReg);
-//
-//     return match && match.slice(1).every(function(num){
-//         return Number(num) < 256
-//     })
-// }
-//
-// function checkServerParam(server){
-//     if(IPReg.test(server) && !isIP(server)){
-//         return false
-//     }
-//
-//     return true
-// }
-
 function uploadFile(){
     var config = require(root + '/dev.json');
     var source = path.resolve(root, config.source) + '/';
@@ -46,7 +28,7 @@ function uploadFile(){
     }
 
     if(errorField.length > 0){
-        console.log('[error]'.red, 'invalid config field', errorField.join(' ').bold.yellow, 'at', (root + '/dev.json').bold.yellow);
+        console.log('[error]'.red, 'invalid config field', errorField.join(', ').bold.yellow, 'at', (root + '/dev.json').bold.yellow);
         console.log('\nconfig example: \n');
         console.log('  {');
         console.log('    "source": "./",');

@@ -4,27 +4,25 @@
  */
 
 var webpack = require("webpack");
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
+var utils = require('../../helpers/utils');
 
-module.exports = function(root){
-    var userConfigPath = root + '/config';
-    var userConfig = require(userConfigPath);
+module.exports = function(root, userConfig){
+    var projTmp = utils.getProjectTMPDIR(root);
 
     return {
         context: root,
         entry: userConfig.library,
         output: {
-            path: root + "/loc",
+            path: projTmp + "/loc",
             filename: "[name].js",
             library: "__lib__[name]__"
         },
         plugins: [
             new webpack.DllPlugin({
-                path: root + "/dll/[name]-manifest.json",
+                path: projTmp + "/dll/[name]-manifest.json",
                 name: "__lib__[name]__",
                 context: root
-            }),
-            new ProgressBarPlugin()
+            })
         ],
         // resolve: {
         //     root: root,

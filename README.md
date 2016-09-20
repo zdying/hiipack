@@ -7,32 +7,41 @@ hiipack is a front end development tool based on webpack.
   
     npm install hiipack -g
 
-
-  Usage: 
+  Usage: hii [options] [command]
   
-    cli [options] [command]
-
-
+  
   Commands:
-
-    init <name>  初始化一个项目
-    start        创建本地服务器
-    build        压缩/混淆项目文件
-    pack         合并项目文件
-    sync         同步/上传当前目录至远程服务器
-
+  
+      init <name>  initialize project
+      start        create a local server
+      min          compress/obfuscate project files
+      pack         pack project files
+      sync         synchronize the current directory to remote server
+      test         run unit test
+      clear        clear resulting folders of hiipack
+      
   Options:
-
-    -h, --help         output usage information
-    -V, --version      output the version number
-    -p, --port [port]  server port
-    -t, --type <type>  project type
+  
+      -h, --help                 output usage information
+      -v, --version              output the version number
+      -o, --open                 open in browser
+      -p, --port <port>          service port
+      -r, --registry <registry>  npm registry address
+      -d, --debug                print debug log
+      -D, --detail               print debug and error detail log
+      -t, --type <type>          project type: one of react|react-redux|es6|vue|normal|empty
+      --no-color                 disable log color
+      --proxy                    start the proxy server
 
   Examples:
 
-    $ hii init project_name
-    $ hii start
-    $ hii start -p 8800
-    $ hii pack
-    $ hii sync
-    $ hii build
+      $ hii init project_name
+      $ hii start
+      $ hii start -p 8800
+      $ hii pack
+      $ hii sync
+      $ hii min
+
+  Wiki:
+
+  [使用说明](https://github.com/zdying/hiipack/wiki/hiipack-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
