@@ -24,7 +24,6 @@ module.exports = function(root, userConfig){
         devtool: 'cheap-module-inline-source-map',
         entry: {},
         output: {
-            ppp: projTmp,
             path: path.join(projTmp, 'loc'),
             filename: '[name].js',
             publicPath: '/loc/'
