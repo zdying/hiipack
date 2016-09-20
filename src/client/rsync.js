@@ -17,6 +17,7 @@ function uploadFile(){
     var source = path.resolve(root, config.source) + '/';
     var _path = config.path;
     var server = config.server;
+    var isSudo = config.sudo === undefined ? true : config.sudo;
     var errorField = [];
 
     if(typeof _path !== 'string' || _path.length === 0){
@@ -33,6 +34,7 @@ function uploadFile(){
         console.log('  {');
         console.log('    "source": "./",');
         console.log('    "exclude": [".idea", ".git", "node_modules", "prd", "loc", "env", "src", "dll"],');
+        console.log('    "sudo": true,');
         console.log('    "path": "/root/username/project_name",');
         console.log('    "server": "root@192.168.111.111"');
         console.log('  }');
@@ -50,7 +52,7 @@ function uploadFile(){
         .destination(server + ':' + _path);
 
     rsync.set('chmod', 'a+rX,u+w');
-    rsync.set('rsync-path', 'sudo rsync');
+    rsync.set('rsync-path', (isSudo ? 'sudo ' : '') + 'rsync');
 
     console.log(logPrex, '执行:', rsync.command().bold);
 
