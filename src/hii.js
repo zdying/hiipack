@@ -40,9 +40,9 @@ program
     // .option('-e, --extract-css', 'extract css from javascript')
     .option('-D, --detail', 'print debug and error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
+    .option('-x, --proxy', 'start the proxy server')
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
-    .option('--no-color', 'disable log color')
-    .option('--proxy', 'start the proxy server');
+    .option('--no-color', 'disable log color');
 
 program
     .command('init <name>')
