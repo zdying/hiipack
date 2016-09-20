@@ -34,6 +34,7 @@ function uploadFile(){
         console.log('  {');
         console.log('    "source": "./",');
         console.log('    "exclude": [".idea", ".git", "node_modules", "prd", "loc", "env", "src", "dll"],');
+        console.log('    "sudo": true,');
         console.log('    "path": "/root/username/project_name",');
         console.log('    "server": "root@192.168.111.111"');
         console.log('  }');
