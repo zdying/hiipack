@@ -1,90 +1,88 @@
 <template>
-  <section class="todoapp">
-    <header class="header">
-      <h1>todos</h1>
-      <input class="new-todo"
-        autofocus autocomplete="off"
-        placeholder="What needs to be done?"
-        v-model="newTodo"
-        @keyup.enter="addTodo">
-    </header>
-    <section class="main" v-show="todos.length" v-cloak>
-      <input class="toggle-all" type="checkbox" v-model="allDone">
-      <ul class="todo-list">
-        <li class="todo"
-          v-for="todo in filteredTodos"
-          :class="{completed: todo.completed, editing: todo == editedTodo}">
-          <div class="view">
-            <input class="toggle" type="checkbox" v-model="todo.completed">
-            <label @dblclick="editTodo(todo)">{{todo.title}}</label>
-            <button class="destroy" @click="removeTodo(todo)"></button>
-          </div>
-          <input class="edit" type="text"
-            v-model="todo.title"
-            v-todo-focus="todo == editedTodo"
-            @blur="doneEdit(todo)"
-            @keyup.enter="doneEdit(todo)"
-            @keyup.esc="cancelEdit(todo)">
-        </li>
-      </ul>
+    <section class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <input class="new-todo"
+            autofocus autocomplete="off"
+            placeholder="What needs to be done?"
+            v-model="newTodo"
+            @keyup.enter="addTodo">
+        </header>
+        <section class="main" v-show="todos.length" v-cloak>
+            <input class="toggle-all" type="checkbox" v-model="allDone">
+            <ul class="todo-list">
+                <li class="todo"
+                    v-for="todo in filteredTodos"
+                    :class="{completed: todo.completed, editing: todo == editedTodo}">
+                    <div class="view">
+                        <input class="toggle" type="checkbox" v-model="todo.completed">
+                        <label @dblclick="editTodo(todo)">{{todo.title}}</label>
+                        <button class="destroy" @click="removeTodo(todo)"></button>
+                    </div>
+                    <input class="edit" type="text"
+                    v-model="todo.title"
+                    v-todo-focus="todo == editedTodo"
+                    @blur="doneEdit(todo)"
+                    @keyup.enter="doneEdit(todo)"
+                    @keyup.esc="cancelEdit(todo)">
+                </li>
+            </ul>
+        </section>
+        <footer class="footer" v-show="todos.length" v-cloak>
+            <span class="todo-count">
+                <strong v-text="remaining"></strong> {{remaining | pluralize 'item'}} left
+            </span>
+            <ul class="filters">
+                <li><a href="#/all" :class="{selected: visibility == 'all'}">All</a></li>
+                <li><a href="#/active" :class="{selected: visibility == 'active'}">Active</a></li>
+                <li><a href="#/completed" :class="{selected: visibility == 'completed'}">Completed</a></li>
+            </ul>
+            <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">Clear completed</button>
+        </footer>
     </section>
-    <footer class="footer" v-show="todos.length" v-cloak>
-      <span class="todo-count">
-        <strong v-text="remaining"></strong> {{remaining | pluralize 'item'}} left
-      </span>
-      <ul class="filters">
-        <li><a href="#/all" :class="{selected: visibility == 'all'}">All</a></li>
-        <li><a href="#/active" :class="{selected: visibility == 'active'}">Active</a></li>
-        <li><a href="#/completed" :class="{selected: visibility == 'completed'}">Completed</a></li>
-      </ul>
-      <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
-        Clear completed
-      </button>
-    </footer>
-  </section>
 </template>
 
 <script>
 var todoStorage = require('../store.js').todoStorage;
- 
+
 var Router = require('../director').Router;
 var router = new Router();
 
 var filters = {
-    all: function (todos) {
+    all: function(todos) {
         return todos;
     },
-    active: function (todos) {
-        return todos.filter(function (todo) {
-            return !todo.completed;
+    active: function(todos) {
+        return todos.filter(function(todo) {
+            return ! todo.completed;
         });
     },
-    completed: function (todos) {
-        return todos.filter(function (todo) {
+    completed: function(todos) {
+        return todos.filter(function(todo) {
             return todo.completed;
         });
     }
 };
- 
-var $vue = module.exports = {
-    ready: function () {
-        var self = this;
-        ['all', 'active', 'completed'].forEach(function (visibility) {
-            router.on(visibility, function () {
+
+module.exports = {
+    ready: function() {
+        var self = this; ['all', 'active', 'completed'].forEach(function(visibility) {
+            router.on(visibility,
+            function() {
                 self.visibility = visibility;
             });
         });
- 
+
         router.configure({
-            notfound: function () {
+            notfound: function() {
                 window.location.hash = '';
                 self.visibility = 'all';
             }
         });
- 
+
         router.init();
     },
-    data: function () {
+    data: function() {
         return {
             todos: todoStorage.fetch(),
             newTodo: '',
@@ -94,33 +92,33 @@ var $vue = module.exports = {
     },
     watch: {
         todos: {
-            handler: function (todos) {
+            handler: function(todos) {
                 todoStorage.save(todos);
             },
             deep: true
         }
     },
     computed: {
-        filteredTodos: function () {
+        filteredTodos: function() {
             return filters[this.visibility](this.todos);
         },
-        remaining: function () {
+        remaining: function() {
             return filters.active(this.todos).length;
         },
         allDone: {
-            get: function () {
+            get: function() {
                 return this.remaining === 0;
             },
-            set: function (value) {
-                this.todos.forEach(function (todo) {
+            set: function(value) {
+                this.todos.forEach(function(todo) {
                     todo.completed = value;
                 });
             }
         }
     },
     methods: {
- 
-        addTodo: function () {
+
+        addTodo: function() {
             var value = this.newTodo && this.newTodo.trim();
             if (!value) {
                 return;
@@ -131,17 +129,17 @@ var $vue = module.exports = {
             });
             this.newTodo = '';
         },
- 
-        removeTodo: function (todo) {
+
+        removeTodo: function(todo) {
             this.todos.$remove(todo);
         },
- 
-        editTodo: function (todo) {
+
+        editTodo: function(todo) {
             this.beforeEditCache = todo.title;
             this.editedTodo = todo;
         },
- 
-        doneEdit: function (todo) {
+
+        doneEdit: function(todo) {
             if (!this.editedTodo) {
                 return;
             }
@@ -151,23 +149,23 @@ var $vue = module.exports = {
                 this.removeTodo(todo);
             }
         },
- 
-        cancelEdit: function (todo) {
+
+        cancelEdit: function(todo) {
             this.editedTodo = null;
             todo.title = this.beforeEditCache;
         },
- 
-        removeCompleted: function () {
+
+        removeCompleted: function() {
             this.todos = filters.active(this.todos);
         }
     },
     directives: {
-        'todo-focus': function (value) {
+        'todo-focus': function(value) {
             if (!value) {
                 return;
             }
             var el = this.el;
-            this.$nextTick(function () {
+            this.$nextTick(function() {
                 el.focus();
             });
         }
@@ -554,5 +552,4 @@ html .clear-completed:active {
     bottom: 10px;
   }
 }
-
 </style>
