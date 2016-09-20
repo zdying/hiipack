@@ -20,7 +20,7 @@ var __hiipack__ = {
     /**
      * hiipack根目录
      */
-    root: path.resolve(__dirname, '..'),
+    root: path.join(__dirname, '..'),
     /**
      * 当前工作目录
      */
@@ -28,11 +28,11 @@ var __hiipack__ = {
     /**
      * hiipack存放依赖的临时目录
      */
-    tmpdir: os.tmpdir() + '/hiipack_cache',
+    tmpdir: path.join(os.tmpdir(), 'hiipack_cache'),
     /**
      * hiipack存放工程临时编译文件的目录
      */
-    codeTmpdir: os.tmpdir() + '/hiipack_code',
+    codeTmpdir: path.join(os.tmpdir(), 'hiipack_code'),
     /**
      * 查找模块路径, 模块查找顺序: cwd > root > globalRoot > tmpdir
      * 用户可以安装依赖到自己的前端项目中, 如果前端项目中没有指定的依赖, 则去root和globalRoot中查找,
@@ -42,13 +42,13 @@ var __hiipack__ = {
      * @returns {string}
      */
     resolve: function(module){
-        var path = package.getPackagePath(module);
+        var _path = package.getPackagePath(module);
 
-        if(!path){
-            path = this.tmpdir + '/node_modules/' + module;
+        if(!_path){
+            _path = path.join(this.tmpdir, 'node_modules', module);
         }
 
-        return path
+        return _path
     }
 };
 

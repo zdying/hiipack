@@ -3,6 +3,8 @@
  * @author zdying
  */
 
+var path = require('path');
+
 module.exports = function getBabelLoader(userConfig, env){
     var babelConfig = userConfig.babel || {};
     var presets = babelConfig.presets;
@@ -36,9 +38,9 @@ module.exports = function getBabelLoader(userConfig, env){
         include: include,
         loader: 'babel',
         query: {
-            cacheDirectory: (env === 'loc' || env === 'dev') ? __hii__.codeTmpdir + '/__babel_cache__' : false,
-            presets: (presets).map(__hii__.resolve),
-            plugins: (plugins).map(__hii__.resolve)
+            cacheDirectory: (env === 'loc' || env === 'dev') ? path.join(__hii__.codeTmpdir, '__babel_cache__') : false,
+            presets: presets.map(__hii__.resolve),
+            plugins: plugins.map(__hii__.resolve)
         }
     }
 };

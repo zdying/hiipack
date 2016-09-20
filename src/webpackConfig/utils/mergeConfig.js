@@ -11,6 +11,7 @@ var parseLoaders = require('./parseLoaders');
 var parsePlugins = require('./parsePlugins');
 
 var webpack = require('webpack');
+var path = require('path');
 
 module.exports = function mergeConfig(config, userConfig, env, root){
     var args = [].slice.call(arguments, 0);
@@ -86,7 +87,7 @@ function getDllPlugin(root, userConfig){
         log.debug('webpackConfig -', 'use dll file', projTmp + "/dll/lib-manifest.json");
         return new webpack.DllReferencePlugin({
             context: root,
-            manifest: require(projTmp + "/dll/lib-manifest.json")
+            manifest: require(path.join(projTmp, "/dll/lib-manifest.json"))
         })
     }
 }

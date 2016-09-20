@@ -23,7 +23,7 @@ module.exports = function(root, userConfig){
         context: root,
         entry: {},
         output: {
-            path: root + '/prd',
+            path: path.join(root, 'prd'),
             filename: '[name].js',
             hashDigestLength: 32
         },

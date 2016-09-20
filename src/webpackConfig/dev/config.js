@@ -21,7 +21,7 @@ module.exports = function(root, userConfig){
         env: 'dev',
         entry: {},
         output: {
-            path: root + '/dev',
+            path: path.resolve(root, 'dev'),
             filename: '[name]@dev.js',
             hashDigestLength: 32
         },
