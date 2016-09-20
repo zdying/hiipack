@@ -1,3 +1,5 @@
+* **support windows**
+
 * support webpack config file : `webpack.config.js`
 * support use config file by cli options
 
