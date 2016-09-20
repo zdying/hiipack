@@ -9,4 +9,4 @@
 
 * support open browser with proxy: firefox
 
-* update documention
+* ~~update documention~~

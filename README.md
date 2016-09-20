@@ -7,7 +7,9 @@ hiipack is a front end development tool based on webpack.
   
     npm install hiipack -g
 
-  Usage: hii [options] [command]
+  Usage: 
+    
+    hii [options] [command]
   
   
   Commands:
@@ -19,7 +21,7 @@ hiipack is a front end development tool based on webpack.
       sync         synchronize the current directory to remote server
       test         run unit test
       clear        clear resulting folders of hiipack
-      
+  
   Options:
   
       -h, --help                 output usage information
@@ -29,12 +31,12 @@ hiipack is a front end development tool based on webpack.
       -r, --registry <registry>  npm registry address
       -d, --debug                print debug log
       -D, --detail               print debug and error detail log
+      -x, --proxy                start the proxy server
       -t, --type <type>          project type: one of react|react-redux|es6|vue|normal|empty
       --no-color                 disable log color
-      --proxy                    start the proxy server
-
+  
   Examples:
-
+  
       $ hii init project_name
       $ hii start
       $ hii start -p 8800
