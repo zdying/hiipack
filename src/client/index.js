@@ -11,7 +11,6 @@ var execSync = child_process.execSync;
 var Compiler = require('../compiler');
 
 var package = require('../helpers/package');
-var steps = require('../helpers/steps');
 var logger = log.namespace('client');
 
 var path = require('path');
@@ -27,15 +26,13 @@ module.exports = {
         var templatePath = path.resolve(__dirname, '..', '..', 'tmpl', type);
         var targetPath = path.join(process.cwd(), projName);
 
-        steps.printTitle('copy template files');
+        log.info('copy template files ...');
 
         fse.copy(templatePath, targetPath, function(err){
             if(err){
-                steps.printErrorIcon();
                 logger.error(err);
                 return
             }
-            steps.printSuccessIcon();
             this._replaceProjectName(projName, targetPath, registry);
         }.bind(this));
     },
@@ -141,9 +138,8 @@ module.exports = {
      */
     _replaceProjectName: function(projName, root, registry){
         var items = []; // files, directories, symlinks, etc
-        steps.printTitle('setup project');
-        steps.printSuccessIcon();
-        steps.printTitle('rename template files');
+        log.info('setup project ...');
+        log.info('rename template files ...');
         fse.walk(root)
             .on('data', function(item){
                 items.push(item.path);
@@ -153,32 +149,15 @@ module.exports = {
                 var len = items.length;
                 var finish = function(){
                     if(count === len){
-                        steps.printSuccessIcon();
-
                         var cmd = 'cd ' + projName + ' && npm install' + (registry ? ' --registry ' + registry : '');
 
-                        // steps.printTitle('setup project (installing dependencies)');
-                        steps.hideCusror();
-
-                        var _count = 1;
-                        var timer = setInterval(function(){
-                            var count = _count++;
-                            var points = (new Array(count % 5)).join('.');
-                            steps.clearLine();
-                            steps.printTitle('installing dependencies ' + points);
-                        }, 500);
+                        log.info('installing dependencies ...');
 
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
-                                steps.printErrorIcon();
                                 logger.error(err);
                                 return
                             }
-                            clearInterval(timer);
-                            steps.clearLine();
-                            steps.printTitle('installing dependencies');
-                            steps.printSuccessIcon();
-                            steps.showCursor();
                             console.log();
                             console.log('init success :)'.bold.green);
                             console.log('Now you may need to exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
