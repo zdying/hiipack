@@ -13,8 +13,8 @@ var warnPrex = '[warn]'.yellow;
 var errPrex = '[error]'.red;
 
 function uploadFile(){
-    var config = require(root + '/dev.json');
-    var source = path.resolve(root, config.source) + '/';
+    var config = require(path.join(root, 'dev.json'));
+    var source = path.join(root, config.source, '/');
     var _path = config.path;
     var server = config.server;
     var errorField = [];

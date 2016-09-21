@@ -14,6 +14,7 @@ var package = require('../helpers/package');
 var steps = require('../helpers/steps');
 var logger = log.namespace('client');
 
+var path = require('path');
 var fse = require('fs-extra');
 var fs = require('fs');
 
@@ -23,9 +24,8 @@ module.exports = {
      * @param argv
      */
     init: function(projName, type, registry){
-        var path = require('path');
         var templatePath = path.resolve(__dirname, '..', '..', 'tmpl', type);
-        var targetPath = process.cwd() + '/' + projName;
+        var targetPath = path.join(process.cwd(), projName);
 
         steps.printTitle('copy template files');
 
@@ -98,7 +98,7 @@ module.exports = {
      */
     test: function(){
         var root = __hii__.cwd;
-        var configPath = root + '/hii.config';
+        var configPath = path.join(root, 'hii.config');
         var config = require(configPath);
         var autoTestConfig = config.autoTest || {};
         var frameworks = autoTestConfig.framework || '';
@@ -112,9 +112,9 @@ module.exports = {
             package.installPackage(Array.isArray(asserts) ? asserts.join(' ') : asserts);
         }
 
-        var cmd = __hii__.root + "/node_modules/.bin/mocha --colors --compilers js:" + __hii__.resolve('babel-register');
+        var cmd = path.join(__hii__.root, "node_modules/.bin/mocha") + " --colors --compilers js:" + __hii__.resolve('babel-register');
         // var cmd = "mocha --compilers js:" + __hii__.resolve('babel-register');
-        var rcFile = __hii__.cwd + '/.babelrc';
+        var rcFile = path.join(__hii__.cwd, '.babelrc');
         //TODO resolve时,如果不存在对应的依赖包, 自动安装
         //TODO 解决上面的问题后, 去除hiipack内置依赖`babel-register`
         fs.writeFileSync(
