@@ -46,6 +46,7 @@ function VersionPlugin(hashLength, pattern){
                         if(err) console.log('[ERROR]'.bold.red, err.message);
                     });
                     lines.push(fileName + '#' + md5);
+                    versions[fileName] = md5;
                 }
             };
 
@@ -56,11 +57,35 @@ function VersionPlugin(hashLength, pattern){
                 handerChunk(fileName, filePath);
             }
 
-            // try{
-            //     require('child_process').execSync('cd ' + context + ' && mkdir ver')
-            // }catch(err){
-            //     console.log('[ERROR]'.bold.red, err.message);
-            // }
+            var root = path.resolve(__hii__.cwd, 'src/view/');
+            fs.readdir(root, function (err, files) {
+                if(err){
+                    console.log(err)
+                }else{
+                    files.forEach(function(file){
+                        if(!file.match(/\.(htm|html)/)){
+                            return
+                        }
+                        var filePath = root + '/' + file;
+                        var oldStr = fs.readFileSync(filePath).toString();
+
+                        var newStr = oldStr.replace(/\/([^\/]*?)@(\w+)\.(js|css)/g, function(match, fileName, version, fileExt){
+                            var ver = versions[fileName + '.' + fileExt];
+                            if(ver){
+                                console.log('');
+                                return '/' + fileName + '@' + ver + '.' + fileExt;
+                            }else{
+                                return match;
+                            }
+                        });
+
+                        newStr && fs.writeFile(filePath, newStr, function(err){
+                            if(err){ return console.log(err) }
+                            console.log('[debug]', filePath, '版本号替换成功.');
+                        })
+                    })
+                }
+            });
 
             // fs.mkdir('ver', function(err){
             mkdirParent(context + '/ver', function(err){

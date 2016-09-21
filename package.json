@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "1.0.3-beta",
+  "version": "1.0.3-beta.1",
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
@@ -49,8 +49,6 @@
     "rsync": "^0.4.0",
     "sass-loader": "^3.2.3",
     "style-loader": "^0.13.1",
-    "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1",
-    "webpack-hot-middleware": "^2.12.1"
+    "webpack": "^1.13.1"
   }
 }
