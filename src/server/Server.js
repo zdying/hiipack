@@ -286,6 +286,8 @@ Server.prototype = {
 
         var res = req.res;
 
+        res.set('Access-Control-Allow-Origin', '*');
+
         res.sendFile(filePath, function(err){
             if(err){
                 res.statusCode = 404;
