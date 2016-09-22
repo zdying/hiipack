@@ -9,6 +9,7 @@ var path = require('path');
 
 var color = require('colors');
 var webpack = require('webpack');
+var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
 var getBabelLoader = require('../utils/getBabelLoader');
@@ -31,9 +32,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'loc'),
-                { test: /\.css$/, loader: "style!css?sourceMap" },
-                { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat" },
-                { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap" }
+                { test: /\.css$/, loader: "style!css?sourceMap!postcss" },
+                { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss" },
+                { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap!postcss" }
             ],
             postLoaders: [
                 {
@@ -41,6 +42,9 @@ module.exports = function(root, userConfig){
                     loaders: ['es3ify-loader']
                 }
             ]
+        },
+        postcss: function() {
+            return [autoprefixer];
         },
         plugins: [
             new webpack.DefinePlugin({

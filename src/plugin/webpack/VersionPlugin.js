@@ -60,7 +60,7 @@ function VersionPlugin(hashLength, pattern){
             var root = path.resolve(__hii__.cwd, 'src/view/');
             fs.readdir(root, function (err, files) {
                 if(err){
-                    console.log(err)
+                    // console.log(err)
                 }else{
                     files.forEach(function(file){
                         if(!file.match(/\.(htm|html)/)){
