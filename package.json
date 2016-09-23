@@ -4,7 +4,8 @@
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "postinstall": "node ./src/scripts/postinstall.js"
   },
   "bin": {
     "hiipack": "./src/cli.js",
