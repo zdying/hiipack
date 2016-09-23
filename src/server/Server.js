@@ -6,7 +6,6 @@ var express = require('express');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
-// var open = require("open");
 
 var logger = log.namespace('Server');
 var Compiler = require('../compiler');

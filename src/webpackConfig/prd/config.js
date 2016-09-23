@@ -8,6 +8,7 @@ var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var autoprefixer = require('autoprefixer');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
@@ -30,9 +31,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'prd'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
+                { test: /\.css$/, loader: ExtractTextPlugin.extract("css!postcss") },
+                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less!postcss") },
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass!postcss") }
             ],
             postLoaders: [
                 {
@@ -40,6 +41,9 @@ module.exports = function(root, userConfig){
                     loaders: ['es3ify-loader']
                 }
             ]
+        },
+        postcss: function() {
+            return [autoprefixer];
         },
         plugins: [
             /**
