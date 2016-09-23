@@ -75,6 +75,7 @@ module.exports = {
             }
         ]
     },
+    replaceVersion: 'src/'
     // babel: {
     //     plugins: null,
     //     presets: ['babel-preset-react', 'babel-preset-es2015-loose'],

@@ -10,6 +10,7 @@ var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
+var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
 var getBabelLoader = require('../utils/getBabelLoader');
@@ -28,9 +29,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'dev'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
+                { test: /\.css$/, loader: ExtractTextPlugin.extract("css!postcss") },
+                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less!postcss") },
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass!postcss") }
             ],
             postLoaders: [
                 {
@@ -38,6 +39,9 @@ module.exports = function(root, userConfig){
                     loaders: ['es3ify-loader']
                 }
             ]
+        },
+        postcss: function() {
+            return [autoprefixer];
         },
         plugins: [
             new webpack.DefinePlugin({
