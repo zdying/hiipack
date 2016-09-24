@@ -18,7 +18,14 @@ var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
-    console.log(projTmp);
+    var cssLoader = userConfig.css && userConfig.css.loader;
+    var lessLoader = userConfig.less && userConfig.less.loader;
+    var scssLoader = userConfig.scss && userConfig.scss.loader;
+
+    var defaultCssLoader = "style!css?sourceMap!postcss";
+    var defaultLessLoader = "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss";
+    var defaultScssLoader = "style!css?sourceMap!sass?sourceMap!postcss";
+
     var config = {
         env: 'loc',
         context: root,
@@ -32,9 +39,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'loc'),
-                { test: /\.css$/, loader: "style!css?sourceMap!postcss" },
-                { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss" },
-                { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap!postcss" }
+                { test: /\.css$/, loader: cssLoader || defaultCssLoader },
+                { test: /\.less$/, loader: lessLoader ||  defaultLessLoader},
+                { test: /\.scss$/, loader: scssLoader || defaultScssLoader }
             ],
             postLoaders: [
                 {

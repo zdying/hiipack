@@ -39,6 +39,17 @@ module.exports = {
         assertion: 'expect'
         // assertion: ['expect', 'assert']
     },
+    less: {},
+    scss: {},
+    css: {
+        loader: ''
+    },
+    // js: {
+    //     loader: ''
+    // },
+    // html: {
+    //     loader: ''
+    // },
     /**
      * 扩展配置， 这里的配置会合并到默认的配置， 上面所有的配置会覆盖默认配置
      */
