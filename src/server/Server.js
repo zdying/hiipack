@@ -6,10 +6,12 @@ var express = require('express');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 
 var logger = log.namespace('Server');
 var Compiler = require('../compiler');
 var ProxyServer = require('../proxy');
+var detectBrowser = require('./detectBrowser');
 
 var clients = {};
 var clientId = 0;
@@ -232,20 +234,26 @@ function Server(port, openBrowser, proxy){
             // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
             // user_pref("network.proxy.type", 2);
 
-            // windows chrome path:
-            // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe
-            // reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe" /v Path
+            var browserPath = detectBrowser(program.open);
 
-            var chromePath = '/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome';
-            var dataDir = __hii__.tmpdir;
-            var command = chromePath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
-            // var command = chromePath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
-            log.debug('open ==> ', command);
-            require('child_process').exec(command, function(err){
-                if(err){
-                    console.log(err);
+            if(!browserPath){
+                log.error('can not find browser', program.open.bold.yellow);
+            }else{
+                var dataDir = __hii__.tmpdir;
+
+                if(os.platform() === 'win32'){
+                    browserPath = '"' + browserPath + '"';
                 }
-            });
+
+                var command = browserPath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+                // var command = browserPath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+                log.debug('open ==> ', command);
+                require('child_process').exec(command, function(err){
+                    if(err){
+                        console.log(err);
+                    }
+                });
+            }
         }
 
         console.log();
