@@ -231,6 +231,11 @@ function Server(port, openBrowser, proxy){
             // http://kb.mozillazine.org/Network.proxy.autoconfig_url
             // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
             // user_pref("network.proxy.type", 2);
+
+            // windows chrome path:
+            // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe
+            // reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe" /v Path
+
             var chromePath = '/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome';
             var dataDir = __hii__.tmpdir;
             var command = chromePath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
