@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "1.0.3-beta.2",
+  "version": "1.0.3-beta.9",
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
@@ -51,5 +51,34 @@
     "sass-loader": "^3.2.3",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1"
-  }
+  },
+  "bundledDependencies": [
+    "babel-core",
+    "babel-loader",
+    "babel-plugin-add-module-exports",
+    "babel-plugin-transform-export-extensions",
+    "babel-plugin-transform-object-assign",
+    "babel-plugin-transform-object-rest-spread",
+    "babel-plugin-transform-runtime",
+    "babel-preset-es2015",
+    "babel-preset-es2015-loose",
+    "babel-preset-react",
+    "colors",
+    "commander",
+    "copy-webpack-plugin",
+    "css-loader",
+    "es3ify-loader",
+    "express",
+    "extend",
+    "extract-text-webpack-plugin",
+    "fs-extra",
+    "less",
+    "less-loader",
+    "md5-file",
+    "mocha",
+    "postcss-loader",
+    "rsync",
+    "style-loader",
+    "webpack"
+  ]
 }
