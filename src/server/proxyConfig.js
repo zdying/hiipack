@@ -20,6 +20,19 @@ module.exports = {
         ].join(' ');
     },
 
+    opera: function(dataDir, url){
+        return [
+            '--proxy-pac-url="' + PAC_PATH + '"',
+            '--user-data-dir="'+ dataDir + '/opera-cache' +'"',
+            '--lang=local',
+            url
+        ].join(' ');
+    },
+
+    safari: function(dataDir, url){
+        return ''
+    },
+
     firefox: function(dataDir, url, firefoxPath){
         // Firefox pac set
         // http://www.indexdata.com/connector-platform/enginedoc/proxy-auto.html
