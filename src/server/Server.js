@@ -12,6 +12,7 @@ var logger = log.namespace('Server');
 var Compiler = require('../compiler');
 var ProxyServer = require('../proxy');
 var detectBrowser = require('./detectBrowser');
+var proxyConfig = require('./proxyConfig');
 
 var clients = {};
 var clientId = 0;
@@ -245,7 +246,7 @@ function Server(port, openBrowser, proxy){
                     browserPath = '"' + browserPath + '"';
                 }
 
-                var command = browserPath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+                var command = browserPath + ' ' + proxyConfig[program.open](dataDir, url, browserPath);
                 // var command = browserPath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
                 log.debug('open ==> ', command);
                 require('child_process').exec(command, function(err){
