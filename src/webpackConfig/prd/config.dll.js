@@ -20,6 +20,14 @@ module.exports = function(root, userConfig){
             library: "__lib__[name]__"
         },
         plugins: [
+            /**
+             * 定义环境变量
+             */
+            new webpack.DefinePlugin({
+                'process.env': {
+                    'NODE_ENV': JSON.stringify('production')
+                }
+            }),
             new webpack.DllPlugin({
                 path: path.join(projTmp, "/dll/[name]-manifest.json"),
                 name: "__lib__[name]__",

@@ -18,6 +18,14 @@ var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
+    var cssLoader = userConfig.css && userConfig.css.loader;
+    var lessLoader = userConfig.less && userConfig.less.loader;
+    var scssLoader = userConfig.scss && userConfig.scss.loader;
+
+    var defaultCssLoader = "css!postcss";
+    var defaultLessLoader = "css!less!postcss";
+    var defaultScssLoader = "css!sass!postcss";
+
     var config = {
         env: 'dev',
         entry: {},
@@ -29,9 +37,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'dev'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract("css!postcss") },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less!postcss") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass!postcss") }
+                { test: /\.css$/, loader: ExtractTextPlugin.extract(cssLoader || defaultCssLoader) },
+                { test: /\.less$/, loader: ExtractTextPlugin.extract(lessLoader ||  defaultLessLoader) },
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract(scssLoader || defaultScssLoader) }
             ],
             postLoaders: [
                 {

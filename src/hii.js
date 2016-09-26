@@ -30,7 +30,7 @@ try{
 
 program
     .version(package.version, '-v, --version')
-    .option('-o, --open', 'open in browser')
+    .option('-o, --open [open]', 'open in browser, one of: chrome|firefox|safari|opera', /^(chrome|firefox|safari|opera)$/, 'chrome')
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')

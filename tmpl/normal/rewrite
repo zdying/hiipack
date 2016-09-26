@@ -7,7 +7,7 @@
 # api.example.com => {
 #     location /user/ {
 #
-#         proxy other.example.com/user/;
+#         proxy_pass other.example.com/user/;
 #
 #         ## proxy request config
 #         proxy_set_header host api.example.com;
@@ -33,7 +33,7 @@ usercenter.example.com => userinfo.example.com
 api.example.com => {
     location /user/ {
         # proxy target url
-        proxy http://127.0.0.1:8800/news/src/mock/;
+        proxy_pass http://127.0.0.1:8800/news/src/mock/;
 
         # set proxy request header
         set_header Access-Control-Allow-Origin *;
@@ -42,7 +42,7 @@ api.example.com => {
 
 api.example.com => {
     location /user/login.do {
-        proxy http://127.0.0.1:8800/news/src/mock/list.json;
+        proxy_pass http://127.0.0.1:8800/news/src/mock/list.json;
         set_header Access-Control-Allow-Origin *;
     }
 }

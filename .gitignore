@@ -41,3 +41,7 @@ jspm_packages
 
 # System
 .DS_Store
+
+# node_module Localization
+
+library
