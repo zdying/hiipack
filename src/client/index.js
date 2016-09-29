@@ -78,7 +78,7 @@ module.exports = {
     /**
      * 上传文件到开发机
      */
-    sync: function(){
+    sync: function(syncConf){
         var root = process.cwd();
         var rsync = require('./rsync');
         var isExist = fs.existsSync(root + '/dev');
@@ -86,7 +86,7 @@ module.exports = {
         if(!isExist){
             this.pack(rsync.sync)
         }else{
-            rsync.sync();
+            rsync.sync(syncConf);
         }
     },
 
