@@ -12,8 +12,9 @@ var logPrex = '[log]'.green;
 var warnPrex = '[warn]'.yellow;
 var errPrex = '[error]'.red;
 
-function uploadFile(){
-    var config = require(path.join(root, 'dev.json'));
+function uploadFile(configPath){
+    var configPath = configPath || 'dev.json';
+    var config = require(path.join(root, configPath));
     var source = path.join(root, config.source, '/');
     var _path = config.path;
     var server = config.server;

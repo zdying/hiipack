@@ -34,6 +34,7 @@ program
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
+    .option('-s, --syncConf <syncConf>', 'custom sync config')
     //TODO add this next version
     // .option('-U, --uglify', 'uglify javascript')
     //TODO add this next version
@@ -76,7 +77,7 @@ program
     .command('sync')
     .description('synchronize the current directory to remote server')
     .action(function(){
-        client.sync();
+        client.sync(program.syncConf);
     });
 
 program
