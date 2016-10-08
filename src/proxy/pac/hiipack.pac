@@ -7,7 +7,9 @@ var DOMAINS = {
     "example.com": 1,
     "example.com.cn": 1,
     "usercenter.example.com": 1,
-    "api.example.com": 1
+    "api.example.com": 1,
+    "joke1.oupeng.com": 1,
+    "s-ad.oupeng.com": 1
 };
 
 function FindProxyForURL(url, host) {

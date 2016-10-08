@@ -33,7 +33,7 @@ module.exports = {
         return !!this.getPackagePath(moduleName)
     },
 
-    getPackagePath: function(moduleName){
+    getPackagePath: function(moduleName, version){
         if(!moduleName){
             throw Error('module name should not be empty.');
         }
@@ -44,13 +44,25 @@ module.exports = {
         var logTips = ['loader', moduleName.bold.green, 'is already exists, position'].join(' ');
         var finalPath = '';
 
+        if(version){
+            dirs.splice(3, 0, path.resolve(__hii__.tmpdir, '..', 'hiipack_cache_with_version'))
+        }
+
         dirs.forEach(function(dir, index){
             dir = dir.replace(/\/node\_modules\/?$/, '');
+            var withVersion = version && dir.match(/hiipack_cache_with_version$/);
             if(!finalPath){
+                if(withVersion){
+                    modulePath += '@' + version;
+                }
+
                 var _path = path.join(dir, modulePath);
                 var isExist  = fs.existsSync(_path);
 
-                if(isExist){
+                if((
+                    withVersion && isExist)
+                    || (version && isExist && require(path.join(_path, 'package.json')).version === version)
+                ){
                     finalPath = _path;
                     logger.debug(logTips, tips[index].bold.green);
                 }else{
@@ -158,3 +170,13 @@ module.exports = {
         return installed
     }
 };
+
+//test
+require('../global');
+console.log(module.exports.getPackagePath('big1.js'), 1);
+
+console.log(module.exports.getPackagePath('big1.js', '1.2.3'), 2);
+
+console.log(module.exports.getPackagePath('big1.js', '1.2.4'), 3);
+
+console.log(module.exports.getPackagePath('big1.js', '3.1.3'), 4);
