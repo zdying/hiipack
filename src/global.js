@@ -30,6 +30,10 @@ var __hiipack__ = {
      */
     tmpdir: path.join(os.tmpdir(), 'hiipack_cache'),
     /**
+     * hiipack存放依赖的临时目录(带版本号)
+     */
+    tmpdirWithVersion: path.join(os.tmpdir(), 'hiipack_cache_with_version'),
+    /**
      * hiipack存放工程临时编译文件的目录
      */
     codeTmpdir: path.join(os.tmpdir(), 'hiipack_code'),

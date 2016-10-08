@@ -31,6 +31,8 @@ module.exports = function parseLoaders(customLoaders){
         if(loader.loader){
             // type1 ==> 直接使用loader
             installLoader(loader);
+            log.info('loader.loader', JSON.stringify(loader));
+            // loader.loader = pkg.getPackagePath(loader.loader);
             loaders.push(loader);
         }else{
             // type2/type3 ==> 先安装,然后设置
@@ -52,7 +54,8 @@ module.exports = function parseLoaders(customLoaders){
                     }
 
                     installLoader(loaderResult);
-
+                    log.info('loaderResult.loader', loaderResult.loader)
+                    loaderResult.loader = pkg.getPackagePath(loaderResult.loader);
                     loaders.push(loaderResult)
                 }
             }
@@ -74,7 +77,7 @@ function installLoader(loader){
             _name += '-loader';
         }
 
-        var exists = pkg.checkIfPackageExist(_name);
+        var exists = pkg.checkIfPackageExist(_name.split('@')[0], _name.split('@')[1]);
 
         if(exists){
             return ''
@@ -87,6 +90,7 @@ function installLoader(loader){
 
     // 如果需要安装的模块不为空, 安装相应的模块
     if(loadersName !== ''){
+        console.log('需要安装的是：', loadersName);
         installed = pkg.installPackageAndDependencies(loadersName, 'loader')
     }
 
@@ -97,9 +101,12 @@ function installCustomDependencies(pkgs, type, cbk){
     var installed = pkg.installPackageAndDependencies(pkgs, type);
 
     var params = pkgs.split(' ').map(function(pkgName){
+        console.log('pkg.getPackagePath', pkgName);
         return pkg.getPackagePath(pkgName);
     });
+    console.log('pkgs ..,,/.,.,,',pkgs, params);
     var modules = params.map(function(p){
+        console.log('p==>', p);
         return require(p)
     });
 
