@@ -30,7 +30,7 @@ try{
 
 program
     .version(package.version, '-v, --version')
-    .option('-o, --open [open]', 'open in browser, one of: chrome|firefox|safari|opera', /^(chrome|firefox|safari|opera)$/, 'chrome')
+    .option('-o, --open [open]', 'open in browser, one of: chrome|firefox|safari|opera', /^(chrome|firefox|safari|opera)$/)
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
@@ -56,7 +56,13 @@ program
     .command('start')
     .description('create a local server')
     .action(function(){
-        server.start(program.port, program.open, program.proxy);
+        var open = false;
+
+        if(program.open){
+            open = typeof program.open === 'string' ? program.open : 'chrome';
+        }
+
+        server.start(program.port, open, program.proxy);
     });
 
 program

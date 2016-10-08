@@ -236,10 +236,10 @@ function Server(port, openBrowser, proxy){
             // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
             // user_pref("network.proxy.type", 2);
 
-            var browserPath = detectBrowser(program.open);
+            var browserPath = detectBrowser(openBrowser);
 
             if(!browserPath){
-                log.error('can not find browser', program.open.bold.yellow);
+                log.error('can not find browser', openBrowser.bold.yellow);
             }else{
                 var dataDir = __hii__.tmpdir;
 
@@ -247,7 +247,7 @@ function Server(port, openBrowser, proxy){
                     browserPath = '"' + browserPath + '"';
                 }
 
-                var command = browserPath + ' ' + proxyConfig[program.open](dataDir, url, browserPath);
+                var command = browserPath + ' ' + proxyConfig[openBrowser](dataDir, url, browserPath);
                 // var command = browserPath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
                 log.debug('open ==> ', command);
                 require('child_process').exec(command, function(err){
