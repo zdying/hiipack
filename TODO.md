@@ -9,4 +9,6 @@
 
 * support open browser with proxy: firefox
 
+* support dependence version
+
 * ~~update documention~~

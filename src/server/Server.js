@@ -109,7 +109,7 @@ function Server(port, openBrowser, proxy){
                     this.sendFile(req)
                 }
             }else if(fileExt === 'css'){
-                if(fs.existsSync(filePath)){
+                if(env === 'src' && fs.existsSync(filePath)){
                     this.sendFile(req, filePath);
                 }else{
                     return compiler.compile('loc', function(){

@@ -76,6 +76,9 @@ module.exports = {
             var isExist = this.checkIfPackageExist(pkg);
 
             if(!isExist){
+                if(pkg === 'vue-loader'){
+                    pkg += '@8.5.4'
+                }
                 pkgsNeedInstall.push(pkg)
             }
         }.bind(this));

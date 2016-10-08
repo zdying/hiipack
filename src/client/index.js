@@ -130,6 +130,20 @@ module.exports = {
     },
 
     /**
+     * 清空打包代码缓存
+     */
+    clearCodeCache: function() {
+        fse.remove(__hii__.tmpdir)
+    },
+
+    /**
+     * 清空package缓存
+     */
+    clearPackageCache: function() {
+
+    },
+
+    /**
      * 替换项目文件中的`项目名称`字段
      * @param projName
      * @param root
