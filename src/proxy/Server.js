@@ -203,6 +203,7 @@ Server.prototype = {
 
     listeningHandler: function(){
         console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
+        console.log('hiipack proxy file', ('file://' + path.resolve(__dirname, 'pac', 'hiipack.pac')).magenta.bold);
         console.log()
     },
 
