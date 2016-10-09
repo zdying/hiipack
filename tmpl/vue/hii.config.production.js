@@ -11,7 +11,7 @@ module.exports = {
                     // "vue-loader": function function_name(argument) {
                     //     return { test: /\.vue$/, loader: 'vue' }
                     // },
-                    "vue-loader": { test: /\.vue$/, loader: 'vue' }
+                    "vue-loader": { test: /\.vue$/, loader: 'vue-loader@8.5.4' }
                 }
             ]
         }
