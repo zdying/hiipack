@@ -126,7 +126,8 @@ module.exports = {
             package = package.join(' ');
         }
         try{
-            var cmd = 'npm install ' + package + (program.registry ? ' --registry ' + program.registry : '');
+            var registry = program.registry || __hii_config__.registry;
+            var cmd = 'npm install ' + package + (registry ? ' --registry ' + registry : '');
 
             logger.debug('exec command', cmd.bold, cwd);
 

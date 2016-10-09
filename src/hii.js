@@ -109,6 +109,13 @@ program
         // child_process.exec('rm -rdf dll loc dev prd ver')
     });
 
+program
+    .command('config [operation] [args...]')
+    .description('hiipack config, `operation`: [empty]|list|set|delete')
+    .action(function(ope, args, options){
+        client.config(ope, args)
+    });
+
 program.on('--help', function(){
     console.log('  Examples:');
     console.log('');

@@ -203,5 +203,24 @@ module.exports = {
                     }
                 });
             })
+    },
+
+    config: function(ope, args){
+        var config = require('./config');
+
+        switch(ope){
+            case 'set':
+                config.set.apply(config, args);
+                break;
+
+            case 'delete':
+                config.delete.apply(config, args);
+                break;
+
+            case 'list':
+
+            default:
+                config.list();
+        }
     }
 };

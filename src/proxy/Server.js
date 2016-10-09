@@ -266,10 +266,17 @@ Server.prototype = {
                 }
             }
 
-            return DIRECT;
+            if(!host.match(/^(localhost|::1|127.0.0.1)$/) && SYS_PROXY){
+                return SYS_PROXY
+            }else{
+                return DIRECT;
+            }
         }
 
+        var sysProxy = __hii_config__.system_proxy;
+
         var txt = [
+            'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
             'var PROXY = "PROXY 127.0.0.1:4936";\n',
             'var DIRECT = "DIRECT";\n\n',
             'var DOMAINS = ' + JSON.stringify(domainsCache, null, 4) + ';\n\n',

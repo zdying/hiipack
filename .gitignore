@@ -45,3 +45,5 @@ jspm_packages
 # node_module Localization
 
 library
+
+*.pac
