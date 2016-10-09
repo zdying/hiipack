@@ -33,7 +33,7 @@ module.exports = {
             version = moduleName.split('@')[1];
             moduleName = moduleName.split('@')[0];
         }
-        console.log('getpackage path ===========================', moduleName, version);
+
         if(!moduleName){
             throw Error('module name should not be empty.');
         }
@@ -78,15 +78,17 @@ module.exports = {
 
     /**
      * 安装package到临时目录
-     * @param package
+     * @param packages
      * @param type
+     * @param target
      * @returns {*}
      */
-    installPackage: function(package, type){
+    installPackage: function(packages, type, target){
+        packages = Array.isArray(packages) ? packages : packages.split(/\s+/);
+
         var installed = false;
-        var packages = Array.isArray(package) ? package : package.split(/\s+/);
         var pkgsNeedInstall = [];
-        var pkgsNeedInstallWithVersion = [];
+        var isWithVersion = this.isWithVersion(packages);
 
         packages.forEach(function(pkg, index){
             var pkgArr = pkg.split('@');
@@ -95,15 +97,7 @@ module.exports = {
             var isExist = this.checkIfPackageExist(pkgName, pkgVer);
 
             if(!isExist){
-                if(pkg === 'vue-loader'){
-                    pkg += '@8.5.4'
-                }
-                if(pkgArr.length === 2){
-                    // 带版本号
-                    pkgsNeedInstallWithVersion.push(pkg)
-                }else{
-                    pkgsNeedInstall.push(pkg)
-                }
+                pkgsNeedInstall.push(pkg)
             }
         }.bind(this));
 
@@ -111,16 +105,7 @@ module.exports = {
             type = type || 'package';
             logger.info('installing', type, pkgsNeedInstall.join(' ').bold.green, '...');
 
-            this.install(pkgsNeedInstall);
-
-            installed = true;
-        }
-
-        if(pkgsNeedInstallWithVersion.length){
-            type = type || 'package';
-            logger.info('installing with version', type, pkgsNeedInstallWithVersion.join(' ').bold.green, '...');
-
-            this.install(pkgsNeedInstallWithVersion, true);
+            this.install(pkgsNeedInstall, isWithVersion, target);
 
             installed = true;
         }
@@ -132,10 +117,11 @@ module.exports = {
      * 安装
      * @param package
      * @param withVersion
+     * @param target
      * @returns {boolean}
      */
-    install: function(package, withVersion){
-        var cwd = withVersion ? __hii__.tmpdirWithVersion : __hii__.tmpdir;
+    install: function(package, withVersion, target){
+        var cwd = target || (withVersion ? __hii__.tmpdirWithVersion : __hii__.tmpdir);
         if(Array.isArray(package)){
             package = package.join(' ');
         }
@@ -146,7 +132,7 @@ module.exports = {
 
             child_process.execSync(cmd, { cwd: cwd, stdio: 'ignore' });
 
-            if(withVersion){
+            if(cwd === __hii__.tmpdirWithVersion){
                 package.split(' ').forEach(function(pkg){
                     try{
                         fs.renameSync(path.resolve(cwd, 'node_modules', pkg.split('@')[0]), path.resolve(cwd, 'node_modules', pkg));
@@ -166,18 +152,19 @@ module.exports = {
 
     /**
      * 安装某个package对应的依赖
-     * @param package
+     * @param packages
      * @param type
      */
-    installDependencies: function(package, type){
+    installDependencies: function(packages, type){
+        var isWithVersion = this.isWithVersion(packages);
         var self = this;
         // 安装peerDependencies
-        package.split(' ').forEach(function(currentLoader, index){
+        packages.split(' ').forEach(function(currentLoader, index){
             logger.info('finding', type, 'for', currentLoader.green);
 
-            var tmpModulesPath = __hii__.tmpdir + '/node_modules/';
+            var tmpModulesPath = (isWithVersion ? __hii__.tmpdirWithVersion : __hii__.tmpdir) + '/node_modules/';
             try{
-                var packageInfo = require(tmpModulesPath + currentLoader.split('@')[0] + '/package.json');
+                var packageInfo = require(tmpModulesPath + currentLoader + '/package.json');
                 var peerDependencies = packageInfo[type] || {};
                 var deps = Object.keys(peerDependencies);
 
@@ -205,6 +192,16 @@ module.exports = {
         }
 
         return installed
+    },
+
+    isWithVersion: function(packages){
+        if(!Array.isArray(packages)){
+            packages = packages.split(/\s+/);
+        }
+
+        return packages.some(function(package){
+            return package.indexOf('@') !== -1;
+        })
     }
 };
 

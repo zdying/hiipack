@@ -31,8 +31,9 @@ module.exports = function parseLoaders(customLoaders){
         if(loader.loader){
             // type1 ==> 直接使用loader
             installLoader(loader);
-            log.info('loader.loader', JSON.stringify(loader));
-            // loader.loader = pkg.getPackagePath(loader.loader);
+            log.debug('before change loader', JSON.stringify(loader));
+            loader.loader = pkg.getPackagePath(loader.loader);
+            log.debug('after change loader', JSON.stringify(loader));
             loaders.push(loader);
         }else{
             // type2/type3 ==> 先安装,然后设置
@@ -54,8 +55,11 @@ module.exports = function parseLoaders(customLoaders){
                     }
 
                     installLoader(loaderResult);
-                    log.info('loaderResult.loader', loaderResult.loader)
+
+                    log.debug('before change loader:', JSON.stringify(loaderResult));
                     loaderResult.loader = pkg.getPackagePath(loaderResult.loader);
+                    log.debug('after change loader:', JSON.stringify(loaderResult));
+
                     loaders.push(loaderResult)
                 }
             }
@@ -90,7 +94,7 @@ function installLoader(loader){
 
     // 如果需要安装的模块不为空, 安装相应的模块
     if(loadersName !== ''){
-        console.log('需要安装的是：', loadersName);
+        log.debug('packages that need to install:', loadersName);
         installed = pkg.installPackageAndDependencies(loadersName, 'loader')
     }
 
@@ -101,12 +105,9 @@ function installCustomDependencies(pkgs, type, cbk){
     var installed = pkg.installPackageAndDependencies(pkgs, type);
 
     var params = pkgs.split(' ').map(function(pkgName){
-        console.log('pkg.getPackagePath', pkgName);
         return pkg.getPackagePath(pkgName);
     });
-    console.log('pkgs ..,,/.,.,,',pkgs, params);
     var modules = params.map(function(p){
-        console.log('p==>', p);
         return require(p)
     });
 
