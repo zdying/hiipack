@@ -151,36 +151,45 @@ Compiler.prototype = {
     },
     _getConfig: function(env, isDLL){
         var root = this.root;
-        var userConfigPath = root + '/hii.config.js';
+        var userConfigPath = path.join(root, 'hii.config.js');
+        var webpackConfigPath = path.join(root, 'webpack.config.js');
         // var userConfig = null;
         var fixedEnv = env.slice(0, 1).toUpperCase() + env.slice(1);
         var dllName = isDLL ? 'DLL' : '';
         var method= 'get' + fixedEnv + dllName + 'Config';
+
+        var hasHiipackConfig = fs.existsSync(userConfigPath);
+        var hasWebpackConfig = fs.existsSync(webpackConfigPath);
 
         if(!/^(loc|dev|prd)$/.test(env)){
             logger.error('invalid param', '`env`'.bold.yellow, 'env should be one of loc/dev/prd.');
             return null
         }
 
-        if(!fs.existsSync(userConfigPath)){
-            logger.error('Compiler -', this.projectName.bold.yellow, "is not an valid hiipack project,", '`hii.config.js`'.bold.green, 'not exists.');
+        if(!hasHiipackConfig && !hasWebpackConfig){
+            // logger.error('Compiler -', this.projectName.bold.yellow, "is not an valid hiipack project,", '`hii.config.js`'.bold.green, 'not exists.');
+            logger.error('Compiler -', this.projectName.bold.yellow, "is not an valid hiipack project or webpack project, the", '`hii.config.js`'.bold.green, 'or', '`webpack.config.js`'.bold.green, 'is required')
             return null
         }
 
-        var userConfig = configUtil.getUserConfig(root, env);
+        if(hasHiipackConfig){
+            var userConfig = configUtil.getUserConfig(root, env);
 
-        // userConfig = require(userConfigPath);
+            // userConfig = require(userConfigPath);
 
-        if(isDLL && Object.keys(userConfig.library || {}).length === 0){
-            logger.debug('Compiler -', this.projectName.bold.yellow, "has no third party library.");
-            return null
+            if(isDLL && Object.keys(userConfig.library || {}).length === 0){
+                logger.debug('Compiler -', this.projectName.bold.yellow, "has no third party library.");
+                return null
+            }
+
+            logger.debug('call method', method.bold.magenta);
+
+            // delete require cache
+            // delete require.cache[require.resolve(userConfigPath)];
+            var config = configUtil[method](root, userConfig);
+        }else{
+            var config = require(webpackConfigPath);
         }
-
-        logger.debug('call method', method.bold.magenta);
-
-        // delete require cache
-        // delete require.cache[require.resolve(userConfigPath)];
-        var config = configUtil[method](root, userConfig);
 
         logger.detail('user config', '==>',
             JSON.stringify(config, function(key, value){
