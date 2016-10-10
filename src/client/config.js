@@ -9,7 +9,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 
-var hiirc_path = path.resolve(os.homedir(), '.hiirc');
+var hiirc_path = path.resolve(process.env.HOME || process.env.USERPROFILE, '.hiirc');
 
 module.exports = {
     list: function(){

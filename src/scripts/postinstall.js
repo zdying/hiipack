@@ -7,7 +7,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 
-var homeDir = os.homedir();
+var homeDir = process.env.HOME || process.env.USERPROFILE;
 
 // hiipack temp dir
 try{
