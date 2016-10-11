@@ -104,7 +104,7 @@ Compiler.prototype = {
                     // es2015-loose relative.resolve() bug:
                     // 没有指定relativeTo, 所以默认采用`process.cwd()`
                     // 而`process.cwd()`的值是当前的工作目录, 不是`hiipack`的跟目录
-                    // process.chdir(__hii__.root);
+                    process.chdir(__hii__.root);
                     logger.info('compiling [', (Object.keys(config.entry).join('.js, ') + '.js').bold.magenta, '] ...');
                 }
             ].concat(optPlugins.compile || []),
@@ -112,7 +112,7 @@ Compiler.prototype = {
                 function(statsResult){
                     var hasError = statsResult.hasErrors();
                     self.isCompiling = false;
-                    // process.chdir(__hii__.cwd);
+                    process.chdir(__hii__.cwd);
                     logger.info('compile finished (', (statsResult.endTime - statsResult.startTime) + 'ms', ')');
                     if(hasError || program.detail){
                         console.log('compile result: \n' + statsResult.toString({
