@@ -89,14 +89,18 @@ module.exports = function(root, userConfig){
 
     addHMRClient(config);
 
-    console.log('merged config:', JSON.stringify(config, null, 4));
+    // console.log('merged config:', JSON.stringify(config, null, 4));
 
     return config;
 };
 
 function addHMRClient(config){
+    if(program.hotReload === false){
+        return config
+    }
+
     var entry = config.entry;
-    var hotURL = require.resolve('webpack-hot-middleware/client') + '?path=http://127.0.0.1:8800/__webpack_hmr';
+    var hotURL = require.resolve('webpack-hot-middleware/client') + '?path=http://127.0.0.1:' + program.port + '/__webpack_hmr';
 
     for (var key in entry) {
         var _entry = entry[key];
@@ -108,4 +112,6 @@ function addHMRClient(config){
     }
 
     config.plugins.push(new webpack.optimize.OccurrenceOrderPlugin(), new webpack.HotModuleReplacementPlugin());
+
+    return config;
 }

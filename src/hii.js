@@ -47,7 +47,8 @@ program
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-x, --proxy', 'start the proxy server')
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
-    .option('--no-color', 'disable log color');
+    .option('--no-color', 'disable log color')
+    .option('--no-hot-reload', 'disable hot reload');
 
 program
     .command('init <name>')
