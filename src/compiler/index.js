@@ -106,6 +106,10 @@ Compiler.prototype = {
                     // 而`process.cwd()`的值是当前的工作目录, 不是`hiipack`的跟目录
                     process.chdir(__hii__.root);
                     logger.info('compiling [', (Object.keys(config.entry).join('.js, ') + '.js').bold.magenta, '] ...');
+
+                    publish({
+                        action: "building"
+                    });
                 }
             ].concat(optPlugins.compile || []),
             'done': [
@@ -122,6 +126,25 @@ Compiler.prototype = {
                             children: true
                         }));
                     }
+
+                    var stats = statsResult.toJson();
+                    var arr = [stats];
+
+                    if(Array.isArray(stats.children) && stats.children.length){
+                        arr = stats.children
+                    }
+
+                    arr.forEach(function (stats) {
+                        publish({
+                            name: stats.name,
+                            action: "built",
+                            time: stats.time,
+                            hash: stats.hash,
+                            warnings: stats.warnings || [],
+                            errors: stats.errors || [],
+                            modules: buildModuleMap(stats.modules)
+                        });
+                    });
                 }
             ].concat(optPlugins.done || [])
         };
@@ -211,3 +234,18 @@ Compiler.prototype = {
 };
 
 module.exports = Compiler;
+
+function publish(data) {
+    // console.log('publish ::', data);
+    for (var id in clients) {
+        clients[id].write("data: " + JSON.stringify(data) + "\n\n");
+    }
+}
+
+function buildModuleMap(modules) {
+    var map = {};
+    modules.forEach(function (module) {
+        map[module.id] = module.name;
+    });
+    return map;
+}

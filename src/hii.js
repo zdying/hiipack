@@ -60,13 +60,13 @@ program
     .command('start')
     .description('create a local server')
     .action(function(){
-        var open = false;
+        var browser = false;
 
         if(program.open){
-            open = typeof program.open === 'string' ? program.open : 'chrome';
+            browser = typeof program.open === 'string' ? program.open : 'chrome';
         }
 
-        server.start(program.port, open, program.proxy);
+        server.start(program.port, browser, program.proxy);
     });
 
 program

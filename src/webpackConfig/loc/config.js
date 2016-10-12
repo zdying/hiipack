@@ -22,6 +22,8 @@ module.exports = function(root, userConfig){
     var lessLoader = userConfig.less && userConfig.less.loader;
     var scssLoader = userConfig.scss && userConfig.scss.loader;
 
+    console.log('projTmp;', projTmp);
+
     var defaultCssLoader = "style!css?sourceMap!postcss";
     var defaultLessLoader = "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss";
     var defaultScssLoader = "style!css?sourceMap!sass?sourceMap!postcss";
@@ -34,7 +36,8 @@ module.exports = function(root, userConfig){
         output: {
             path: path.join(projTmp, 'loc'),
             filename: '[name].js',
-            publicPath: '/loc/'
+            // publicPath: '/loc/'
+            publicPath: '/' + (projTmp.split('/').pop()) + '/loc/'
         },
         module: {
             loaders: [
@@ -84,5 +87,25 @@ module.exports = function(root, userConfig){
 
     config = mergeConfig(config, userConfig, 'loc', root);
 
+    addHMRClient(config);
+
+    console.log('merged config:', JSON.stringify(config, null, 4));
+
     return config;
 };
+
+function addHMRClient(config){
+    var entry = config.entry;
+    var hotURL = require.resolve('webpack-hot-middleware/client') + '?path=http://127.0.0.1:8800/__webpack_hmr';
+
+    for (var key in entry) {
+        var _entry = entry[key];
+        if (Array.isArray(_entry)) {
+            _entry.indexOf(hotURL) === -1 && _entry.unshift(hotURL)
+        } else {
+            entry[key] = [hotURL, _entry];
+        }
+    }
+
+    config.plugins.push(new webpack.optimize.OccurrenceOrderPlugin(), new webpack.HotModuleReplacementPlugin());
+}
