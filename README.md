@@ -46,6 +46,6 @@ hiipack is a front end development tool based on webpack.
       $ hii sync
       $ hii min
 
-  Wiki:
+  Documention:
 
-  [使用说明](https://github.com/zdying/hiipack/wiki/hiipack-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
+  [Documention](https://zdying.gitbooks.io/hiipack_doc/content/)
