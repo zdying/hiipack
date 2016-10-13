@@ -174,7 +174,7 @@ module.exports = {
                     logger.info(currentLoader.green, type, deps.toString().green);
 
                     deps.forEach(function(dep){
-                        self.installPackage(dep, 'peerDependency');
+                        self.installPackage(dep, 'peerDependency'/*, tmpModulesPath + currentLoader*/);
                     })
                 }else{
 

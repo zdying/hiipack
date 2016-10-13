@@ -84,6 +84,7 @@ Server.prototype = {
     // watchFile: function(file, cbk){
     //     fs.watchFile(file, {interval: 2000}, function(curr, prev){
     //         if(curr.mtime !== prev.mtime){
+    //             logger.debug(file.bold.green, 'changed.');
     //             cbk && cbk(file)
     //         }
     //     })
