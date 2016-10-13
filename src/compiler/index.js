@@ -24,7 +24,9 @@ function Compiler(projectName, root, env){
     this.env = env;
     this.configFileChanged = false;
 
-    this.watchConfigFile(this.onConfigFileChange.bind(this));
+    // if(env === 'loc'){
+    //     this.watchConfigFile(this.onConfigFileChange.bind(this));
+    // }
 
     logger.debug('create new compiler', projectName.bold.green, 'env', env.bold.green);
 }
@@ -37,13 +39,13 @@ Compiler.prototype = {
             callback && callback(err, state);
         };
 
-        var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
-
         if(this.watching && this.watching.close){
             this.watching.close(function(){
                 logger.debug('watching closed.');
             });
         }
+
+        var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
 
         if(!compiler){
             var err = new Error();
