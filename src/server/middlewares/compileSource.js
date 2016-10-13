@@ -16,6 +16,8 @@ var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));
 var fileSVG = fs.readFileSync(path.resolve(imagePath, 'File.svg'));
 var folderSVG = fs.readFileSync(path.resolve(imagePath, 'Folder.svg'));
 
+var configWatchers = {};
+
 module.exports = function(req, res, next){
     var url = req.url;
     // var filePath = path.resolve('.' + url);
@@ -29,10 +31,16 @@ module.exports = function(req, res, next){
         var fileExt = projInfo.fileExt;
         var env = projInfo.env;
         var compiler = this.compilers[projectName];
+        var configPath = path.join(__hii__.cwd, projectName, 'hii.config.js');
 
         // 第一次请求这个项目，新建一个compiler
         if(!compiler){
             compiler = this.compilers[projectName] = new Compiler(projectName);
+
+            watchConfigFile(projectName, configPath, function(){
+                // 删除原来的compiler，下次请求的时候，重新创建
+                this.compilers[projectName] = false;
+            }.bind(this));
         }
 
         if(fileExt === 'scss'){
@@ -169,3 +177,25 @@ module.exports = function(req, res, next){
         }
     }
 };
+
+function watchConfigFile(projectName, configPath, cbk){
+    if(configWatchers[projectName] !== true){
+        // 记录一下已经watch的文件， 避免多次watch
+        configWatchers[projectName] = true;
+
+        log.debug('compileSource - watch config file', configPath.bold.green);
+
+        fs.watchFile(configPath, {interval: 2000}, function(curr, prev){
+            if(curr.mtime !== prev.mtime){
+                // 清除require缓存
+                delete require.cache[configPath];
+
+                cbk && cbk(curr, prev);
+
+                log.debug(
+                    'compileSource - config file changed:', configPath.bold.green.bold
+                );
+            }
+        }.bind(this))
+    }
+}
