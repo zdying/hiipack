@@ -47,6 +47,10 @@ var __hiipack__ = {
      * @returns {string}
      */
     resolve: function(module){
+        if(typeof module !== 'string'){
+            return module
+        }
+
         var _path = package.getPackagePath(module);
 
         if(!_path){

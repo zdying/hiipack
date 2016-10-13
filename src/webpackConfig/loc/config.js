@@ -39,7 +39,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                getBabelLoader(userConfig, 'loc'),
+                getBabelLoader(userConfig, 'loc', root),
                 { test: /\.css$/, loader: cssLoader || defaultCssLoader },
                 { test: /\.less$/, loader: lessLoader ||  defaultLessLoader},
                 { test: /\.scss$/, loader: scssLoader || defaultScssLoader }
