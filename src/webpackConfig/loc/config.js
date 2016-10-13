@@ -22,8 +22,6 @@ module.exports = function(root, userConfig){
     var lessLoader = userConfig.less && userConfig.less.loader;
     var scssLoader = userConfig.scss && userConfig.scss.loader;
 
-    console.log('projTmp;', projTmp);
-
     var defaultCssLoader = "style!css?sourceMap!postcss";
     var defaultLessLoader = "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss";
     var defaultScssLoader = "style!css?sourceMap!sass?sourceMap!postcss";

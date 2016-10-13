@@ -70,14 +70,24 @@ Server.prototype = {
             logger.debug('findHostsAndRewrite - rewrites [', (rewrites.join(', ')).bold.green, ']');
 
             hosts.forEach(function(hostFile){
-                self.updateHosts(hostFile)
+                self.updateHosts(hostFile);
+                // self.watchFile(hostFile, self.updateHosts.bind(self));
             });
 
             rewrites.forEach(function(rewriteFile){
-                self.updateRewrite(rewriteFile)
+                self.updateRewrite(rewriteFile);
+                // self.watchFile(rewriteFile, self.updateRewrite.bind(self));
             })
         })
     },
+
+    // watchFile: function(file, cbk){
+    //     fs.watchFile(file, {interval: 2000}, function(curr, prev){
+    //         if(curr.mtime !== prev.mtime){
+    //             cbk && cbk(file)
+    //         }
+    //     })
+    // },
 
     updateHosts: function(filePath){
         var hosts = parseHosts(filePath);

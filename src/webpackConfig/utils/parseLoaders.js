@@ -32,7 +32,7 @@ module.exports = function parseLoaders(customLoaders){
             // type1 ==> 直接使用loader
             installLoader(loader);
             log.debug('before change loader', JSON.stringify(loader));
-            loader.loader = pkg.getPackagePath(loader.loader);
+            loader.loader = pkg.getPackagePath(loader.loader) || loader.loader;
             log.debug('after change loader', JSON.stringify(loader));
             loaders.push(loader);
         }else{
@@ -57,7 +57,7 @@ module.exports = function parseLoaders(customLoaders){
                     installLoader(loaderResult);
 
                     log.debug('before change loader:', JSON.stringify(loaderResult));
-                    loaderResult.loader = pkg.getPackagePath(loaderResult.loader);
+                    loaderResult.loader = pkg.getPackagePath(loaderResult.loader) || loaderResult.loader;
                     log.debug('after change loader:', JSON.stringify(loaderResult));
 
                     loaders.push(loaderResult)

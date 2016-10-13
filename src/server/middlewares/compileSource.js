@@ -16,8 +16,6 @@ var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));
 var fileSVG = fs.readFileSync(path.resolve(imagePath, 'File.svg'));
 var folderSVG = fs.readFileSync(path.resolve(imagePath, 'Folder.svg'));
 
-var configWatchers = {};
-
 module.exports = function(req, res, next){
     var url = req.url;
     // var filePath = path.resolve('.' + url);
@@ -35,12 +33,7 @@ module.exports = function(req, res, next){
 
         // 第一次请求这个项目，新建一个compiler
         if(!compiler){
-            compiler = this.compilers[projectName] = new Compiler(projectName);
-
-            watchConfigFile(projectName, configPath, function(){
-                // 删除原来的compiler，下次请求的时候，重新创建
-                this.compilers[projectName] = false;
-            }.bind(this));
+            compiler = this.compilers[projectName] = new Compiler(projectName, '', 'loc');
         }
 
         if(fileExt === 'scss'){
@@ -58,7 +51,7 @@ module.exports = function(req, res, next){
             });
         }else if(fileExt === 'js'){
             if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
-                return compiler.compile('loc', function(){
+                return compiler.compile(function(){
                     this.sendCompiledFile(req, projInfo)
                 }.bind(this))
             }else if(env === 'dev'){
@@ -70,13 +63,14 @@ module.exports = function(req, res, next){
                     this.sendFile(req, filePath)
                 }
             }else if(env === 'src' || env === 'loc'){
+                //TODO 这里需要处理一下'loc'
                 this.sendFile(req)
             }
         }else if(fileExt === 'css'){
             if(env === 'src' && fs.existsSync(filePath)){
                 this.sendFile(req, filePath);
             }else{
-                return compiler.compile('loc', function(){
+                return compiler.compile(function(){
                     this.sendCompiledFile(req, projInfo)
                 }.bind(this));
                 // var userConfig = require(path.resolve(__hii__.cwd, projInfo.projectName, 'hii.config.js'));
@@ -177,25 +171,3 @@ module.exports = function(req, res, next){
         }
     }
 };
-
-function watchConfigFile(projectName, configPath, cbk){
-    if(configWatchers[projectName] !== true){
-        // 记录一下已经watch的文件， 避免多次watch
-        configWatchers[projectName] = true;
-
-        log.debug('compileSource - watch config file', configPath.bold.green);
-
-        fs.watchFile(configPath, {interval: 2000}, function(curr, prev){
-            if(curr.mtime !== prev.mtime){
-                // 清除require缓存
-                delete require.cache[configPath];
-
-                cbk && cbk(curr, prev);
-
-                log.debug(
-                    'compileSource - config file changed:', configPath.bold.green.bold
-                );
-            }
-        }.bind(this))
-    }
-}

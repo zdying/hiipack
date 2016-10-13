@@ -40,7 +40,7 @@ module.exports = {
     _build: function(env, callback){
         var workPath = process.cwd();
         var projectName = workPath.split('/').pop();
-        var compiler = new Compiler(projectName, workPath);
+        var compiler = new Compiler(projectName, workPath, env);
         var dir = {
             'dev': ['dev'],
             'prd': ['prd', 'ver']
@@ -53,7 +53,7 @@ module.exports = {
             dir[env].forEach(function(folder){
                  fse.removeSync(folder)
             });
-            compiler.compile(env, {watch: false}, callback);
+            compiler.compile({watch: false}, callback);
         }catch(e){
             logger.error(e);
         }
