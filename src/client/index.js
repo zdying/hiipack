@@ -151,6 +151,8 @@ module.exports = {
      * @private
      */
     _replaceProjectName: function(projName, root, registry){
+        registry = registry || __hii_config__.registry;
+
         var items = []; // files, directories, symlinks, etc
         log.info('setup project ...');
         log.info('rename template files ...');
@@ -163,18 +165,22 @@ module.exports = {
                 var len = items.length;
                 var finish = function(){
                     if(count === len){
-                        var cmd = 'cd ' + projName + ' && npm install' + (registry ? ' --registry ' + registry : '');
+                        var cmd = [
+                            'cd ' + projName,
+                            'npm install' + (registry ? ' --registry ' + registry : '')
+                        ].join(' && ');
 
                         log.info('installing dependencies ...');
+                        log.debug('exec cmd', cmd.bold);
 
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
                                 logger.error(err);
                                 return
                             }
-                            console.log();
-                            console.log('init success :)'.bold.green);
-                            console.log('Now you may need to exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
+
+                            console.log('\ninit success :)'.bold.green);
+                            console.log('\nYou can exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
                             console.log();
                         });
                     }
