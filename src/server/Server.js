@@ -181,28 +181,11 @@ Server.prototype = {
     },
 
     sendCompiledFile: function(req, projInfo){
-        var filePath = __hii__.codeTmpdir + req.url;
+        var filePath = path.join(__hii__.codeTmpdir, req.url);
+
         filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
         this.sendFile(req, filePath);
-        // var content = mfs.readFileSync(filePath)//.toString();
-        // req.res.setHeader('Content-Type', 'text/javascript');
-        // req.res.setHeader('Content-Length', content.length);
-        // req.res.send(content)
     }
 };
-
-// function publish(data){
-//     for(var id in clients){
-//         clients[id].write("data: " + JSON.stringify(data) + "\n\n");
-//     }
-// }
-//
-// function buildModuleMap(modules){
-//     var map = {};
-//     modules.forEach(function(module){
-//         map[module.id] = module.name;
-//     });
-//     return map;
-// }
 
 module.exports = Server;

@@ -38,6 +38,9 @@ module.exports = function(root, userConfig){
             publicPath: '/' + (projTmp.split('/').pop()) + '/loc/'
         },
         module: {
+            preLoaders: program.hotReload ? [
+                { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode') }
+            ] : [],
             loaders: [
                 getBabelLoader(userConfig, 'loc', root),
                 { test: /\.css$/, loader: cssLoader || defaultCssLoader },
@@ -109,7 +112,10 @@ function addHMRClient(config){
         }
     }
 
-    config.plugins.push(new webpack.optimize.OccurrenceOrderPlugin(), new webpack.HotModuleReplacementPlugin());
+    config.plugins.push(
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.HotModuleReplacementPlugin()
+    );
 
     return config;
 }

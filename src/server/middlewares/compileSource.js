@@ -71,22 +71,27 @@ module.exports = function(req, res, next){
                 this.sendFile(req, filePath);
             }else{
                 return compiler.compile(function(){
-                    this.sendCompiledFile(req, projInfo)
+                    var userConfig = require(configPath);
+                    var entry = userConfig.entry;
+                    var entries = Object.keys(entry);
+                    var compiledFilePath = path.join(__hii__.codeTmpdir, req.url);
+
+                    if(entries.indexOf(projInfo.fileName) !== -1){
+                        // 是入口CSS文件
+                        if(fs.existsSync(compiledFilePath)){
+                            this.sendFile(compiledFilePath)
+                        }else{
+                            // 处理css文件
+                            res.setHeader('Content-Type', 'text/css');
+                            logger.debug('css -', filePath.bold, 'replaced');
+                            res.end('/* The `css` code in development environment has been moved to the `js` file */');
+                            logger.access(req);
+                        }
+                    }else{
+                        // will return 404
+                        this.sendFile(req, filePath);
+                    }
                 }.bind(this));
-                // var userConfig = require(path.resolve(__hii__.cwd, projInfo.projectName, 'hii.config.js'));
-                // var entry = userConfig.entry;
-                // var entries = Object.keys(entry);
-                //
-                // if(entries.indexOf(projInfo.fileName) !== -1){
-                //     // 处理css文件
-                //     res.setHeader('Content-Type', 'text/css');
-                //     logger.debug('css -', filePath.bold, 'replaced');
-                //     res.end('/* The `css` code in development environment has been moved to the `js` file */');
-                //     logger.access(req);
-                // }else{
-                //     // will return 404
-                //     this.sendFile(req, filePath);
-                // }
             }
         }else{
             // 其它文件
