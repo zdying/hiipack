@@ -35,7 +35,7 @@ usercenter.example.com => $domain/test;
 flight.qunar.com/flight_qzz => 127.0.0.1:8800/flight_qzz;
 
 set $domain api.example.com;
-set $local 127.0.0.1:8800;
+set $local "127.0.0.1:8800";
 set $flight flight;
 set $test $flight.example.com;
 set $id 1234567;
@@ -60,7 +60,7 @@ $domain => {
 api.qunar.com => {
     set_header Access-Control-Allow-Origin *;
 
-    set $node_server 127.0.0.1:3008;
+    set $node_server '127.0.0.1:3008';
     set $order order;
     set $cookie1 login=true;expires=20160909;
 
