@@ -4,6 +4,12 @@
 * 支持HMR
 * 优化初始化的项目模板
 
+# 1.0.3-1
+
+* fixbug: `location xxx {` 语法中空格问题
+* 自动去除字符串首尾引号
+* 代码优化
+
 # 1.0.3
 
 * support windows
