@@ -184,7 +184,12 @@ function replaceVar(str, source/*, source1, source2*/){
     var replace = function(str){
         return str.replace(/\$[\w\d_]+/g, function(match){
             var val = mapping[match];
-            return val ? val : match;
+
+            if(typeof val !== 'undefined'){
+                return val.replace(/^(['"])(.*)(\1)$/, "$2");
+            }else{
+                return match;
+            }
         });
     };
 
