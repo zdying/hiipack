@@ -74,12 +74,15 @@ module.exports = function(req, res, next){
                     var userConfig = require(configPath);
                     var entry = userConfig.entry;
                     var entries = Object.keys(entry);
-                    var compiledFilePath = path.join(__hii__.codeTmpdir, req.url);
+                    var compiledFilePath = path.join(
+                        __hii__.codeTmpdir,
+                        req.url.replace(/@(\w+)\.(\w+)/, '.$2').replace(/\/(prd|dev|src)\//, '/loc/')
+                    );
 
                     if(entries.indexOf(projInfo.fileName) !== -1){
                         // 是入口CSS文件
                         if(fs.existsSync(compiledFilePath)){
-                            this.sendFile(compiledFilePath)
+                            this.sendFile(req, compiledFilePath)
                         }else{
                             // 处理css文件
                             res.setHeader('Content-Type', 'text/css');

@@ -24,9 +24,9 @@ function Compiler(projectName, root, env){
     this.env = env;
     this.configFileChanged = false;
 
-    // if(env === 'loc'){
-    //     this.watchConfigFile(this.onConfigFileChange.bind(this));
-    // }
+    if(env === 'loc'){
+        this.watchConfigFile(this.onConfigFileChange.bind(this));
+    }
 
     logger.debug('create new compiler', projectName.bold.green, 'env', env.bold.green);
 }

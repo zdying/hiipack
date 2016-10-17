@@ -29,18 +29,30 @@ var responseScopeCmds = [
 
 //TODO 支持rewrite到hosts中的host时
 
-function Server(){
-    this.server = null;
-    this.hostsRules = null;
-    this.rewriteRules = null;
-    this.domainCache = {};
-    this.regexpCache = [];
-}
+function Server(){}
+
+Server.cache = {
+    hosts: {},
+    rewrite: {},
+    hostFiles: [],
+    rewriteFiles: [],
+    watchingList: {}
+};
 
 Server.prototype = {
     constructor: Server,
 
+    init: function(){
+        this.server = null;
+        this.hostsRules = {};
+        this.rewriteRules = {};
+        this.domainCache = {};
+        this.regexpCache = [];
+    },
+
     start: function(port, option){
+        this.init();
+
         this.server = http.createServer()
             .on('listening', this.listeningHandler.bind(this))
             .on('request', this.requestHandler.bind(this))
@@ -54,8 +66,9 @@ Server.prototype = {
         this.server.close();
     },
 
-    watch: function(){
-
+    restart: function(){
+        this.stop();
+        this.start();
     },
 
     find: function(){
@@ -70,62 +83,104 @@ Server.prototype = {
             logger.debug('findHostsAndRewrite - rewrites [', (rewrites.join(', ')).bold.green, ']');
 
             hosts.forEach(function(hostFile){
-                self.updateHosts(hostFile);
-                // self.watchFile(hostFile, self.updateHosts.bind(self));
+                self.addFile(hostFile, 'hosts');
             });
 
             rewrites.forEach(function(rewriteFile){
-                self.updateRewrite(rewriteFile);
-                // self.watchFile(rewriteFile, self.updateRewrite.bind(self));
-            })
+                self.addFile(rewriteFile, 'rewrite');
+            });
         })
     },
 
-    // watchFile: function(file, cbk){
-    //     fs.watchFile(file, {interval: 2000}, function(curr, prev){
-    //         if(curr.mtime !== prev.mtime){
-    //             logger.debug(file.bold.green, 'changed.');
-    //             cbk && cbk(file)
-    //         }
-    //     })
-    // },
-
-    updateHosts: function(filePath){
-        var hosts = parseHosts(filePath);
-
-        if(!this.hostsRules){
-            this.hostsRules = hosts;
-        }else{
-            this.hostsRules = merge(this.hostsRules, hosts)
+    watchFile: function(file, cbk){
+        if(Server.cache.watchingList[file]){
+            return
         }
+
+        Server.cache.watchingList[file] = true;
+
+        fs.watchFile(file, {interval: 2000}, function(curr, prev){
+            if(curr.mtime !== prev.mtime){
+                logger.debug(file.bold.green, 'changed.');
+                cbk && cbk(file)
+            }
+        })
+    },
+
+    /**
+     * 合并代理规则，包括rewrite和hosts
+     * 调用这个方法的时候，会先清空原来对应的规则
+     * 如果type为'all', 清空所有的规则，然后merge
+     * 如果type为'hosts', 清空hosts规则，然后merge hosts
+     * 如果type为'rewrite', 清空rewrite规则，然后merge rewrite
+     *
+     * @param {String} type 需要merge的类型：all|hosts|rewrite
+     */
+    mergeRules: function(type){
+        if(type === 'all' || type === 'hosts'){
+            this.hostsRules = {};
+            Server.cache.hostFiles.forEach(function(file){
+                this.mergeHosts(file)
+            }.bind(this));
+        }
+
+        if(type === 'all' || type === 'rewrite'){
+            this.rewriteRules = {};
+            Server.cache.rewriteFiles.forEach(function(file){
+                this.mergeRewrite(file)
+            }.bind(this));
+        }
+    },
+
+    /**
+     * 合并hosts规则，这个只合并，不清空
+     * 如果传入的文件以前没有parse过，
+     * @param filePath
+     */
+    mergeHosts: function(filePath){
+        var hosts = Server.cache.hosts[filePath];
+
+        if(!hosts){
+            Server.cache.hosts[filePath] = hosts = parseHosts(filePath);
+            Server.cache.hostFiles.push(filePath);
+        }
+
+        this.hostsRules = merge(this.hostsRules, hosts);
 
         this.updateDomainCache();
 
         logger.debug('hostsRules updated =>', JSON.stringify(this.hostsRules));
     },
 
-    updateRewrite: function(filePath){
-        var rewrite = parseRewrite(filePath);
+    mergeRewrite: function(filePath){
+        var rewrite = Server.cache[filePath];
 
-        if(!this.rewriteRules){
-            this.rewriteRules = rewrite;
-        }else{
-            this.rewriteRules = merge(this.rewriteRules, rewrite)
+        if(!rewrite){
+            Server.cache.rewrite[filePath] = rewrite = parseRewrite(filePath);
+            Server.cache.rewriteFiles.push(filePath);
         }
+
+        this.rewriteRules = merge(this.rewriteRules, rewrite);
 
         this.updateDomainCache();
 
         logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
-    
-    addHostsFile: function(filePath){
-        logger.debug('add hosts file', filePath.bold.green);
-        this.updateHosts(filePath);
-    },
-    
-    addRewriteFile: function(filePath){
-        logger.debug('add rewrite file', filePath.bold.green);
-        this.updateRewrite(filePath);
+
+    addFile: function(filePath, type){
+        var fun = {
+            'hosts': 'mergeHosts',
+            'rewrite': 'mergeRewrite'
+        };
+
+        logger.debug('add'.bold.green, type, 'file', filePath.bold.green);
+
+        this[fun[type]](filePath);
+
+        // 只要文本改动了，就先清空对应类型的规则，然后重新merge
+        this.watchFile(filePath, function(){
+            this.mergeRules(type)
+        }.bind(this));
     },
 
     requestHandler: function(request, response){
@@ -219,7 +274,13 @@ Server.prototype = {
     },
 
     setRequest: function(request){
-        var proxyInfo = getProxyInfo(request, this.hostsRules, this.rewriteRules, this.domainCache, this.regexpCache);
+        var proxyInfo = getProxyInfo(
+                request,
+                this.hostsRules,
+                this.rewriteRules,
+                this.domainCache,
+                this.regexpCache
+            );
 
         request.proxy_options = proxyInfo.proxy_options;
         request.hosts_rule = proxyInfo.hosts_rule;
