@@ -57,7 +57,8 @@ module.exports = function parseRewrite(sourceCode){
             if(regs[type].test(line)){
                 switch(type){
                     case 'cmd':
-                        target.commands.push(line);
+                        var cmdObj = parseCommand(line);
+                        target.commands.push(cmdObj);
                         break;
 
                     case 'baseRule':
@@ -97,6 +98,14 @@ module.exports = function parseRewrite(sourceCode){
 
     return res
 };
+
+function parseCommand(command){
+    var array = command.split(/\s+/);
+    return {
+        name: array[0],
+        params: array.slice(1)
+    }
+}
 
 // test
 // var fs = require('fs');
