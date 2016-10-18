@@ -167,7 +167,7 @@ module.exports = {
                     if(count === len){
                         var cmd = [
                             'cd ' + projName,
-                            'npm install' + (registry ? ' --registry ' + registry : '')
+                            'npm install' + (registry ? ' --registry=' + registry : '')
                         ].join(' && ');
 
                         log.info('installing dependencies ...');

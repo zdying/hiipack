@@ -52,7 +52,7 @@ module.exports = {
                     // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
                     'mustache mustache-loader': function(loader, path){
                         // console.log('callback   ====> ', loader, path)
-                        return { test: /\.(mustache|html)$/, loader: 'mustache' }
+                        return { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
                     }
                 }
             ]
