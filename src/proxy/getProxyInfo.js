@@ -156,7 +156,13 @@ function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
         }
     });
 
-    log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule));
+    log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule, function(key, value){
+        if(key === 'parent'){
+            return '[[parent ref]]'
+        }else{
+            return value
+        }
+    }));
 
     return rewriteRule
 }
