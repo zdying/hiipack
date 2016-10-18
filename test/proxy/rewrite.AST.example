@@ -1,0 +1,35 @@
+## url rewrite rules
+
+# Test Comment
+
+## simple rewrite rule
+
+usercenter.example.com => $domain/test;
+
+flight.qunar.com/flight_qzz => 127.0.0.1:8800/flight_qzz;
+
+set $domain api.example.com;
+set $local "127.0.0.1:8800";
+
+## standard rewrite url
+$domain => {
+    proxy_pass http://127.0.0.1:8800/news/src/mock/;
+
+    set $mock_user user_$id;
+
+    set_header Host $domain;
+    set_header UserID $mock_user;
+    set_header Access-Control-Allow-Origin *;
+}
+
+api.qunar.com => {
+    set_header Access-Control-Allow-Origin *;
+
+    set $node_server '127.0.0.1:3008';
+    set $order order;
+
+    location /$flight/$order/detail {
+        proxy_pass http://$node_server/user/?domain=$domain;
+        set_header Set-Cookie userID 200908204140;
+    }
+}

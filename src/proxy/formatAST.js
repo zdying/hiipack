@@ -7,6 +7,8 @@ var commandFuncs = require('./commands');
 var merge = require('../helpers/merge');
 var type = require('../helpers/type');
 
+var replaceVar = require('./replaceVar');
+
 var scopeCmds = {
     domain : ['set'],
     global : ['set'],
@@ -33,6 +35,10 @@ module.exports = function formatAST(ASTTree){
 
     // step 1.1: 替换全局变量中的变量
     res.props = replaceVar(res.props, res);
+
+    // step 1.2: 替换全局指令中的变量
+    res.commands = replaceFuncVar(globalFuncs, res);
+
     // replaceProps(res.props, res);
 
     // step 2: 解析基本规则(比如: `example.com => other.com`)
@@ -76,6 +82,7 @@ module.exports = function formatAST(ASTTree){
         replaceVar(domain.props, domain);
 
         // funcs里面的变量属于domain, 用domain的变量和上一层变量替换
+
         funcs.forEach(function(fun){
             var params = fun.params;
             var name = fun.name;
@@ -181,61 +188,23 @@ function execCommand(funcs, context, scope){
 //     });
 // }
 
-/**
- * 替换字符串/字符串数组中的变量
- * @param {String|Array} str
- * @param {Object} source
- * @returns {*}
- */
-function replaceVar(str, source/*, source1, source2*/){
-    var strType = type(str);
-    var allProps = {};
-    var currObj = source;
-    var props = null;
 
-    var replace = function(str){
-        return str.replace(/\$[\w\d_]+/g, function(match){
-            var val = allProps[match];
+function replaceFuncVar(funcs, source){
+    funcs.forEach(function(fun){
+        var params = fun.params;
+        var name = fun.name;
 
-            if(typeof val !== 'undefined'){
-                return val.replace(/^(['"])(.*)(\1)$/, "$2");
-            }else{
-                return match;
-            }
-        });
-    };
-
-    if(type === 'null' || type === 'undefined'){
-        return str
-    }
-
-    while(currObj){
-        props = currObj.props;
-
-        if(type(props) === 'object'){
-            for(var key in props){
-                if(!(key in allProps)){
-                    allProps[key] = props[key]
-                }
-            }
+        if(name === 'set'){
+            // 如果是 set 命令, 不替换第一个参数
+            fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), source))
+        }else{
+            fun.params = replaceVar(fun.params, source)
         }
 
-        currObj = currObj.parent;
-    }
+        // console.log('替换function参数:', name, fun.params);
+    });
 
-    if(strType === 'string'){
-        str = replace(str);
-    }else if(strType === 'array'){
-        str = str.map(function(string){
-            return replace(string)
-        })
-    }else if(strType === 'object'){
-        for(var key in str){
-            str[key] = replace(str[key])
-        }
-    }
-
-    return str;
+    return funcs
 }
 
 //test

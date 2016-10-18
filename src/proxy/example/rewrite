@@ -63,6 +63,8 @@ api.qunar.com => {
     set $node_server '127.0.0.1:3008';
     set $order order;
     set $cookie1 login=true;expires=20160909;
+    set $test server_ip_$node_server;
+    set $test server_id_$id;
 
     location /$flight/$order/detail {
         proxy_pass http://$node_server/user/?domain=$domain;
@@ -74,7 +76,7 @@ api.qunar.com => {
         proxy_pass http://127.0.0.1:3008/info/;
         set_cookie userID 200908204140;
 
-        set $id user_iddddd;
+        #set $id user_iddddd;
 
         set_cookie $flight zdy_$id;
     }

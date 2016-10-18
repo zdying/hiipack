@@ -3,6 +3,8 @@
  * @author zdying
  */
 
+var path = require('path');
+
 require('../src/global');
 var webpackConfig = require('../src/webpackConfig/index');
 var locConfig = require('../src/webpackConfig/loc/config');
@@ -20,8 +22,9 @@ describe('mergeConfig: ',function(){
     it('正确扩展plugins', function(){
         var plugins = locConf.plugins;
 
-        // loc 默认一个插件, 配置文件中有三个插件
-        assert(plugins.length === 4);
+
+        // loc 默认三个插件, 配置文件中有三个插件
+        assert(plugins.length === 6);
 
         //TODO 进一步验证插件内容是否正确
     });
@@ -39,7 +42,7 @@ describe('mergeConfig: ',function(){
              * }
              */
             testOk = loaders[i].test.toString() === /\.(mustache|html)$/.toString();
-            loaderOk = loaders[i].loader === 'mustache';
+            loaderOk = loaders[i].loader === path.join(__hii__.tmpdir, 'node_modules/mustache-loader');
 
             if(testOk && loaderOk){
                 exists = true;
