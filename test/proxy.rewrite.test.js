@@ -16,23 +16,23 @@ describe('proxy rewrite',function(){
     var AST = require('../src/proxy/AST');
 
     it('正确解析AST', function(){
-        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite.AST.example');
+        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite.example');
         var rules = AST(sourceCode);
 
-        var target = require('./proxy/rewrite.AST.example.json');
+        var target = require('./proxy/ASTTree.result');
 
         assert(JSON.stringify(rules) === JSON.stringify(target))
     });
 
     it('正确解析格式化AST Tree', function(){
-        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite.AST.example');
+        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite.example');
         var rules = AST(sourceCode);
         var formatedTree = formatAST(rules);
 
-        var target = require('./proxy/rewrite.formated.example.json');
+        var target = require('./proxy/formatedASTTree.result');
         var result = JSON.stringify(formatedTree, function(key, value){
             if(key === 'parent'){
-                return '[[parent ref]]'
+                return '__parent__:' + value.__id__;
             }else{
                 return value
             }

@@ -12,7 +12,7 @@ var parseHosts = require('../src/proxy/parseHosts');
 
 describe('proxy hosts',function(){
     it('正确解析hosts文件', function(){
-        var hostsObj = parseHosts(path.resolve(__dirname, 'proxy/hosts'));
+        var hostsObj = parseHosts(path.resolve(__dirname, 'proxy/hosts.example'));
         var target = {
             'hiipack.com': '127.0.0.1:8800',
             'hii.com': '127.0.0.1:8800',

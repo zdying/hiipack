@@ -21,7 +21,8 @@ var scopeCmds = {
 module.exports = function formatAST(ASTTree){
     var res = {
         commands: [],
-        props: {}
+        props: {},
+        __id__: 'global'
     };
     
     var baseRules = ASTTree.baseRules || [];
@@ -66,6 +67,8 @@ module.exports = function formatAST(ASTTree){
         var location = domain.location;
         var funcs = domain.commands || []; //parseCommand(domain.commands || []);
 
+        domain.__id__ = '_domain_' + _domain;
+
         domain.parent = res;
 
         // step 5: 执行domain中的命令(比如: set $domain example.com)
@@ -101,7 +104,7 @@ module.exports = function formatAST(ASTTree){
                 source: _domain,
                 commands: funcs,
                 props: domain.props,
-                parent: domain
+                parent: res
             };
             return
         }
@@ -112,6 +115,8 @@ module.exports = function formatAST(ASTTree){
             var proxy;
             var props;
             var funcs = loc.commands || []; //parseCommand(loc.commands || []);
+
+            loc.__id__ = '_location_' + loc.location;
 
             loc.parent = domain;
 
@@ -219,22 +224,10 @@ function replaceFuncVar(funcs, source){
 // console.log(':::formated tree:::');
 // console.log(JSON.stringify(formatedTree, function(key, value){
 //     if(key === 'parent'){
-//         return '[[parent ref]]'
+//         return '__parent__:' + value.__id__;
 //     }else{
 //         return value
 //     }
 // }, 4));
 
 // console.log(util.inspect(formatedTree, {depth: 20}));
-
-// var str = "$flight/abc => { set_cookie UserId $id }";
-// var source1 = {
-//     '$flight': 'flight.qunar.com',
-//     '$id': 1
-// };
-// var source2 = {
-//     '$id': 2
-// };
-//
-// console.log(replaceVar(str, source1, source2));
-// console.log(replaceVar(str, source1));
