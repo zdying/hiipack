@@ -1,5 +1,7 @@
 # hiipack
 
+[![NPM version](https://img.shields.io/npm/v/hiipack.svg?style=flat)](https://www.npmjs.org/package/hiipack)
+
 hiipack is a front end development tool based on webpack.
 
 
