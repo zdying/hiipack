@@ -30,15 +30,8 @@ describe('proxy rewrite',function(){
         var formatedTree = formatAST(rules);
 
         var target = require('./proxy/formatedASTTree.result');
-        var result = JSON.stringify(formatedTree, function(key, value){
-            if(key === 'parent'){
-                return '__parent__:' + value.__id__;
-            }else{
-                return value
-            }
-        });
 
-        assert(result === JSON.stringify(target))
+        assert(JSON.stringify(formatedTree) === JSON.stringify(target))
     });
 
 });

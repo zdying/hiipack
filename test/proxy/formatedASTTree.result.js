@@ -73,7 +73,7 @@ module.exports = {
         "props": {
             "$mock_user": "user_$id"
         },
-        "parent": "__parent__:global"
+        "parent": "global"
     },
     "api.qunar.com/$flight/order/detail": {
         "source": "api.qunar.com/$flight/order/detail",
@@ -96,6 +96,6 @@ module.exports = {
         "props": {
             "proxy": "http://127.0.0.1:3008/user/?domain=api.example.com"
         },
-        "parent": "__parent__:_domain_api.qunar.com"
+        "parent": "_domain_api.qunar.com"
     }
 };

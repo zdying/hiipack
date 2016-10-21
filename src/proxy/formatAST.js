@@ -69,6 +69,8 @@ module.exports = function formatAST(ASTTree){
 
         domain.__id__ = '_domain_' + _domain;
 
+        domain.toJSON = toJSON;
+
         domain.parent = res;
 
         // step 5: 执行domain中的命令(比如: set $domain example.com)
@@ -104,7 +106,8 @@ module.exports = function formatAST(ASTTree){
                 source: _domain,
                 commands: funcs,
                 props: domain.props,
-                parent: res
+                parent: res,
+                toJSON: toJSON
             };
             return
         }
@@ -119,6 +122,7 @@ module.exports = function formatAST(ASTTree){
             loc.__id__ = '_location_' + loc.location;
 
             loc.parent = domain;
+            loc.toJSON = toJSON;
 
             // step 8: 执行location命令(比如: `set $domain example.com`)
             execCommand(funcs, loc, 'location');
@@ -155,7 +159,8 @@ module.exports = function formatAST(ASTTree){
                 commands: funcs,
                 props: props,
                 // location: loc,
-                parent: domain
+                parent: domain,
+                toJSON: toJSON
             }
         })
     });
@@ -210,6 +215,20 @@ function replaceFuncVar(funcs, source){
     });
 
     return funcs
+}
+
+function toJSON(){
+    var tmp = {};
+
+    for(var key in this){
+        if(key !== 'parent'){
+            tmp[key] = this[key]
+        }else{
+            tmp[key] = this[key].__id__
+        }
+    }
+
+    return tmp
 }
 
 //test

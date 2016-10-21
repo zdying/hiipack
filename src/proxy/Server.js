@@ -164,13 +164,7 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules, function(key, value){
-            if(key === 'parent'){
-                return '[[parent ref]]'
-            }else{
-                return value
-            }
-        }));
+        logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
 
     addFile: function(filePath, type){
