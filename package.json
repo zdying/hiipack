@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "pretest": "node ./src/scripts/pretest",
     "postinstall": "node ./src/scripts/postinstall"
   },
   "bin": {
