@@ -10,6 +10,7 @@ var url = require('url');
 var fs = require('fs');
 
 var commands = require('./commands');
+var getCommands = require('./getCommands');
 
 /**
  * 获取代理信息, 用于请求代理的地址
@@ -71,17 +72,25 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         newUrlObj = url.parse(newUrl);
 
-        if(Array.isArray(rewrite.commands)){
-            rewrite.commands.forEach(function(obj){
-                //TODO 这里不能简单这么判断,要设置一个scope cmds 名单
-                // 以`proxy`开头的指令是proxy request指令
-                if(obj.name.match(/^proxy/)){
-                    // var params = obj.params.map(function(param){
-                    //     return replaceVar(param, rewrite, rewriteRules)
-                    // });
-                    commands[obj.name].apply(context, obj.params)
+        var reqCommands = getCommands(rewrite, 'request');
+
+        if(Array.isArray(reqCommands)){
+            log.detail('commands that will be executed [request]:', JSON.stringify(reqCommands).bold);
+
+            reqCommands.forEach(function(obj){
+                var name = obj.name;
+                var params = obj.params;
+                var func = commands[obj.name];
+
+                if(typeof func === 'function'){
+                    log.debug('exec rewrite request command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
+                    func.apply(context, params)
+                }else{
+                    log.debug(name.bold.yellow, 'is not in the scope', 'request'.bold.green, 'or not exists.')
                 }
             })
+        }else{
+            log.debug('no commands will be executed');
         }
 
         hostname = newUrlObj.hostname;

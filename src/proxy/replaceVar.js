@@ -23,6 +23,7 @@ module.exports = function replaceVar(str, source){
             var val = allProps[match];
 
             if(typeof val !== 'undefined'){
+                // 替换首位的引号
                 return val.replace(/^(['"])(.*)(\1)$/, "$2");
             }else{
                 return match;

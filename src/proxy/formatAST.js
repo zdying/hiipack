@@ -217,6 +217,10 @@ function replaceFuncVar(funcs, source){
     return funcs
 }
 
+/**
+ * 定义toJSON，避免JSON.stringify()出现循环引用
+ * @returns {{}}
+ */
 function toJSON(){
     var tmp = {};
 

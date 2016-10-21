@@ -15,17 +15,11 @@ var parseHosts = require('./parseHosts');
 var parseRewrite = require('./parseRewrite');
 var getProxyInfo = require('./getProxyInfo');
 var findHostsAndRewrite = require('./findHostsAndRewrite');
+var getCommands = require('./getCommands');
 
 var logger = log.namespace('proxy -> Server');
 
 //TODO 多个工程的规则合并时, commands等有问题,但是不影响功能,待修复
-
-var responseScopeCmds = [
-    'set_header',
-    'set_cookie',
-    'hide_header',
-    'hide_cookie'
-];
 
 //TODO 支持rewrite到hosts中的host时
 
@@ -149,7 +143,7 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.debug('hostsRules updated =>', JSON.stringify(this.hostsRules));
+        logger.detail('hostsRules updated =>', JSON.stringify(this.hostsRules));
     },
 
     mergeRewrite: function(filePath){
@@ -164,7 +158,7 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
+        logger.detail('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
 
     addFile: function(filePath, type){
@@ -201,17 +195,22 @@ Server.prototype = {
             };
 
             // call response commands
-            var resCommands = rewrite_rule && rewrite_rule.commands;
+            var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
 
             if(Array.isArray(resCommands)){
-                resCommands.forEach(function(command){
-                    var inScope = responseScopeCmds.indexOf(command.name) !== -1;
-                    var isFunction = typeof commands[command.name] === 'function';
+                log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
 
-                    if(inScope && isFunction){
-                        commands[command.name].apply(context, command.params)
+                resCommands.forEach(function(command){
+                    // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
+                    var name = command.name;
+                    var params = command.params || [];
+                    var isFunction = typeof commands[name] === 'function';
+
+                    if(isFunction){
+                        log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
+                        commands[name].apply(context, params);
                     }else{
-                        log.debug(command.name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
+                        log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
                     }
                 })
             }
@@ -306,6 +305,7 @@ Server.prototype = {
         }
 
         for(var url in rewrite){
+            // 整个rewrite不仅仅只有url和正则表达式，还有commands/props属性
             if(!url.match(/^(commands|props)$/)){
                 if(url.indexOf('~') === 0){
                     regexpCache.push(rewrite[url])
