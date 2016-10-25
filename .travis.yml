@@ -5,3 +5,5 @@ node_js:
   - "4"
   - "0.12.7"
   - "iojs"
+install:
+  - npm install --no-optional
