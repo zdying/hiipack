@@ -7,5 +7,3 @@ node_js:
   - "iojs"
 install:
   - npm install --no-optional
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
