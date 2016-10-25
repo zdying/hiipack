@@ -8,7 +8,7 @@ var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
 
-var PAC_PATH = 'file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac');
+var PAC_PATH = 'file://' + path.resolve(__hii__.tmpdir, 'hiipack.pac');
 
 module.exports = {
     chrome: function(dataDir, url){

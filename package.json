@@ -54,9 +54,5 @@
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "webpack-hot-middleware": "^2.13.0"
-  },
-  "devDependencies": {
-    "babel-plugin-react-transform": "^2.0.2",
-    "react-transform-webpack-hmr": "^0.1.6"
   }
 }

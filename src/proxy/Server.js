@@ -268,7 +268,7 @@ Server.prototype = {
 
     listeningHandler: function(){
         console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
-        console.log('hiipack proxy file', ('file://' + path.resolve(__dirname, 'pac', 'hiipack.pac')).magenta.bold);
+        console.log('hiipack proxy file', ('file://' + path.resolve(__hii__.tmpdir, 'hiipack.pac')).magenta.bold);
         console.log()
     },
 
@@ -306,7 +306,7 @@ Server.prototype = {
 
         for(var url in rewrite){
             // 整个rewrite不仅仅只有url和正则表达式，还有commands/props属性
-            if(!url.match(/^(commands|props)$/)){
+            if(!url.match(/^(commands|props|__id__)$/)){
                 if(url.indexOf('~') === 0){
                     regexpCache.push(rewrite[url])
                 }else{
@@ -355,7 +355,9 @@ Server.prototype = {
             FindProxyForURL.toString()
         ];
 
-        fs.writeFile(path.resolve(__dirname, 'pac', 'hiipack.pac'), txt.join(''));
+        fs.writeFile(path.resolve(__hii__.tmpdir, 'hiipack.pac'), txt.join(''), function(err){
+            err && logger.error(err);
+        });
     }
 };
 
