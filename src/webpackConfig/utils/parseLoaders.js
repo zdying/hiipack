@@ -46,6 +46,7 @@ module.exports = function parseLoaders(customLoaders){
                     if(currLoaderType === 'function'){
                         // type2
                         loaderResult = installCustomDependencies(denpendence, 'loaders', currLoader);
+                        log.debug('loader config is function:', currLoader);
                     }else if(currLoaderType === 'object' && currLoader !== null){
                         // type3
                         installCustomDependencies(denpendence, 'loaders', null);
