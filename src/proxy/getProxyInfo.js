@@ -29,7 +29,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
     var hostname, port, path, proxyName;
 
     // rewrite 优先级高于 hosts
-    if(rewrite){
+    if(rewrite && rewrite.props.proxy){
         var proxy = rewrite.props.proxy;
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;

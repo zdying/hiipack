@@ -64,7 +64,8 @@ module.exports = function getBabelLoader(userConfig, env, root){
         query: {
             cacheDirectory: (env === 'loc' || env === 'dev') ? path.join(__hii__.codeTmpdir, '__babel_cache__') : false,
             presets: presets.map(__hii__.resolve),
-            plugins: plugins.map(__hii__.resolve)
+            plugins: plugins.map(__hii__.resolve),
+            // compact: true
         }
     }
 };
