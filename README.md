@@ -39,6 +39,7 @@ hiipack is a front end development tool based on webpack.
       -x, --proxy                start the proxy server
       -t, --type <type>          project type: one of react|react-redux|es6|vue|normal|empty
       --no-color                 disable log color
+      --log-time                 display log time
   
   Examples:
   
