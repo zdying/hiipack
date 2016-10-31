@@ -68,7 +68,7 @@ module.exports = {
         }
 
         if(program.logTime){
-            timeStr = '[' + new Date().toLocaleString() + '] ';
+            timeStr = '[' + new Date().toLocaleTimeString() + '] ';
         }
 
         console.log(timeStr + (group ? ('[' + group + '] ').bold[groupColor] : '') + message);

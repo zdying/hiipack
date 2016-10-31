@@ -76,10 +76,12 @@ Server.prototype = {
             logger.debug('findHostsAndRewrite - hosts [', hosts.join(', ').bold.green, ']');
             logger.debug('findHostsAndRewrite - rewrites [', (rewrites.join(', ')).bold.green, ']');
 
+            // 将找到的Hosts文件解析并加入缓存
             hosts.forEach(function(hostFile){
                 self.addFile(hostFile, 'hosts');
             });
 
+            // 将找到的rewrite文件解析并加入缓存
             rewrites.forEach(function(rewriteFile){
                 self.addFile(rewriteFile, 'rewrite');
             });
@@ -128,7 +130,7 @@ Server.prototype = {
 
     /**
      * 合并hosts规则，这个只合并，不清空
-     * 如果传入的文件以前没有parse过，
+     * 如果传入的文件以前没有parse过，会先parse，并缓存
      * @param filePath
      */
     mergeHosts: function(filePath){
@@ -146,6 +148,11 @@ Server.prototype = {
         logger.detail('hostsRules updated =>', JSON.stringify(this.hostsRules));
     },
 
+    /**
+     * 合并rewrite规则，这个只合并，不清空
+     * 如果传入的文件以前没有parse过，会先parse，并缓存
+     * @param filePath
+     */
     mergeRewrite: function(filePath){
         var rewrite = Server.cache[filePath];
 
@@ -161,6 +168,11 @@ Server.prototype = {
         logger.detail('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
 
+    /**
+     * 添加配置文件
+     * @param {String} filePath 文件路径
+     * @param {String} type 文件类型：hosts|rewrite
+     */
     addFile: function(filePath, type){
         var fun = {
             'hosts': 'mergeHosts',
