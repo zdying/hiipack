@@ -4,8 +4,9 @@
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
     "pretest": "node ./src/scripts/pretest",
+    "test": "mocha --timeout 20000",
+    "posttest": "node ./src/scripts/posttest",
     "postinstall": "node ./src/scripts/postinstall"
   },
   "bin": {
