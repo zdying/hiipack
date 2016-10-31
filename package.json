@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "node ./src/scripts/pretest",
-    "test": "mocha --timeout 60000",
+    "test": "mocha --timeout 600000",
     "posttest": "node ./src/scripts/posttest",
     "postinstall": "node ./src/scripts/postinstall"
   },
