@@ -51,7 +51,16 @@ Server.prototype = {
         // 编译代码的主要逻辑
         app.all('*', compileSource.bind(this));
 
-        this.server = app.listen(port);
+
+        this.server = require('http').createServer(app).listen(port);
+
+        if(program.https){
+            var option = {
+                key: fs.readFileSync(path.resolve(__dirname, '../../ssl/key.pem')),
+                cert: fs.readFileSync(path.resolve(__dirname, '../../ssl/server.crt'))
+            };
+            this.httpsServer = require('https').createServer(option, app).listen(443);
+        }
 
         this.initEvents();
     },
@@ -61,17 +70,27 @@ Server.prototype = {
         var port = this.port;
         var proxy = this.proxy;
         var browser = this.browser;
+        var self = this;
+        var serverCount = this.httpsServer ? 2 : 1;
+        var count = 0;
 
-        server.on('error', function(err){
+        function onError(err){
             if(err.code === 'EADDRINUSE'){
-                console.log('port', String(port).bold.yellow, 'is already in use.');
-                server.close();
+                console.log('Port', String(port).bold.yellow, 'is already in use.');
+            }else if(err.code === 'EACCES'){
+                console.log('\nPermission denied.\nPlease try running this command again as root/Administrator.\n');
             }else{
                 console.log(err.message);
             }
-        });
 
-        server.on('listening', function(){
+            self.close();
+        }
+        
+        function onListening(){
+            if(serverCount === 2 && ++count < 2){
+                return
+            }
+
             var url = 'http://127.0.0.1:' + port;
             // browser && open(url);
 
@@ -80,6 +99,7 @@ Server.prototype = {
             console.log();
             console.log('current workspace ', __hiipack__.cwd.green.bold);
             console.log('hiipack started at', url.green.bold);
+            console.log('https server state', (this.httpsServer ? 'https://127.0.0.1' : 'disabled').bold.magenta);
 
             if(proxy){
                 // 启动代理服务
@@ -90,7 +110,15 @@ Server.prototype = {
             setTimeout(function(){
                 log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
             }, 200)
-        }.bind(this));
+        }
+
+        server.on('error', onError);
+        server.on('listening', onListening.bind(this));
+
+        if(serverCount === 2){
+            this.httpsServer.on('error', onError);
+            this.httpsServer.on('listening', onListening.bind(this));
+        }
 
         process.on("SIGINT", function(){
             console.log('\b\b  ');
@@ -102,6 +130,14 @@ Server.prototype = {
             console.log('Bye Bye.'.bold.yellow);
             process.exit()
         });
+    },
+
+    close: function(){
+        this.server.close();
+
+        if(this.httpsServer){
+            this.httpsServer.close();
+        }
     },
 
     openBrowser: function(url){

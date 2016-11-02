@@ -49,7 +49,8 @@ program
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
     .option('--no-color', 'disable log color')
     .option('--no-hot-reload', 'disable hot reload')
-    .option('--log-time', 'display log time');
+    .option('--log-time', 'display log time')
+    .option('--https', 'start https server');
 
 program
     .command('init <name>')
@@ -116,6 +117,13 @@ program
     .description('hiipack config, `operation`: [empty]|list|set|delete')
     .action(function(ope, args, options){
         client.config(ope, args)
+    });
+
+program
+    .command('ssl')
+    .description('show ssl certificate file path.')
+    .action(function(){
+        console.log(path.resolve('./ssl/'));
     });
 
 program.on('--help', function(){

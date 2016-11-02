@@ -264,15 +264,28 @@ Server.prototype = {
 
     connectHandler: function(request, socket, head){
         var _url = url.parse('http://' + request.url);
+        var _cache = this.domainCache[_url.hostname] || this.domainCache[_url.host];
 
-        logger.info('direc -', request.url.bold);
+        if(_cache && typeof _cache === 'string'){
+            _url.host = _cache;
+            _url.hostname = _cache.split(':')[0];
+            _url.port = _cache.split(':')[1] || 443;
 
-        var proxySocket = net.connect(_url.port || 80, _url.hostname, function(){
+            logger.info('https proxy -', request.url.bold.green, '==>', _cache.bold.green);
+        }else{
+            logger.info('https direc -', request.url.bold);
+        }
+
+        var proxySocket = net.connect(_url.port, _url.hostname, function(){
             socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+            proxySocket.write(head);
             proxySocket.pipe(socket);
         }).on('error', function(e){
-            console.log('e', e.message);
+            console.log('proxy error', e.message);
             socket.end();
+        }).on('data', function(data){
+            // console.log('proxy socker data:', data.toString());
+            // socket.write(data);
         });
 
         socket.pipe(proxySocket);
@@ -309,11 +322,13 @@ Server.prototype = {
         var regexpCache = this.regexpCache = [];
         var hosts = this.hostsRules;
         var rewrite = this.rewriteRules;
+        var urlReg = /((\w+):\/\/)?([^\/]+)(.+)/;
+        var matchResult = null;
 
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
         for(var domain in hosts){
-            domainCache[domain] = 1;
+            domainCache[domain] = domain;
         }
 
         for(var url in rewrite){
@@ -322,8 +337,13 @@ Server.prototype = {
                 if(url.indexOf('~') === 0){
                     regexpCache.push(rewrite[url])
                 }else{
-                    url = url.split('/')[0];
-                    domainCache[url] = 1;
+                    matchResult = url.match(urlReg);
+
+                    if(matchResult && matchResult[3]){
+                        domainCache[matchResult[3]] = (rewrite[url].props.proxy.match(urlReg) || [])[3] || 1;
+                    }else{
+                        log.warn('hiipack can not parse url:', url.bold.yellow);
+                    }
                 }
             }
         }
