@@ -38,7 +38,7 @@ Server.prototype = {
 
     init: function(){
         this.server = null;
-        this.hostsRules = { "hiipack.xyz": "127.0.0.1" };
+        this.hostsRules = { /*"hiipack.xyz": "127.0.0.1"*/ };
         this.rewriteRules = {};
         this.domainCache = {};
         this.regexpCache = [];
@@ -114,7 +114,7 @@ Server.prototype = {
      */
     mergeRules: function(type){
         if(type === 'all' || type === 'hosts'){
-            this.hostsRules = { "hiipack.xyz": "127.0.0.1" };
+            this.hostsRules = { /*"hiipack.xyz": "127.0.0.1"*/ };
             Server.cache.hostFiles.forEach(function(file){
                 this.mergeHosts(file)
             }.bind(this));

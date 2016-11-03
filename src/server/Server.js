@@ -55,11 +55,18 @@ Server.prototype = {
         this.server = require('http').createServer(app).listen(port);
 
         if(program.https){
+            var hiiConfig = __hii_config__;
+
+            var sslKey = program.sslKey || hiiConfig.sslKey || path.resolve(__dirname, '../../ssl/hiipack.key');
+            var sslCert = program.sslCert || hiiConfig.sslCert || path.resolve(__dirname, '../../ssl/hiipack.crt');
             var option = {
-                key: fs.readFileSync(path.resolve(__dirname, '../../ssl/hiipack.key')),
-                cert: fs.readFileSync(path.resolve(__dirname, '../../ssl/hiipack.crt'))
+                key: fs.readFileSync(sslKey),
+                cert: fs.readFileSync(sslCert)
             };
             this.httpsServer = require('https').createServer(option, app).listen(443);
+
+            log.debug('SSL server use key : ', sslKey.bold.green);
+            log.debug('SSL server use cert: ', sslCert.bold.green);
         }
 
         this.initEvents();

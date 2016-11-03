@@ -38,7 +38,7 @@ program
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
-    .option('-s, --syncConf <syncConf>', 'custom sync config')
+    .option('-s, --sync-conf <syncConf>', 'custom sync config')
     //TODO add this next version
     // .option('-U, --uglify', 'uglify javascript')
     //TODO add this next version
@@ -50,7 +50,9 @@ program
     .option('--no-color', 'disable log color')
     .option('--no-hot-reload', 'disable hot reload')
     .option('--log-time', 'display log time')
-    .option('--https', 'start https server');
+    .option('--https', 'start https server')
+    .option('--ssl-key <sslKey>', 'ssl key file')
+    .option('--ssl-cert <sslCert>', 'ssl cert file');
 
 program
     .command('init <name>')
