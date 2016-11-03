@@ -38,7 +38,7 @@ Server.prototype = {
 
     init: function(){
         this.server = null;
-        this.hostsRules = {};
+        this.hostsRules = { "hiipack.xyz": "127.0.0.1" };
         this.rewriteRules = {};
         this.domainCache = {};
         this.regexpCache = [];
@@ -114,7 +114,7 @@ Server.prototype = {
      */
     mergeRules: function(type){
         if(type === 'all' || type === 'hosts'){
-            this.hostsRules = {};
+            this.hostsRules = { "hiipack.xyz": "127.0.0.1" };
             Server.cache.hostFiles.forEach(function(file){
                 this.mergeHosts(file)
             }.bind(this));
@@ -328,7 +328,7 @@ Server.prototype = {
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
         for(var domain in hosts){
-            domainCache[domain] = domain;
+            domainCache[domain] = hosts[domain];
         }
 
         for(var url in rewrite){

@@ -56,8 +56,8 @@ Server.prototype = {
 
         if(program.https){
             var option = {
-                key: fs.readFileSync(path.resolve(__dirname, '../../ssl/key.pem')),
-                cert: fs.readFileSync(path.resolve(__dirname, '../../ssl/server.crt'))
+                key: fs.readFileSync(path.resolve(__dirname, '../../ssl/hiipack.key')),
+                cert: fs.readFileSync(path.resolve(__dirname, '../../ssl/hiipack.crt'))
             };
             this.httpsServer = require('https').createServer(option, app).listen(443);
         }
