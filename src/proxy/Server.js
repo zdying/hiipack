@@ -145,7 +145,7 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.detail('hostsRules updated =>', JSON.stringify(this.hostsRules));
+        logger.debug('hostsRules updated =>', JSON.stringify(this.hostsRules));
     },
 
     /**
@@ -165,7 +165,7 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.detail('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
+        logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
     },
 
     /**
@@ -271,7 +271,11 @@ Server.prototype = {
             _url.hostname = _cache.split(':')[0];
             _url.port = _cache.split(':')[1] || 443;
 
-            logger.info('https proxy -', request.url.bold.green, '==>', _cache.bold.green);
+            if(_url.port != 443){
+                _url.port = 443;
+            }
+
+            logger.info('https proxy -', request.url.bold.green, '==>', _url.hostname.bold.green);
         }else{
             logger.info('https direc -', request.url.bold);
         }
