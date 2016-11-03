@@ -123,7 +123,7 @@ program
     .command('ssl')
     .description('show ssl certificate file path.')
     .action(function(){
-        console.log(path.resolve('./ssl/'));
+        console.log(path.resolve(__dirname, './ssl/'));
     });
 
 program.on('--help', function(){
