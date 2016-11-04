@@ -326,7 +326,7 @@ Server.prototype = {
         var regexpCache = this.regexpCache = [];
         var hosts = this.hostsRules;
         var rewrite = this.rewriteRules;
-        var urlReg = /((\w+):\/\/)?([^\/]+)(.+)/;
+        var urlReg = /((\w+):\/\/)?([^/]+)/;
         var matchResult = null;
 
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
