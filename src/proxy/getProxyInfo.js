@@ -26,11 +26,12 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
     var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {}, regexpCache || {});
     var host = !!hostsRules && hostsRules[uri.hostname];
 
-    var hostname, port, path, proxyName;
+    var hostname, port, path, proxyName, aliasToLocal = false;
 
     // rewrite 优先级高于 hosts
     if(rewrite && rewrite.props.proxy){
         var proxy = rewrite.props.proxy;
+        var alias = rewrite.props.alias;
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
 
@@ -44,7 +45,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
-        if(proxy.match(protocolReg)){
+        if(!alias && proxy.match(protocolReg)){
             request.url = request.url.replace(protocolReg, '')
         }
 
@@ -70,8 +71,6 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             newUrl = request.url.replace(rewrite.source, proxy);
         }
 
-        newUrlObj = url.parse(newUrl);
-
         var reqCommands = getCommands(rewrite, 'request');
 
         if(Array.isArray(reqCommands)){
@@ -93,10 +92,21 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             log.debug('no commands will be executed');
         }
 
-        hostname = newUrlObj.hostname;
-        port = newUrlObj.port || 80;
-        path = newUrlObj.path;
-        proxyName = 'HIIPACK';
+
+        log.debug('newURL ==>', newUrl);
+        log.debug('newURL ==>', alias);
+
+        if(alias){
+            // 本地文件系统路径
+            newUrl = newUrl.replace(/^(\w+:\/\/)/, '');
+        }else{
+            newUrlObj = url.parse(newUrl);
+
+            hostname = newUrlObj.hostname;
+            port = newUrlObj.port || 80;
+            path = newUrlObj.path;
+            proxyName = 'HIIPACK';
+        }
     }else if(host){
         hostname = host.split(':')[0];
         port = Number(host.split(':')[1]);
@@ -118,7 +128,9 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         },
         PROXY: proxyName,
         hosts_rule: host,
-        rewrite_rule: rewrite
+        rewrite_rule: rewrite,
+        alias: alias,
+        newUrl: newUrl
     }
 };
 

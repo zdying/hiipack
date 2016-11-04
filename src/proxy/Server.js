@@ -199,6 +199,16 @@ Server.prototype = {
 
         log.detail('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
 
+        // 重定向到本地文件系统
+        if(request.alias){
+            log.info(request.url + ' ==> ' + request.newUrl);
+
+            // TODO 设置MIME-type
+            // TODO 完成root支持
+            // TODO 执行repsone命令
+            return fs.createReadStream(request.newUrl).pipe(response);
+        }
+
         var proxy = http.request(request.proxy_options, function(res){
             var hosts_rule = request.hosts_rule;
             var rewrite_rule = request.rewrite_rule;
@@ -314,6 +324,8 @@ Server.prototype = {
         request.hosts_rule = proxyInfo.hosts_rule;
         request.rewrite_rule = proxyInfo.rewrite_rule;
         request.PROXY = proxyInfo.PROXY;
+        request.alias = proxyInfo.alias;
+        request.newUrl = proxyInfo.newUrl;
 
         return request;
     },
@@ -356,7 +368,7 @@ Server.prototype = {
         logger.debug('domain cache updated', JSON.stringify(domainCache));
         logger.debug('regexp cache updated', JSON.stringify(regexpCache));
     },
-    
+
     createPacFile: function(domainsCache){
         function FindProxyForURL(url, host) {
             host = host.toLowerCase();

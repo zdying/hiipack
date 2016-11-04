@@ -26,6 +26,8 @@ module.exports = {
     global : ['set'],
     location : [
         'set',
-        'proxy_pass'
+        'proxy_pass',
+        'alias',
+        'root'
     ]
 };

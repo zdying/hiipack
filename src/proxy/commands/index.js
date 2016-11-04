@@ -4,7 +4,7 @@
  */
 
 module.exports = {
-    // ## proxy request config
+    // proxy request config
     'proxy_set_header': function(key, value){
         log.debug('proxy_set_header -', this, key, value);
         this.request.headers[key] = value;
@@ -35,7 +35,7 @@ module.exports = {
         // }
     },
 
-    // ## response config
+    // response config
     'hide_cookie': function(key){
         this.response.headers['Set-Cookie'] = key + '=; Expires=' + new Date(1);
     },
@@ -52,9 +52,22 @@ module.exports = {
         this.response.headers['Set-Cookie'] = key + '=' + value;
     },
 
-    proxy_pass: function(value){
+    // location commands
+    'proxy_pass': function(value){
         this.props.proxy = value;
     },
+    'alias': function(value) {
+        if(/^\//.test(value)){
+            this.props.proxy = value;
+            this.props.alias = true;
+        }else{
+            log.error('`alias`'.bold + "'s value should be an absolute path.");
+        }
+    },
+    'root': function(value){
+        this.props.default = value;
+    },
+
 
     // global commands
     'set': function(key, value){
