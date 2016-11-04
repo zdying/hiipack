@@ -15,8 +15,8 @@ var errPrex = '[error]'.red;
 function uploadFile(configPath){
     var configPath = configPath || 'dev.json';
     var config = require(path.join(root, configPath));
-    var source = path.join(root, config.source, '/');
-    var _path = config.path;
+    var source = config.source || './';
+    var _path = config.path || config.dest;
     var server = config.server;
     var isSudo = config.sudo === undefined ? true : config.sudo;
     var errorField = [];
@@ -51,6 +51,8 @@ function uploadFile(configPath){
         .exclude(config.exclude)
         .source(source)
         .destination(server + ':' + _path);
+
+    rsync.cwd(root);
 
     rsync.set('chmod', 'a+rX,u+w');
     rsync.set('rsync-path', (isSudo ? 'sudo ' : '') + 'rsync');

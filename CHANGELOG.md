@@ -3,6 +3,8 @@
 * 支持HTTPS
 * 修改bug：dev环境下如果entry中的key包含'/'时css文件404（不影响功能）
 
+* 修改bug：sync上传多个目录报错的问题
+
 # 1.0.4
 
 * 支持HMR
