@@ -375,6 +375,7 @@ Server.prototype = {
         var rewrite = this.rewriteRules;
         var urlReg = /((\w+):\/\/)?([^/]+)/;
         var matchResult = null;
+        var proxy = '';
 
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
@@ -390,8 +391,10 @@ Server.prototype = {
                 }else{
                     matchResult = url.match(urlReg);
 
+                    proxy = rewrite[url].props.proxy;
+
                     if(matchResult && matchResult[3]){
-                        domainCache[matchResult[3]] = (rewrite[url].props.proxy.match(urlReg) || [])[3] || 1;
+                        domainCache[matchResult[3]] = path.isAbsolute(proxy) ? "127.0.0.1" : ((proxy.match(urlReg) || [])[3] || 1);
                     }else{
                         log.warn('hiipack can not parse url:', url.bold.yellow);
                     }
