@@ -52,6 +52,7 @@
     "postcss-loader": "^0.13.0",
     "rsync": "^0.5.0",
     "sass-loader": "^3.2.3",
+    "simple-mime": "^0.1.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "webpack-hot-middleware": "^2.13.0"

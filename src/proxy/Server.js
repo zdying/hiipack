@@ -8,6 +8,8 @@ var url = require('url');
 var net = require('net');
 var fs = require('fs');
 
+var getMimeType = require('simple-mime')('text/plain');
+
 var commands = require('./commands');
 var merge = require('../helpers/merge');
 
@@ -192,10 +194,13 @@ Server.prototype = {
     requestHandler: function(request, response){
         var uri = url.parse(request.url);
         var start = Date.now();
+        var self = this;
 
         request._startTime = start;
 
         this.setRequest(request);
+
+        var rewrite_rule = request.rewrite_rule;
 
         log.detail('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
 
@@ -203,39 +208,46 @@ Server.prototype = {
         if(request.alias){
             log.info(request.url + ' ==> ' + request.newUrl);
 
-            // TODO 设置MIME-type
-            // TODO 完成root支持
-            // TODO 执行repsone命令
-            return fs.createReadStream(request.newUrl).pipe(response);
+            response.headers = response.headers || {};
+
+            self.execResponseCommand(rewrite_rule, {
+                response: response
+            });
+
+            try{
+                var stats = fs.statSync(request.newUrl);
+                var filePath = request.newUrl;
+                var rewrite = request.rewrite_rule;
+
+                if(stats.isDirectory()){
+                    filePath += rewrite.props.root || 'index.html'
+                }
+
+                // TODO 如果没有root，列出目录
+                response.setHeader('Content-Type', getMimeType(filePath));
+
+                //TODO 这里不应该自己调用setHeader，应该继续增强commands中的命令
+                for(var key in response.headers){
+                    response.setHeader(key, response.headers[key])
+                }
+
+                return fs.createReadStream(filePath).pipe(response);
+            }catch(e){
+                response.setHeader('Content-Type', 'text/html');
+                if(e.code === 'ENOENT'){
+                    response.statusCode = 404;
+                    response.end('404 Not Found: <br><pre>' + e.stack + '</pre>');
+                }else{
+                    response.statusCode = 500;
+                    response.end('500 Server Internal Error: <br><pre>' + e.stack + '</pre>');
+                }
+            }
         }
 
         var proxy = http.request(request.proxy_options, function(res){
-            var hosts_rule = request.hosts_rule;
-            var rewrite_rule = request.rewrite_rule;
-            var context = {
+            self.execResponseCommand(rewrite_rule, {
                 response: res
-            };
-
-            // call response commands
-            var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
-
-            if(Array.isArray(resCommands)){
-                log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
-
-                resCommands.forEach(function(command){
-                    // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
-                    var name = command.name;
-                    var params = command.params || [];
-                    var isFunction = typeof commands[name] === 'function';
-
-                    if(isFunction){
-                        log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
-                        commands[name].apply(context, params);
-                    }else{
-                        log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
-                    }
-                })
-            }
+            });
 
             // response.pipe(res);
             response.writeHead(res.statusCode, res.headers);
@@ -270,6 +282,29 @@ Server.prototype = {
 
         proxy.write('');
         proxy.end();
+    },
+
+    execResponseCommand: function(rewrite_rule, context){
+        // call response commands
+        var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
+
+        if(Array.isArray(resCommands)){
+            log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
+
+            resCommands.forEach(function(command){
+                // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
+                var name = command.name;
+                var params = command.params || [];
+                var isFunction = typeof commands[name] === 'function';
+
+                if(isFunction){
+                    log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
+                    commands[name].apply(context, params);
+                }else{
+                    log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
+                }
+            })
+        }
     },
 
     connectHandler: function(request, socket, head){

@@ -68,6 +68,8 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             }
         }else{
             // 普通地址字符串
+            // 如果是alias，不替换url
+            // 否则，把url中的source部分替换成proxy
             newUrl = request.url.replace(rewrite.source, proxy);
         }
 
