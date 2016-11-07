@@ -11,6 +11,8 @@ var path = require('path');
 
 var hiirc_path = path.resolve(process.env.HOME || process.env.USERPROFILE, '.hiirc');
 
+var _config = null;
+
 module.exports = {
     list: function(){
         console.log(this.readFileToString());
@@ -18,7 +20,7 @@ module.exports = {
 
     set: function(key, val){
         if(key){
-            var obj = global.__hii_config__ || (global.__hii_config__ = this.readFileToObject());
+            var obj = this.get();
 
             if(val === undefined){
                 log.warn('value is', '`undefined`'.bold.yellow, 'and the', ('`' + key + '`').bold.green + '\'s', 'value will be empty');
@@ -27,7 +29,7 @@ module.exports = {
             obj[key] = val || '';
 
             log.debug('hiipack config - set', key, val);
-            log.debug('hiipack config - result', JSON.stringify(__hii_config__));
+            log.debug('hiipack config - result', JSON.stringify(obj));
 
             this.writeConfigFile(obj);
         }else{
@@ -35,14 +37,20 @@ module.exports = {
         }
     },
 
+    get: function(key){
+        var config = _config || (_config = this.readFileToObject());
+
+        return key ? config[key] : config;
+    },
+
     delete: function(key){
         if(key){
-            var obj = global.__hii_config__ || (global.__hii_config__ = this.readFileToObject());
+            var obj = this.get();
 
             delete obj[key];
 
             log.debug('hiipack config - delete', key);
-            log.debug('hiipack config - result', JSON.stringify(__hii_config__));
+            log.debug('hiipack config - result', JSON.stringify(obj));
 
             this.writeConfigFile(obj);
         }else{
@@ -97,3 +105,7 @@ module.exports = {
         return obj;
     }
 };
+
+// test
+// require('../global');
+// console.log(module.exports.get('registry'));

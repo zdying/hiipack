@@ -14,17 +14,19 @@ var os = require('os');
 var package = require('../package.json');
 var program = global.program;
 
-try{
-    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
-        if(err) console.error(err);
-    });
+var exec = require('./commands').exec;
 
-    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdirWithVersion, function(err){
-        if(err) console.error(err);
-    });
-}catch(e){
-
-}
+// try{
+//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
+//         if(err) console.error(err);
+//     });
+//
+//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdirWithVersion, function(err){
+//         if(err) console.error(err);
+//     });
+// }catch(e){
+//
+// }
 
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);

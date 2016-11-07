@@ -10,7 +10,7 @@ var child_process = require('child_process');
 
 // var globalRoot = child_process.execSync('npm root -g').toString().trim();
 var hiipackRoot = path.resolve(__dirname, '..', 'node_modules');
-var hiipackTempRoot = os.tmpdir() + '/hiipack_cache/node_modules';
+var hiipackTempRoot = os.tmpdir() + '/hiipack/package/node_modules';
 
 describe('NODE_PATH',function(){
     var nodepath = require('../src/node_path')();
@@ -18,7 +18,7 @@ describe('NODE_PATH',function(){
         assert(nodepath.indexOf(hiipackRoot) !== -1)
     });
 
-    it('NODE_PATH should include hiipack tmpdir',function(){
+    it('NODE_PATH should include hiipack tmp cache dir',function(){
         assert(nodepath.indexOf(hiipackTempRoot) !== -1)
     });
 

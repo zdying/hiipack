@@ -71,13 +71,13 @@ module.exports = function(root, userConfig){
         ],
         resolve: {
             root: root,
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         },

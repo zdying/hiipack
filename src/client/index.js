@@ -12,6 +12,7 @@ var Compiler = require('../compiler');
 
 var package = require('../helpers/package');
 var logger = log.namespace('client');
+var config = require('./config');
 
 var path = require('path');
 var fse = require('fs-extra');
@@ -133,14 +134,15 @@ module.exports = {
      * 清空打包代码缓存
      */
     clearCodeCache: function() {
-        fse.remove(__hii__.tmpdir)
+        fse.remove(__hii__.codeTmpdir)
     },
 
     /**
      * 清空package缓存
      */
     clearPackageCache: function() {
-
+        fse.remove(__hii__.packageTmpdir);
+        fse.remove(__hii__.packageTmpdirWithVersion);
     },
 
     /**
@@ -151,7 +153,7 @@ module.exports = {
      * @private
      */
     _replaceProjectName: function(projName, root, registry){
-        registry = registry || __hii_config__.registry;
+        registry = registry || config.get('registry');
 
         var items = []; // files, directories, symlinks, etc
         log.info('setup project ...');

@@ -7,6 +7,7 @@ var path = require('path');
 var child_process = require('child_process');
 var log = require('../helpers/log');
 var logger = log.namespace('package');
+var config = require('../client/config');
 
 module.exports = {
     /**
@@ -39,13 +40,13 @@ module.exports = {
         }
 
         var modulePath = '/node_modules/' + moduleName;
-        var dirs = [__hii__.cwd, __hii__.root, __hii__.globalRoot, __hii__.tmpdir];
+        var dirs = [__hii__.cwd, __hii__.root, __hii__.globalRoot, __hii__.packageTmpdir];
         var tips = ['PROJECT_ROOT', 'HIIPACK_ROOT', 'GLOBAL_ROOT', 'HIIPACK_TMP_DIR'];
         var logTips = ['loader', version, moduleName.bold.green, 'is already exists, position'].join(' ');
         var finalPath = '';
 
         if(version){
-            dirs.splice(3, 0, path.resolve(__hii__.tmpdir, '..', 'hiipack_cache_with_version'));
+            dirs.splice(3, 0, path.resolve(__hii__.packageTmpdirWithVersion));
             tips.splice(3, 0, 'HIIPACK_TMP_DIR_WITH_VERSION');
         }
 
@@ -121,12 +122,12 @@ module.exports = {
      * @returns {boolean}
      */
     install: function(package, withVersion, target){
-        var cwd = target || (withVersion ? __hii__.tmpdirWithVersion : __hii__.tmpdir);
+        var cwd = target || (withVersion ? __hii__.packageTmpdirWithVersion : __hii__.packageTmpdir);
         if(Array.isArray(package)){
             package = package.join(' ');
         }
         try{
-            var registry = program.registry || __hii_config__.registry;
+            var registry = program.registry || config.get('registry');
             var cmd = 'npm install ' + package + (registry ? ' --registry=' + registry : '');
 
             logger.debug('exec command', cmd.bold, cwd);
@@ -163,7 +164,7 @@ module.exports = {
         packages.split(' ').forEach(function(currentLoader, index){
             logger.info('finding', type, 'for', currentLoader.green);
 
-            var tmpModulesPath = (isWithVersion ? __hii__.tmpdirWithVersion : __hii__.tmpdir) + '/node_modules/';
+            var tmpModulesPath = (isWithVersion ? __hii__.packageTmpdirWithVersion : __hii__.packageTmpdir) + '/node_modules/';
             try{
                 var packageInfo = require(tmpModulesPath + currentLoader + '/package.json');
                 var peerDependencies = packageInfo[type] || {};

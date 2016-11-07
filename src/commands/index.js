@@ -36,7 +36,7 @@ module.exports = {
                     throw "the module " + require('path').resolve(path) + ' is not a valid command.'
                 }
             }catch(err){
-                console.log(('[error] ' + cmd + ' exec failed.').bold.red);
+                console.log(('[error] ' + cmd + ' exec failed.').bold.red, err.stack);
             }
         }else{
             console.log(('[error] ' + cmd + ' does not exists.').bold.red);

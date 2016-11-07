@@ -42,7 +42,7 @@ describe('mergeConfig: ',function(){
              * }
              */
             testOk = loaders[i].test.toString() === /\.(mustache|html)$/.toString();
-            loaderOk = loaders[i].loader === path.join(__hii__.tmpdir, 'node_modules/mustache-loader');
+            loaderOk = loaders[i].loader === path.join(__hii__.packageTmpdir, 'node_modules/mustache-loader');
 
             if(testOk && loaderOk){
                 exists = true;

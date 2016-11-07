@@ -12,6 +12,7 @@ var logger = log.namespace('Server');
 var ProxyServer = require('../proxy');
 var detectBrowser = require('./detectBrowser');
 var proxyConfig = require('./proxyConfig');
+var config = require('../client/config');
 
 // 中间件
 var preHandler = require('./middlewares/preHandler');
@@ -55,7 +56,7 @@ Server.prototype = {
         this.server = require('http').createServer(app).listen(port);
 
         if(program.https){
-            var hiiConfig = __hii_config__;
+            var hiiConfig = config.get();
 
             var sslKey = program.sslKey || hiiConfig.sslKey || path.resolve(__dirname, '../../ssl/hiipack.key');
             var sslCert = program.sslCert || hiiConfig.sslCert || path.resolve(__dirname, '../../ssl/hiipack.crt');
@@ -161,7 +162,7 @@ Server.prototype = {
         if(!browserPath){
             log.error('can not find browser', browser.bold.yellow);
         }else{
-            var dataDir = __hii__.tmpdir;
+            var dataDir = __hii__.cacheTmpdir;
 
             if(os.platform() === 'win32'){
                 browserPath = '"' + browserPath + '"';

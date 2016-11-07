@@ -12,6 +12,7 @@ var getMimeType = require('simple-mime')('text/plain');
 
 var commands = require('./commands');
 var merge = require('../helpers/merge');
+var config = require('../client/config');
 
 var parseHosts = require('./parseHosts');
 var parseRewrite = require('./parseRewrite');
@@ -342,7 +343,7 @@ Server.prototype = {
 
     listeningHandler: function(){
         console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
-        console.log('hiipack proxy file', ('file://' + path.resolve(__hii__.tmpdir, 'hiipack.pac')).magenta.bold);
+        console.log('hiipack proxy file', ('file://' + path.resolve(__hii__.cacheTmpdir, 'hiipack.pac')).magenta.bold);
         console.log()
     },
 
@@ -431,7 +432,7 @@ Server.prototype = {
             }
         }
 
-        var sysProxy = __hii_config__.system_proxy;
+        var sysProxy = config.get('system_proxy');
 
         var txt = [
             'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
@@ -441,7 +442,7 @@ Server.prototype = {
             FindProxyForURL.toString()
         ];
 
-        fs.writeFile(path.resolve(__hii__.tmpdir, 'hiipack.pac'), txt.join(''), function(err){
+        fs.writeFile(path.resolve(__hii__.cacheTmpdir, 'hiipack.pac'), txt.join(''), function(err){
             err && logger.error(err);
         });
     }

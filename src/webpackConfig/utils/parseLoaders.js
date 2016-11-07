@@ -73,7 +73,6 @@ module.exports = function parseLoaders(customLoaders){
 function installLoader(loader){
     var loaderContent = loader.loader;
     var loaders = Array.isArray(loaderContent) ? loaderContent : loaderContent.split('!');
-    var tmpdir = __hiipack__.tmpdir;
     var installed = false;
     // 需要安装的package
     var loadersName = loaders.map(function(name){
