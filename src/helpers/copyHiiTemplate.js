@@ -16,9 +16,7 @@ module.exports = function copyHiiTemplate(){
 
         fse.mkdirsSync(hiipackPath);
 
-        fse.copy(hiipackTempldatePath, hiipackPath, function(err){
-            if(err) console.error(err);
-        });
+        fse.copySync(hiipackTempldatePath, hiipackPath);
     }catch(e){
         console.error('make dir .hiipack/cache or .hiipack/code failed ==>', e.message);
     }

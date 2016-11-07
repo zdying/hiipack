@@ -4,7 +4,7 @@
  */
 
 var fs = require('fs');
-var fse = require('fs-extra');
+// var fse = require('fs-extra');
 var os = require('os');
 var path = require('path');
 var child_process = require('child_process');
@@ -12,18 +12,18 @@ var child_process = require('child_process');
 var homeDir = process.env.HOME || process.env.USERPROFILE;
 
 // hiipack temp dir
-try{
-    var hiipackPath = path.join(homeDir, '.hiipack');
-    var hiipackTempldatePath = path.join(__dirname, '../../', 'tmpl/_hiipack');
-
-    fse.mkdirsSync(hiipackPath);
-
-    fse.copy(hiipackTempldatePath, hiipackPath, function(err){
-        if(err) console.error(err);
-    });
-}catch(e){
-    console.error('make dir .hiipack/cache or .hiipack/code failed ==>', e.message);
-}
+// try{
+//     var hiipackPath = path.join(homeDir, '.hiipack');
+//     var hiipackTempldatePath = path.join(__dirname, '../../', 'tmpl/_hiipack');
+//
+//     fse.mkdirsSync(hiipackPath);
+//
+//     fse.copy(hiipackTempldatePath, hiipackPath, function(err){
+//         if(err) console.error(err);
+//     });
+// }catch(e){
+//     console.error('make dir .hiipack/cache or .hiipack/code failed ==>', e.message);
+// }
 
 try{
     var hiircPath = path.join(homeDir, '.hiirc');
