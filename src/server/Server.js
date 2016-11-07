@@ -227,7 +227,7 @@ Server.prototype = {
     sendCompiledFile: function(req, projInfo){
         var filePath = path.join(__hii__.codeTmpdir, req.url);
 
-        filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
+        filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/[\\\/]prd[\\\/]/, '/loc/');
         this.sendFile(req, filePath);
     }
 };

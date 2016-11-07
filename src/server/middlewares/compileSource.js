@@ -77,7 +77,7 @@ module.exports = function(req, res, next){
                     var fileName = ((projInfo.folder || '') + '/' + projInfo.fileName).replace('/', '');
                     var compiledFilePath = path.join(
                         __hii__.codeTmpdir,
-                        req.url.replace(/@(\w+)\.(\w+)/, '.$2').replace(/\/(prd|dev|src)\//, '/loc/')
+                        req.url.replace(/@(\w+)\.(\w+)/, '.$2').replace(/[\\\/](prd|dev|src)[\\\/]/, '/loc/')
                     );
 
                     if(entries.indexOf(fileName) !== -1){
@@ -99,7 +99,7 @@ module.exports = function(req, res, next){
             }
         }else{
             // 其它文件
-            filePath = filePath.replace(/\/prd\//, '/src/');
+            filePath = filePath.replace(/[\\\/]prd[\\\/]/, '/src/');
 
             logger.debug(req.url, '==>', filePath);
             try{
@@ -139,7 +139,7 @@ module.exports = function(req, res, next){
                             '<ul>'
                         ];
                         html.push('<li>');
-                        html.push(      '<a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">', folderSVG, '../</a>');
+                        html.push(      '<a href="', url.replace(/\/([^\\\/]*?)\/?$/, '/') , '">', folderSVG, '../</a>');
                         html.push('</li>');
                         var filesItem = files.map(function(fileName){
                             if(fileName.slice(0, 1) === '.'){
