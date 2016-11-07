@@ -26,7 +26,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
     var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {}, regexpCache || {});
     var host = !!hostsRules && hostsRules[uri.hostname];
 
-    var hostname, port, path, proxyName, aliasToLocal = false;
+    var hostname, port, path, proxyName;
 
     // rewrite 优先级高于 hosts
     if(rewrite && rewrite.props.proxy){
@@ -68,7 +68,6 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             }
         }else{
             // 普通地址字符串
-            // 如果是alias，不替换url
             // 否则，把url中的source部分替换成proxy
             newUrl = request.url.replace(rewrite.source, proxy);
         }
@@ -99,7 +98,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         log.debug('newURL ==>', alias);
 
         if(alias){
-            // 本地文件系统路径
+            // 本地文件系统路径, 删除前面的协议部分
             newUrl = newUrl.replace(/^(\w+:\/\/)/, '');
         }else{
             newUrlObj = url.parse(newUrl);

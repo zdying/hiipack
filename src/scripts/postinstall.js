@@ -4,7 +4,6 @@
  */
 
 var fs = require('fs');
-// var fse = require('fs-extra');
 var os = require('os');
 var path = require('path');
 var child_process = require('child_process');

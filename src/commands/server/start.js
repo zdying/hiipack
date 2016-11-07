@@ -3,10 +3,9 @@
  * @author zdying
  */
 
-var server = require('../../server');
-
 module.exports = {
     exec: function(port, browser, proxy){
+        var server = require('../../server');
         server.start(port, browser, proxy);
     },
 

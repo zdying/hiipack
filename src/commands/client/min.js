@@ -3,10 +3,9 @@
  * @author zdying
  */
 
-var client = require('../../client');
-
 module.exports = {
     exec: function(args){
+        var client = require('../../client');
         client.build();
     },
 

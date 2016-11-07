@@ -31,6 +31,8 @@ module.exports = {
             log.debug('hiipack config - set', key, val);
             log.debug('hiipack config - result', JSON.stringify(obj));
 
+            _config = obj;
+
             this.writeConfigFile(obj);
         }else{
             log.error('a key is required when use', '`set`'.bold.red, 'command')
@@ -51,6 +53,8 @@ module.exports = {
 
             log.debug('hiipack config - delete', key);
             log.debug('hiipack config - result', JSON.stringify(obj));
+
+            _config = obj;
 
             this.writeConfigFile(obj);
         }else{

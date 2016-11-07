@@ -3,10 +3,9 @@
  * @author zdying
  */
 
-var client = require('../../client');
-
 module.exports = {
     exec: function(name, type, registry){
+        var client = require('../../client');
         client.init(name, type, registry);
     },
 

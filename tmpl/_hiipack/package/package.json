@@ -1,5 +1,5 @@
 {
-  "name": "hiipack_package_with_version",
+  "name": "hiipack_package",
   "private": true,
   "version": "1.0.0",
   "description": "hiipack package cache diretory.",

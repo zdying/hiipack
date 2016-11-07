@@ -4,13 +4,14 @@
  */
 var path = require('path');
 var fs = require('fs');
-var fse = require('fs-extra');
 var colors = require('colors');
 var child_process = require('child_process');
 var os = require('os');
 var log = require('./helpers/log');
 var program = require('commander');
 var package = require('./helpers/package');
+var _globalRoot = require('./globalRoot');
+
 // var config = require('./client/config');
 // var MemoryFS = require("memory-fs");
 
@@ -18,7 +19,7 @@ var __hiipack__ = {
     /**
      * 全局模块跟目录
      */
-    globalRoot: require('./globalRoot') || child_process.execSync('npm root -g').toString().trim(),
+    globalRoot: _globalRoot || child_process.execSync('npm root -g').toString().trim(),
     /**
      * hiipack根目录
      */

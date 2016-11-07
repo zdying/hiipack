@@ -3,11 +3,7 @@
  * @author zdying
  */
 var __hiipack = require('./global');
-var path = require('path');
-var fse = require('fs-extra');
 var colors = require('colors');
-var child_process = require('child_process');
-var os = require('os');
 
 // console.log(process.env.NODE_PATH);
 
@@ -15,18 +11,6 @@ var package = require('../package.json');
 var program = global.program;
 
 var exec = require('./commands').exec;
-
-// try{
-//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
-//         if(err) console.error(err);
-//     });
-//
-//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdirWithVersion, function(err){
-//         if(err) console.error(err);
-//     });
-// }catch(e){
-//
-// }
 
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);

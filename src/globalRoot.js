@@ -1,1 +1,1 @@
-module.exports="/usr/local/lib/node_modules"
+module.exports="/usr/local/lib/node_modules";
