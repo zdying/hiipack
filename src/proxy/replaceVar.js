@@ -19,6 +19,10 @@ module.exports = function replaceVar(str, source){
     var props = null;
 
     var replace = function(str){
+        if(typeof str !== 'string'){
+            return str
+        }
+        
         return str.replace(/\$[\w\d_]+/g, function(match){
             var val = allProps[match];
 

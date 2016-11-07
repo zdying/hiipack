@@ -79,9 +79,21 @@ function VersionPlugin(hashLength, pattern){
                 var isExists = fs.existsSync(path);
 
                 if(isExists){
-                    fs.writeFile(path, '\n' + lines.join('\n'), {flag: 'a'});
+                    fs.writeFile(path, '\n' + lines.join('\n'), {flag: 'a'}, function(err){
+                        if(err){
+                            log.error(err);
+                        }else{
+                            // log.info('version info updated:', lines.join(', '));
+                        }
+                    });
                 }else{
-                    fs.writeFile(path, lines.join('\n'));
+                    fs.writeFile(path, lines.join('\n'), function(err){
+                        if(err){
+                            log.error(err);
+                        }else{
+                            // log.info('version info updated:', '[' + lines.join(', ') + ']');
+                        }
+                    });
                 }
             });
         });

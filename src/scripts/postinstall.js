@@ -7,6 +7,7 @@ var fs = require('fs');
 var fse = require('fs-extra');
 var os = require('os');
 var path = require('path');
+var child_process = require('child_process');
 
 var homeDir = process.env.HOME || process.env.USERPROFILE;
 
@@ -38,4 +39,12 @@ try{
     }
 }catch(e){
     console.error('hiipack config file `.hiirc` create failed ==>', e.message)
+}
+
+try{
+    var globalBoot = child_process.execSync('npm root -g').toString().trim();
+
+    fs.writeFileSync(path.resolve(__dirname, '../globalRoot.js'), 'module.exports="' + globalBoot + '"');
+}catch(e){
+    console.error('npm global root set failed.', e.message);
 }

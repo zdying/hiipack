@@ -12,7 +12,7 @@ var replaceVar = require('./replaceVar');
 var scopeCmds = {
     domain : ['set'],
     global : ['set'],
-    location : ['set', 'proxy_pass']
+    location : ['set', 'proxy_pass', 'alias', 'root']
 };
 
 // var requestScopeCmds = [];
@@ -24,7 +24,7 @@ module.exports = function formatAST(ASTTree){
         props: {},
         __id__: 'global'
     };
-    
+
     var baseRules = ASTTree.baseRules || [];
     var domains = ASTTree.domains || [];
     var commands = ASTTree.commands || [];

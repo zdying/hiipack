@@ -3,30 +3,28 @@
  * @author zdying
  */
 var __hiipack = require('./global');
-var express = require('express');
 var path = require('path');
-var fs = require('fs');
 var fse = require('fs-extra');
 var colors = require('colors');
 var child_process = require('child_process');
 var os = require('os');
 
-var server = require('./server');
-var client = require('./client');
+// console.log(process.env.NODE_PATH);
+
 var package = require('../package.json');
 var program = global.program;
 
-// try{
-//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_hiipack'), __hiipack__.tmpdir, function(err){
-//         if(err) console.error(err);
-//     });
-//
-//     fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_hiipack'), __hiipack__.tmpdirWithVersion, function(err){
-//         if(err) console.error(err);
-//     });
-// }catch(e){
-//
-// }
+try{
+    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
+        if(err) console.error(err);
+    });
+
+    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdirWithVersion, function(err){
+        if(err) console.error(err);
+    });
+}catch(e){
+
+}
 
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);
@@ -58,7 +56,8 @@ program
     .command('init <name>')
     .description('initialize project')
     .action(function(name){
-        client.init(name, program.type, program.registry);
+        exec('init', name, program.type, program.registry);
+        // client.init(name, program.type, program.registry);
     });
 
 program
@@ -71,61 +70,58 @@ program
             browser = typeof program.open === 'string' ? program.open : 'chrome';
         }
 
-        server.start(program.port, browser, program.proxy);
+        exec('start', program.port, browser, program.proxy);
     });
 
 program
     .command('min')
     .description('compress/obfuscate project files')
     .action(function(){
-        client.build();
+        exec('min');
     });
 
 program
     .command('pack')
     .description('pack project files')
     .action(function(){
-        client.pack();
+        exec('pack');
     });
 
 program
     .command('sync')
     .description('synchronize the current directory to remote server')
     .action(function(){
-        client.sync(program.syncConf);
+        exec('sync', program.syncConf);
+        // client.sync(program.syncConf);
     });
 
 program
     .command('test')
     .description('run unit test')
     .action(function(){
-        client.test();
+        exec('test');
     });
 
 program
     .command('clear')
     .description('clear resulting folders of hiipack')
     .action(function(){
-        fse.remove('dev');
-        fse.remove('prd');
-        fse.remove('ver');
-        fse.remove('loc');
-        fse.remove('dll');
-        // child_process.exec('rm -rdf dll loc dev prd ver')
+        exec('clear');
     });
 
 program
     .command('config [operation] [args...]')
     .description('hiipack config, `operation`: [empty]|list|set|delete')
     .action(function(ope, args, options){
-        client.config(ope, args)
+        // client.config(ope, args)
+        exec('config', ope, args);
     });
 
 program
     .command('ssl')
     .description('show ssl certificate file path.')
     .action(function(){
-        console.log(path.resolve(__dirname, './ssl/'));
+        exec('ssl');
     });
 
 program.on('--help', function(){

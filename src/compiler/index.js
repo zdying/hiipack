@@ -54,10 +54,10 @@ Compiler.prototype = {
         }
 
         if(isWatch){
-            logger.info('watching ...');
+            // logger.info('watching ...');
             return this.watching = compiler.watch({}, cbk);
         }else{
-            logger.info('run ...');
+            // logger.info('run ... ');
             return compiler.run(cbk);
         }
     },

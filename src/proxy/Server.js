@@ -8,6 +8,8 @@ var url = require('url');
 var net = require('net');
 var fs = require('fs');
 
+var getMimeType = require('simple-mime')('text/plain');
+
 var commands = require('./commands');
 var merge = require('../helpers/merge');
 
@@ -192,40 +194,60 @@ Server.prototype = {
     requestHandler: function(request, response){
         var uri = url.parse(request.url);
         var start = Date.now();
+        var self = this;
 
         request._startTime = start;
 
         this.setRequest(request);
 
+        var rewrite_rule = request.rewrite_rule;
+
         log.detail('proxy request options:', request.url, '==>', JSON.stringify(request.proxy_options));
 
-        var proxy = http.request(request.proxy_options, function(res){
-            var hosts_rule = request.hosts_rule;
-            var rewrite_rule = request.rewrite_rule;
-            var context = {
-                response: res
-            };
+        // 重定向到本地文件系统
+        if(request.alias){
+            log.info(request.url + ' ==> ' + request.newUrl);
 
-            // call response commands
-            var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
+            response.headers = response.headers || {};
 
-            if(Array.isArray(resCommands)){
-                log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
+            self.execResponseCommand(rewrite_rule, {
+                response: response
+            });
 
-                resCommands.forEach(function(command){
-                    // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
-                    var name = command.name;
-                    var params = command.params || [];
-                    var isFunction = typeof commands[name] === 'function';
+            try{
+                var stats = fs.statSync(request.newUrl);
+                var filePath = request.newUrl;
+                var rewrite = request.rewrite_rule;
 
-                    if(isFunction){
-                        log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
-                        commands[name].apply(context, params);
-                    }else{
-                        log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
-                    }
-                })
+                if(stats.isDirectory()){
+                    filePath += rewrite.props.root || 'index.html'
+                }
+
+                // TODO 如果没有root，列出目录
+                response.setHeader('Content-Type', getMimeType(filePath));
+
+                //TODO 这里不应该自己调用setHeader，应该继续增强commands中的命令
+                for(var key in response.headers){
+                    response.setHeader(key, response.headers[key])
+                }
+
+                return fs.createReadStream(filePath).pipe(response);
+            }catch(e){
+                response.setHeader('Content-Type', 'text/html');
+                if(e.code === 'ENOENT'){
+                    response.statusCode = 404;
+                    response.end('404 Not Found: <br><pre>' + e.stack + '</pre>');
+                }else{
+                    response.statusCode = 500;
+                    response.end('500 Server Internal Error: <br><pre>' + e.stack + '</pre>');
+                }
             }
+        }
+
+        var proxy = http.request(request.proxy_options, function(res){
+            self.execResponseCommand(rewrite_rule, {
+                response: res
+            });
 
             // response.pipe(res);
             response.writeHead(res.statusCode, res.headers);
@@ -260,6 +282,29 @@ Server.prototype = {
 
         proxy.write('');
         proxy.end();
+    },
+
+    execResponseCommand: function(rewrite_rule, context){
+        // call response commands
+        var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
+
+        if(Array.isArray(resCommands)){
+            log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
+
+            resCommands.forEach(function(command){
+                // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
+                var name = command.name;
+                var params = command.params || [];
+                var isFunction = typeof commands[name] === 'function';
+
+                if(isFunction){
+                    log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
+                    commands[name].apply(context, params);
+                }else{
+                    log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
+                }
+            })
+        }
     },
 
     connectHandler: function(request, socket, head){
@@ -314,6 +359,8 @@ Server.prototype = {
         request.hosts_rule = proxyInfo.hosts_rule;
         request.rewrite_rule = proxyInfo.rewrite_rule;
         request.PROXY = proxyInfo.PROXY;
+        request.alias = proxyInfo.alias;
+        request.newUrl = proxyInfo.newUrl;
 
         return request;
     },
@@ -328,6 +375,7 @@ Server.prototype = {
         var rewrite = this.rewriteRules;
         var urlReg = /((\w+):\/\/)?([^/]+)/;
         var matchResult = null;
+        var proxy = '';
 
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
@@ -343,8 +391,10 @@ Server.prototype = {
                 }else{
                     matchResult = url.match(urlReg);
 
+                    proxy = rewrite[url].props.proxy;
+
                     if(matchResult && matchResult[3]){
-                        domainCache[matchResult[3]] = (rewrite[url].props.proxy.match(urlReg) || [])[3] || 1;
+                        domainCache[matchResult[3]] = path.isAbsolute(proxy) ? "127.0.0.1" : ((proxy.match(urlReg) || [])[3] || 1);
                     }else{
                         log.warn('hiipack can not parse url:', url.bold.yellow);
                     }
@@ -356,7 +406,7 @@ Server.prototype = {
         logger.debug('domain cache updated', JSON.stringify(domainCache));
         logger.debug('regexp cache updated', JSON.stringify(regexpCache));
     },
-    
+
     createPacFile: function(domainsCache){
         function FindProxyForURL(url, host) {
             host = host.toLowerCase();
