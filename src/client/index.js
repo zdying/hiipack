@@ -80,15 +80,16 @@ module.exports = {
      * 上传文件到开发机
      */
     sync: function(syncConf){
-        var root = process.cwd();
+        // var root = process.cwd();
         var rsync = require('./rsync');
-        var isExist = fs.existsSync(root + '/dev');
+        // var isExist = fs.existsSync(root + '/dev');
 
-        if(!isExist){
-            this.pack(rsync.sync)
-        }else{
-            rsync.sync(syncConf);
-        }
+        // if(!isExist){
+        //     this.pack(rsync.sync)
+        // }else{
+        //     rsync.sync(syncConf);
+        // }
+        rsync.sync(syncConf);
     },
 
     /**

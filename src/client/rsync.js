@@ -4,6 +4,7 @@
  */
 var Rsync = require('rsync');
 var path = require('path');
+var fs = require('fs');
 var colors = require('colors');
 
 var root = process.cwd();
@@ -14,6 +15,11 @@ var errPrex = '[error]'.red;
 
 function uploadFile(configPath){
     var configPath = configPath || 'dev.json';
+
+    if(!fs.existsSync(configPath)){
+        return console.log('[error]'.bold.red, 'config file', configPath.bold.red, 'not exists.');
+    }
+
     var config = require(path.join(root, configPath));
     var source = config.source || './';
     var _path = config.path || config.dest;
