@@ -22,6 +22,8 @@ module.exports = {
             console.log('');
         }
 
+        __hii__.env = 'loc';
+
         return new Server(port, browser, proxy).start();
     }
 };

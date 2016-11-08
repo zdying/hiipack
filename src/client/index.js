@@ -38,7 +38,8 @@ module.exports = {
         }.bind(this));
     },
 
-    _build: function(env, callback){
+    _build: function(callback){
+        var env = __hii__.env;
         var workPath = process.cwd();
         var projectName = workPath.split('/').pop();
         var compiler = new Compiler(projectName, workPath, env);
@@ -65,7 +66,8 @@ module.exports = {
      * @param callback
      */
     build: function(callback){
-        this._build('prd', callback)
+        __hii__.env = 'prd';
+        this._build(callback)
     },
 
     /**
@@ -73,7 +75,8 @@ module.exports = {
      * @param callback
      */
     pack: function(callback){
-        this._build('dev', callback)
+        __hii__.env = 'dev';
+        this._build(callback)
     },
 
     /**
