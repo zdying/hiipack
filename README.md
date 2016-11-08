@@ -45,14 +45,19 @@ hiipack is a front end development tool based on webpack.
       --log-time                 display log time
       --https                    start https server
   
-  Examples:
   
-      $ hii init project_name
-      $ hii start
+  Examples:
+
+      $ hii init project_name -t es6
+      $ hii start -xodD --https --ssl-cert ssl/cert/file --ssl-key ssl/key/file
       $ hii start -p 8800
-      $ hii pack
+      $ hii pack -dD --log-time --no-color
       $ hii sync
-      $ hii min
+      $ hii min -dD --log-time
+      $ hii config list
+      $ hii config set system_proxy xxx.yyy.zzz:25
+      $ hii config delete system_proxy
+      $ hii ssl
 
   Documention:
 
