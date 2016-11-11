@@ -4,7 +4,7 @@
 [![Node.js version](https://img.shields.io/badge/node-%3E%3D0.12.7-orange.svg)](https://nodejs.org/)
 [![NPM version](https://img.shields.io/npm/v/hiipack.svg?style=flat)](https://www.npmjs.org/package/hiipack)
 [![npm](https://img.shields.io/npm/dm/hiipack.svg)](https://www.npmjs.com/package/hiipack)
-[![Build Status](https://travis-ci.org/zdying/hiipack.svg?branch=master)](https://travis-ci.org/zdying/hiipack)
+[![Build Status](https://travis-ci.org/zdying/hiipack.svg?branch=1.0.6)](https://travis-ci.org/zdying/hiipack)
 
 hiipack is a front end development tool based on webpack.
 

@@ -281,8 +281,7 @@ Server.prototype = {
             log.access(request)
         });
 
-        proxy.write('');
-        proxy.end();
+        request.pipe(proxy);
     },
 
     execResponseCommand: function(rewrite_rule, context){
