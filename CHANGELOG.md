@@ -1,3 +1,7 @@
+# 1.0.7
+
+* 修复bug: 配置文件使用`extend`字段时，如果没有`extend.plugins`字段，`statics`字段失效
+
 # 1.0.6
 
 * 修复bug: 代理服务器代理`POST`请求失败
