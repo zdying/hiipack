@@ -411,22 +411,19 @@ Server.prototype = {
         function FindProxyForURL(url, host) {
             host = host.toLowerCase();
 
-            var hostArr = host.split('.');
-            var length = hostArr.length;
-            var subHost = "";
+            // alert('host ::: ' + host);
+            // alert('host in DOMAINS ::: ' + host in DOMAINS);
 
-            if(length > 1){
-                for(var i = 1; i <= length; i++){
-                    subHost = hostArr.slice(-i).join('.');
-                    if(subHost in DOMAINS){
-                        return PROXY;
-                    }
-                }
+            if(host in DOMAINS){
+                // alert('return PROXY: ' + PROXY);
+                return PROXY;
             }
 
-            if(!host.match(/^(localhost|::1|127.0.0.1)$/) && SYS_PROXY){
+            if(!host.match(/^(localhost|::1|127\.0\.0\.1|.*\.corp\.qunar\.com)$/) && SYS_PROXY){
+                // alert('return SYS_PROXY: ' + SYS_PROXY);
                 return SYS_PROXY
             }else{
+                // alert('return DIRECT :::' + DIRECT);
                 return DIRECT;
             }
         }
