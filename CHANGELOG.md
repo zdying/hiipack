@@ -1,3 +1,8 @@
+# 1.0.8
+
+* fixbug: 自动代理host匹配错误问题；
+* 系统默认代理支持添加排除域名
+
 # 1.0.7
 
 * 修复bug: 配置文件使用`extend`字段时，如果没有`extend.plugins`字段，`statics`字段失效

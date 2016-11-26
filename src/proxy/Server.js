@@ -419,7 +419,7 @@ Server.prototype = {
                 return PROXY;
             }
 
-            if(!host.match(/^(localhost|::1|127\.0\.0\.1|.*\.corp\.qunar\.com)$/) && SYS_PROXY){
+            if(!host.match(EXCLUDE_REG) && SYS_PROXY){
                 // alert('return SYS_PROXY: ' + SYS_PROXY);
                 return SYS_PROXY
             }else{
@@ -429,13 +429,26 @@ Server.prototype = {
         }
 
         var sysProxy = config.get('system_proxy');
+        var proxyExclude = config.get('proxy_exclude');
+
+        if(!proxyExclude){
+            proxyExclude = 'localhost,::1,127.0.0.1';
+        }
+
+        var regText = proxyExclude
+            .replace(/\s*,\s*/g, '|')
+            .replace(/\./g, '\\.')
+            .replace(/\*/g, '.*');
+
+
 
         var txt = [
             'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
             'var PROXY = "PROXY 127.0.0.1:4936";\n',
-            'var DIRECT = "DIRECT";\n\n',
+            'var DIRECT = "DIRECT";\n',
+            'var EXCLUDE_REG = /' + regText + '/;\n',
             'var DOMAINS = ' + JSON.stringify(domainsCache, null, 4) + ';\n\n',
-            FindProxyForURL.toString()
+            FindProxyForURL.toString().replace(/^\s{8}/mg, '')
         ];
 
         fs.writeFile(path.resolve(__hii__.cacheTmpdir, 'hiipack.pac'), txt.join(''), function(err){
