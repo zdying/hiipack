@@ -18,6 +18,7 @@ var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
+    var projectName = utils.getProjectName(root);
     var cssLoader = userConfig.css && userConfig.css.loader;
     var lessLoader = userConfig.less && userConfig.less.loader;
     var scssLoader = userConfig.scss && userConfig.scss.loader;
@@ -34,8 +35,7 @@ module.exports = function(root, userConfig){
         output: {
             path: path.join(projTmp, 'loc'),
             filename: '[name].js',
-            // publicPath: '/loc/'
-            publicPath: '/' + (projTmp.split('/').pop()) + '/loc/'
+            publicPath: '/' + projectName + '/loc/'
         },
         module: {
             preLoaders: program.hotReload ? [
