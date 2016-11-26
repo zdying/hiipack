@@ -50,11 +50,13 @@ Server.prototype = {
     start: function(port, option){
         this.init();
 
+        this.port = Number(port) || 4936;
+
         this.server = http.createServer()
             .on('listening', this.listeningHandler.bind(this))
             .on('request', this.requestHandler.bind(this))
             .on('connect', this.connectHandler.bind(this))
-            .listen(Number(port) || 4936);
+            .listen(this.port);
 
         this.find();
     },
@@ -193,9 +195,23 @@ Server.prototype = {
     },
 
     requestHandler: function(request, response){
-        var uri = url.parse(request.url);
+        var _url = request.url;
+        var uri = url.parse(_url);
         var start = Date.now();
         var self = this;
+        var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
+
+        if(_url === '/'){
+            response.end('proxy file url: http://127.0.0.1:' + this.port + '/proxy.pac');
+            return
+        }
+
+        if(_url === '/proxy.pac'){
+            fs.readFile(pacFilePath, 'utf-8', function(err, str){
+                 response.end(str);
+            });
+            return
+        }
 
         request._startTime = start;
 
@@ -243,6 +259,8 @@ Server.prototype = {
                     response.end('500 Server Internal Error: <br><pre>' + e.stack + '</pre>');
                 }
             }
+
+            return
         }
 
         var proxy = http.request(request.proxy_options, function(res){
@@ -341,8 +359,9 @@ Server.prototype = {
     },
 
     listeningHandler: function(){
-        console.log('hiipack proxyed at', ('http://127.0.0.1:4936').yellow.bold);
-        console.log('hiipack proxy file', ('file://' + path.resolve(__hii__.cacheTmpdir, 'hiipack.pac')).magenta.bold);
+        var url = 'http://127.0.0.1:' + this.port;
+        console.log('hiipack proxyed at', (url).yellow.bold);
+        console.log('hiipack proxy file', (url + '/proxy.pac').magenta.bold);
         console.log()
     },
 
@@ -451,7 +470,9 @@ Server.prototype = {
             FindProxyForURL.toString().replace(/^\s{8}/mg, '')
         ];
 
-        fs.writeFile(path.resolve(__hii__.cacheTmpdir, 'hiipack.pac'), txt.join(''), function(err){
+        var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
+
+        fs.writeFile(pacFilePath, txt.join(''), function(err){
             err && logger.error(err);
         });
     }
