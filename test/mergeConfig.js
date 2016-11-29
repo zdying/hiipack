@@ -8,16 +8,24 @@ var path = require('path');
 require('../src/global');
 var webpackConfig = require('../src/webpackConfig/index');
 var locConfig = require('../src/webpackConfig/loc/config');
+var devConfig = require('../src/webpackConfig/dev/config');
+var prdConfig = require('../src/webpackConfig/prd/config');
 
 var assert = require('assert');
 
 describe('mergeConfig: ',function(){
     var userCofig = webpackConfig.getUserConfig(__dirname + '/webpackConfig/project', 'loc');
+    var userCofigDev = webpackConfig.getUserConfig(__dirname + '/webpackConfig/project', 'dev');
+    var userCofigPrd = webpackConfig.getUserConfig(__dirname + '/webpackConfig/project', 'prd');
 
     // 删除 dll
     delete userCofig.library;
+    delete userCofigDev.library;
+    delete userCofigPrd.library;
 
     var locConf = locConfig(__dirname + '/webpackConfig/project', userCofig);
+    var devConf = devConfig(__dirname + '/webpackConfig/project', userCofigDev);
+    var prdConf = prdConfig(__dirname + '/webpackConfig/project', userCofigPrd);
 
     it('正确扩展plugins', function(){
         var plugins = locConf.plugins;
@@ -54,5 +62,14 @@ describe('mergeConfig: ',function(){
 
     it('特殊配置不直接扩展', function(){
         assert(locConf.autoTest === undefined)
-    })
+    });
+
+
+    it('只有extend.module.loaders', function(){
+        assert.equal(devConf.module.loaders.length, 6);
+    });
+
+    it('只有extend.plugins', function(){
+        assert.equal(prdConf.plugins.length, 8);
+    });
 });

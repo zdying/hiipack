@@ -45,18 +45,37 @@ module.exports = {
      * 扩展配置， 这里的配置会合并到默认的配置， 上面所有的配置会覆盖默认配置
      */
     extend: {
-        module: {
-            loaders: [
-                { test: /\.(markdown|md)$/, loader: 'html-loader!markdown-loader' },
-                {
-                    // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
-                    'mustache mustache-loader': function(loader, path){
-                        // console.log('callback   ====> ', loader, path)
-                        return { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
+        // module: {
+        //     loaders: [
+        //         // { test: /\.(mustache|html)$/, loader: 'mustache' }
+        //         {
+        //             // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
+        //             'mustache mustache-loader': function(loader, path){
+        //                 // console.log('callback   ====> ', loader, path)
+        //                 return { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
+        //             }
+        //         }
+        //     ]
+        // },
+        plugins: [
+            function(){
+                console.log('custom plugin 1');
+            },
+            {
+                'date-format': function(dateFormat, pkgPath){
+                    // console.log('callback2: data-format,', dateFormat, pkgPath);
+                    return function(){
+                        console.log('custom plugin 2, date =>', dateFormat('yyyy-MM/dd hh||mm//ss.SSS', new Date()));
+                    }
+                },
+                'underscore float-math': function(_, math, _path, mathPath){
+                    // console.log('callback3: data-utils,', _, math, _path, mathPath);
+                    return function(){
+                        console.log('custom plugin 3', 0.3 - 0.2, math.sub(0.3, 0.2), _.isEmpty([1, 2, 3]), _path, mathPath);
                     }
                 }
-            ]
-        }
+            }
+        ]
     },
     babel: {
         plugins: ['babel-plugin-add-module-exports', 'babel-plugin-transform-object-assign'],

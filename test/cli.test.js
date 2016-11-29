@@ -44,16 +44,16 @@ describe('hiipack cli',function(){
         });
     });
 
-    describe('hii init vue project',function(){
-        it('should create vue project template', function(done){
-            child_process.exec('node src/hii init vue-todo -t vue', function(err, stdout, stderr){
-                var _path = path.resolve(__dirname, '..', 'vue-todo');
-                if(fs.existsSync(_path)){
-                    done();
-                }else{
-                    done(new Error())
-                }
-            });
-        });
-    });
+    // describe('hii init vue project',function(){
+    //     it('should create vue project template', function(done){
+    //         child_process.exec('node src/hii init vue-todo -t vue', function(err, stdout, stderr){
+    //             var _path = path.resolve(__dirname, '..', 'vue-todo');
+    //             if(fs.existsSync(_path)){
+    //                 done();
+    //             }else{
+    //                 done(new Error())
+    //             }
+    //         });
+    //     });
+    // });
 });
