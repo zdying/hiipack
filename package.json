@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
