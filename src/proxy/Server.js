@@ -53,12 +53,31 @@ Server.prototype = {
         this.port = Number(port) || 4936;
 
         this.server = http.createServer()
-            .on('listening', this.listeningHandler.bind(this))
-            .on('request', this.requestHandler.bind(this))
-            .on('connect', this.connectHandler.bind(this))
             .listen(this.port);
 
-        this.find();
+        return new Promise(this.initEvent.bind(this));
+    },
+
+    initEvent: function(resolve, reject){
+        var port = this.port;
+        var url = 'http://127.0.0.1:' + port;
+        var pac = url + '/proxy.pac';
+        var server = this.server;
+
+        server
+            .on('listening', function(){
+                resolve({
+                    port: port,
+                    url: url,
+                    pac: pac,
+                    server: server
+                });
+            })
+            .on('error', function(err){
+                reject(err)
+            })
+            .on('request', this.requestHandler.bind(this))
+            .on('connect', this.connectHandler.bind(this))
     },
 
     stop: function(){
@@ -356,13 +375,6 @@ Server.prototype = {
         });
 
         socket.pipe(proxySocket);
-    },
-
-    listeningHandler: function(){
-        var url = 'http://127.0.0.1:' + this.port;
-        console.log('hiipack proxyed at', (url).yellow.bold);
-        console.log('hiipack proxy file', (url + '/proxy.pac').magenta.bold);
-        console.log()
     },
 
     setRequest: function(request){

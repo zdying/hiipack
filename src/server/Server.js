@@ -6,12 +6,8 @@ var express = require('express');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
-var os = require('os');
 
 var logger = log.namespace('Server');
-var ProxyServer = require('../proxy');
-var detectBrowser = require('./detectBrowser');
-var proxyConfig = require('./proxyConfig');
 var config = require('../client/config');
 
 // 中间件
@@ -70,14 +66,12 @@ Server.prototype = {
             log.debug('SSL server use cert: ', sslCert.bold.green);
         }
 
-        this.initEvents();
+        return new Promise(this.initEvents.bind(this));
     },
 
-    initEvents: function(){
+    initEvents: function(resolve, reject){
         var server = this.server;
         var port = this.port;
-        var proxy = this.proxy;
-        var browser = this.browser;
         var self = this;
         var serverCount = this.httpsServer ? 2 : 1;
         var count = 0;
@@ -92,6 +86,8 @@ Server.prototype = {
             }
 
             self.close();
+
+            reject(err);
         }
         
         function onListening(){
@@ -99,25 +95,18 @@ Server.prototype = {
                 return
             }
 
-            var url = 'http://127.0.0.1:' + port;
+            var url = 'http://127.0.0.1:';
             // browser && open(url);
 
-            browser && this.openBrowser(url);
-
-            console.log();
-            console.log('current workspace ', __hiipack__.cwd.green.bold);
-            console.log('hiipack started at', url.green.bold);
-            console.log('https server state', (this.httpsServer ? 'https://127.0.0.1' : 'disabled').bold.magenta);
-
-            if(proxy){
-                // 启动代理服务
-                this.proxyServer = new ProxyServer();
-                this.proxyServer.start(4936);
-            }
-
-            setTimeout(function(){
-                log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
-            }, 200)
+            resolve({
+                port: port,
+                url: url + port,
+                httpsPort: 443,
+                httpsUrl: url + 443,
+                https: program.https,
+                server: this.server,
+                httpsServer: this.httpsServer
+            });
         }
 
         server.on('error', onError);
@@ -145,37 +134,6 @@ Server.prototype = {
 
         if(this.httpsServer){
             this.httpsServer.close();
-        }
-    },
-
-    openBrowser: function(url){
-        var browser = this.browser;
-
-        // Firefox pac set
-        // http://www.indexdata.com/connector-platform/enginedoc/proxy-auto.html
-        // http://kb.mozillazine.org/Network.proxy.autoconfig_url
-        // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
-        // user_pref("network.proxy.type", 2);
-
-        var browserPath = detectBrowser(browser);
-
-        if(!browserPath){
-            log.error('can not find browser', browser.bold.yellow);
-        }else{
-            var dataDir = __hii__.cacheTmpdir;
-
-            if(os.platform() === 'win32'){
-                browserPath = '"' + browserPath + '"';
-            }
-
-            var command = browserPath + ' ' + proxyConfig[browser](dataDir, url, browserPath);
-            // var command = browserPath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
-            log.debug('open ==> ', command);
-            require('child_process').exec(command, function(err){
-                if(err){
-                    console.log(err);
-                }
-            });
         }
     },
 
