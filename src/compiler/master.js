@@ -8,8 +8,8 @@ var child_process = require('child_process');
 var Compiler = require('./index');
 
 module.exports = {
-    compile: function(option){
-        var root = option.workPath || path.resolve('./' + option.project);
+    compile: function(project, root, env, option){
+        var root = root || path.resolve('./' + project);
         var config = require(root + '/' + 'hii.config');
 
         var entry = config.entry;
@@ -17,14 +17,19 @@ module.exports = {
         var count = 0;
         var _start = Date.now();
 
-        var compiler = new Compiler(option.project, root);
-
         for(var key in entry){
+            // console.log('entry========>', key);
             var worker = child_process.fork(__dirname + '/worker');
-            var tmp = {};
-            tmp[key] = entry[key];
-            option.entry = tmp;
-            worker.send(option);
+            worker.send({
+                project: project,
+                root: root,
+                option: option,
+                entry: key,
+                env: env,
+                date: Date.now()
+            });
+
+            // console.log('master send message to workder#' + worker.pid, Date.now());
 
             worker.on('message', function(m){
                 console.log('master receive message:', JSON.stringify(m));
@@ -33,11 +38,36 @@ module.exports = {
                 console.log(count + '/' + length);
 
                 if(count === length){
-                    console.log('all finished:', Date.now() - _start, 'ms');
+                    var now = Date.now();
+                    console.log('all finished:', now - _start, 'ms', 'avg:', (now - _start) / length);
+                    process.exit(0);
                 }
-                // process.kill(worker.pid);
+                // process.kill(worker.pid)
             });
         }
+    },
+
+    compileDLL: function(project, root, env, option, cbk){
+        var root = root || path.resolve('./' + project);
+        var config = require(root + '/' + 'hii.config');
+        var _start = Date.now();
+
+        console.log('library========>', config.library);
+        var worker = child_process.fork(__dirname + '/worker');
+        worker.send({
+            project: project,
+            root: root,
+            option: option,
+            isDLL: true,
+            env: env
+        });
+
+        worker.on('message', function(m){
+            console.log('master receive message:', JSON.stringify(m));
+            console.log('dll compile finished:', Date.now() - _start, 'ms');
+            process.kill(worker.pid);
+            cbk && cbk();
+        });
     },
     compiledddd: function(compiler, env, option, callback){
         var config = compiler.getConfig(env);

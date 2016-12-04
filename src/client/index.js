@@ -61,6 +61,34 @@ module.exports = {
         }
     },
 
+    __build: function(callback){
+        var env = __hii__.env;
+        var workPath = process.cwd();
+        var projectName = workPath.split('/').pop();
+
+        // var compiler = new Compiler(projectName, workPath, env);
+        var dir = {
+            'dev': ['dev'],
+            'prd': ['prd', 'ver']
+        };
+
+        logger.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
+
+        try{
+            // execSync('rm -rdf ./' + dir[env].join(' ./'));
+            dir[env].forEach(function(folder){
+                fse.removeSync(folder)
+            });
+
+            var master = require('../compiler/master');
+            master.compileDLL(projectName, workPath, 'prd', { watch: false }, function(){
+                master.compile(projectName, workPath, 'prd', { watch: false });
+            });
+        }catch(e){
+            logger.error(e);
+        }
+    },
+
     /**
      * 打包压缩线上版本代码
      * @param callback

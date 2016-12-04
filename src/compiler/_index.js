@@ -9,6 +9,8 @@ var webpack = require('webpack');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
+var colors = require('colors');
+var _global = require('../global');
 
 var logger = log.namespace('Compiler');
 var type = require('../helpers/type');
@@ -28,6 +30,8 @@ function Compiler(projectName, root, env){
         this.watchConfigFile(this.onConfigFileChange.bind(this));
     }
 
+    // console.log('proj==>', projectName, 'root==>', root, 'env===>', env);
+
     logger.debug('create new compiler', projectName.bold.green, 'env', env.bold.green);
 }
 
@@ -45,7 +49,12 @@ Compiler.prototype = {
             });
         }
 
-        var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
+        if(isDLL){
+            var compiler = this.webpackDllCompiler = this._getWebpackCompiler(isDLL, option);
+        }else{
+            var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
+        }
+
 
         if(!compiler){
             var err = new Error();
@@ -81,10 +90,10 @@ Compiler.prototype = {
 
             log.debug('compiler.compile() - ', 'create new webpack compiler instance.');
             // 编译dll
-            this._compile(true, isWatch, {}, function(){
+            // this._compile(true, isWatch, {}, function(){
                 // 编译其他代码
                 this._compile(false, isWatch, option);
-            }.bind(this));
+            // }.bind(this));
         }else{
             // 已经创建过实力
             log.debug('compiler.compile() - ', 'use old webpack compiler instance.');
@@ -127,6 +136,17 @@ Compiler.prototype = {
 
         if(!config){
             return null
+        }
+
+        // console.log('option ~~~~~', option);
+        // console.log('config.entry ~~~~~~', config.entry);
+
+        if(!isDLL && option.entry){
+            for(var key in config.entry){
+                if(key !== option.entry){
+                    delete config.entry[key]
+                }
+            }
         }
 
         var optPlugins = option.plugins || {};

@@ -3,18 +3,27 @@
  * @author zdying
  */
 
-var Compiler = require('./index');
+var Compiler = require('./_index');
 
-function compile(m){
-    var compiler = new Compiler(m.project, m.workPath);
+function compile(conf){
+    // projectName, root, env
+    var compiler = new Compiler(conf.project, conf.root, conf.env);
 
-    compiler.compile(m.env, m, function(){
-        console.log('[' + process.pid + ']', 'compile finish');
-        process.send({ret: true})
-    })
+    if(conf.isDLL){
+        compiler.compileDLL(false, conf, function(){
+            console.log('[' + process.pid + ']', 'compile finish');
+            process.send({ret: true})
+        })
+    }else{
+        compiler.compile(conf, function(){
+            console.log('[' + process.pid + ']', 'compile finish');
+            process.send({ret: true})
+        })
+    }
 }
 
-process.on('message', function(m){
-    console.log('[' + process.pid + ']', 'child process receive message');
-    compile(m);
+process.on('message', function(conf){
+    var now = Date.now();
+    console.info('[' + process.pid + ']', 'child process receive message', now, 'delay:', now - conf.date);
+    compile(conf);
 });
