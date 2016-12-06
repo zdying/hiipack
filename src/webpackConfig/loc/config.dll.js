@@ -27,7 +27,7 @@ module.exports = function(root, userConfig){
         ],
         // resolve: {
         //     root: root,
-        //     modulesDirectories: [root + "/node_modules"]
+        //     modules: [root + "/node_modules"]
         // }
     }
 };

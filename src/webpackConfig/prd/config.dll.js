@@ -33,7 +33,6 @@ module.exports = function(root, userConfig){
                 name: "__lib__[name]__",
                 context: root
             }),
-            new webpack.optimize.OccurenceOrderPlugin(),
             new webpack.optimize.UglifyJsPlugin({
                 test: /(\.jsx?)$/,
                 compress: {

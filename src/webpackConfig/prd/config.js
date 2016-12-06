@@ -23,9 +23,9 @@ module.exports = function(root, userConfig){
     var lessLoader = userConfig.less && userConfig.less.loader;
     var scssLoader = userConfig.scss && userConfig.scss.loader;
 
-    var defaultCssLoader = "css!postcss";
-    var defaultLessLoader = "css!less!postcss";
-    var defaultScssLoader = "css!sass!postcss";
+    var defaultCssLoader = "css-loader!postcss-loader";
+    var defaultLessLoader = "css-loader!less-loader!postcss-loader";
+    var defaultScssLoader = "css-loader!sass-loader!postcss-loader";
 
     var config = {
         env: 'prd',
@@ -91,14 +91,14 @@ module.exports = function(root, userConfig){
             fs: "empty"
         },
         resolve: {
-            root: root,
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
-            extensions: ['', '.js', '.jsx', '.scss', '.json'],
+            // root: root,
+            // fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
-            modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            modules: [path.resolve(__hiipack__.root, "node_modules")],
+            // fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }

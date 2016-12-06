@@ -15,7 +15,7 @@ module.exports = function getBabelLoader(userConfig, env, root){
     var supportIE8 = userConfig.supportIE8;
     var defaultPresets = [
         'babel-preset-react',
-        supportIE8 ? 'babel-preset-es2015-loose' : 'babel-preset-es2015'
+        ['babel-preset-es2015', { "modules": false }]
     ];
 
     /*
@@ -47,7 +47,7 @@ module.exports = function getBabelLoader(userConfig, env, root){
 
     plugins = !!plugins ? plugins : [
         // es6 export
-        'babel-plugin-add-module-exports',
+        // 'babel-plugin-add-module-exports',
         // export default
         'babel-plugin-transform-export-extensions',
         // {...}语法
@@ -59,8 +59,8 @@ module.exports = function getBabelLoader(userConfig, env, root){
     return {
         test: /\.jsx?$/,
         exclude: exclude,
-        include: include,
-        loader: 'babel',
+        // include: include,
+        loader: 'babel-loader',
         query: {
             cacheDirectory: (env === 'loc' || env === 'dev') ? path.join(__hii__.codeTmpdir, '__babel_cache__') : false,
             presets: presets.map(__hii__.resolve),

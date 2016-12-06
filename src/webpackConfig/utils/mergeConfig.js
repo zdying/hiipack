@@ -57,9 +57,9 @@ function mergePluginsAndLoaders(config, userConfig, env, root){
     copyplugin && plugins.push(copyplugin);
 
     if(extendFields){
-        if(extendFields.module && extendFields.module.loaders){
-            loaders = loaders.concat(parseLoaders(userConfig.extend.module.loaders));
-            extendFields.module.loaders = loaders;
+        if(extendFields.module && extendFields.module.rules){
+            loaders = loaders.concat(parseLoaders(userConfig.extend.module.rules));
+            extendFields.module.rules = loaders;
         }
 
         if(extendFields.plugins){

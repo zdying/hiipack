@@ -129,6 +129,25 @@ Compiler.prototype = {
             return null
         }
 
+        try{
+            delete config.env;
+            delete config.supportIE8;
+            delete config.statics;
+            delete config.postcss;
+            delete config.extend;
+            delete config.less;
+            delete config.scss;
+            delete config.css;
+            delete config.js;
+
+            //TODO webpack 2 support
+            delete config.module.postLoaders;
+            //TODO webpack 2 support
+            delete config.module.preLoaders;
+        }catch(e){
+            console.log('delete config error: ', e.message.bold.red);
+        }
+
         var optPlugins = option.plugins || {};
         var plugins = {
             'compile': [
@@ -261,10 +280,10 @@ Compiler.prototype = {
 
         logger.detail('user config', '==>',
             JSON.stringify(config, function(key, value){
-                var valType = type(value);
-                if(valType.match(/(function|regexp)/)){
-                    return value.toString()
-                }
+                // var valType = type(value);
+                // if(valType.match(/(function|regexp)/)){
+                //     return value.toString()
+                // }
                 return value
             })
         );
