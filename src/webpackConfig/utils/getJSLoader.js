@@ -6,7 +6,7 @@
 var fs = require('fs');
 var path = require('path');
 
-module.exports = function getBabelLoader(userConfig, env, root){
+module.exports = function getJSLoader(userConfig, env, root){
     var babelConfig = userConfig.babel || {};
     var presets = babelConfig.presets;
     var plugins = babelConfig.plugins;
@@ -57,11 +57,16 @@ module.exports = function getBabelLoader(userConfig, env, root){
         'babel-plugin-transform-object-assign'
     ];
 
-    return {
-        test: /\.jsx?$/,
-        exclude: exclude,
-        //TODO webpack 2 support
-        // include: include,
+    var use = [];
+
+    // if(program.hotReload){
+    //     use.push({
+    //         loader: require.resolve('./addHotReloadCode'),
+    //         enforce: 'pre'
+    //     })
+    // }
+
+    use.push({
         loader: 'babel-loader',
         query: {
             cacheDirectory: (env === 'loc' || env === 'dev') ? path.join(__hii__.codeTmpdir, '__babel_cache__') : false,
@@ -69,5 +74,18 @@ module.exports = function getBabelLoader(userConfig, env, root){
             plugins: plugins.map(__hii__.resolve),
             // compact: true
         }
+    });
+
+    // use.push({
+    //     loader: 'es3ify-loader',
+    //     enforce: 'post'
+    // });
+
+    return {
+        test: /\.jsx?$/,
+        exclude: exclude,
+        //TODO webpack 2 support
+        // include: include,
+        use: use
     }
 };

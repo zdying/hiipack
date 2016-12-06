@@ -12,7 +12,7 @@ var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
-var getBabelLoader = require('../utils/getBabelLoader');
+var getJSLoader = require('../utils/getJSLoader');
 var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
@@ -43,10 +43,12 @@ module.exports = function(root, userConfig){
                 { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode') }
             ] : [],
             rules: [
-                getBabelLoader(userConfig, 'loc', root),
+                { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode'), enforce: 'pre' },
+                getJSLoader(userConfig, 'loc', root),
                 { test: /\.css$/, loader: cssLoader || defaultCssLoader },
                 { test: /\.less$/, loader: lessLoader ||  defaultLessLoader},
-                { test: /\.scss$/, loader: scssLoader || defaultScssLoader }
+                { test: /\.scss$/, loader: scssLoader || defaultScssLoader },
+                // { test: /\.jsx?$/, loader: 'es3ify-loader', enforce: 'post' }
             ],
             postLoaders: [
                 {

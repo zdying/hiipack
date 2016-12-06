@@ -13,7 +13,7 @@ var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
 var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
-var getBabelLoader = require('../utils/getBabelLoader');
+var getJSLoader = require('../utils/getJSLoader');
 var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
@@ -36,7 +36,7 @@ module.exports = function(root, userConfig){
         },
         module: {
             loaders: [
-                getBabelLoader(userConfig, 'dev'),
+                getJSLoader(userConfig, 'dev'),
                 { test: /\.css$/, loader: ExtractTextPlugin.extract(cssLoader || defaultCssLoader) },
                 { test: /\.less$/, loader: ExtractTextPlugin.extract(lessLoader ||  defaultLessLoader) },
                 { test: /\.scss$/, loader: ExtractTextPlugin.extract(scssLoader || defaultScssLoader) }

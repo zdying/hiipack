@@ -36,6 +36,8 @@ Compiler.prototype = {
 
     _compile: function(isDLL, isWatch, option, callback){
         var cbk = function(err, state){
+            // console.log('———————————————————————————————————— finish.....-----------------------------');
+            // process.chdir(__hii__.cwd);
             callback && callback(err, state);
         };
 
@@ -52,6 +54,10 @@ Compiler.prototype = {
             err.code = "COMPILER_NULL";
             return cbk(err, null)
         }
+
+
+        console.log('this.root =========== >', this.root);
+        // process.chdir(this.root);
 
         if(isWatch){
             // logger.info('watching ...');
@@ -139,6 +145,7 @@ Compiler.prototype = {
             delete config.scss;
             delete config.css;
             delete config.js;
+            delete config.babel;
 
             //TODO webpack 2 support
             delete config.module.postLoaders;

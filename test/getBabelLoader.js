@@ -5,7 +5,7 @@
 
 require('../src/global');
 var webpackConfig = require('../src/webpackConfig/index');
-var getBabelLoader = require('../src/webpackConfig/utils/getBabelLoader');
+var getBabelLoader = require('../src/webpackConfig/utils/getJSLoader');
 
 var assert = require('assert');
 
