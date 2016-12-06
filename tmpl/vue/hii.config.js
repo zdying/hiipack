@@ -3,6 +3,8 @@
  * @author zdying
  */
 
+// var ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 module.exports = {
     /**
      * 需要单独打包的第三方库
@@ -22,16 +24,24 @@ module.exports = {
     alias: {
         'root': 'src/'
     },
-    // loaders: {
-    //     // 所有环境下（`hii pack`）都使用
-    //     '*': [
-    //         { test: /\.vue$/, loader: 'vue' }
-    //     ]
-    // },
+    extend: {
+        module: {
+            loaders: [
+                { test: /\.vue$/, loader: require.resolve('vue-loader') }
+            ],
+            plugins: [
+                // new ExtractTextPlugin("[name].css")
+            ]
+        }
+    },
     vue: {
         loaders: {
-            js: 'babel-loader?presets[]=' + __hiipack__.resolve('babel-preset-es2015-loose')
-              + '&plugins[]=' + __hiipack__.resolve('babel-plugin-transform-runtime') + '&comments=false'
+            html: require.resolve('vue-html-loader'),
+            // vue: 'babel-loader?presets[]=' + __hiipack__.resolve('babel-preset-es2015-loose') + '&plugins[]=' + __hiipack__.resolve('babel-plugin-transform-runtime') + '&comments=false',
+            css: require.resolve('vue-style-loader') + '!css!sass',
+            // css: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass'),
+            // sass: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass'),
+            // scss: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass')
         }
     }
 };

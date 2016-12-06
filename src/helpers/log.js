@@ -24,10 +24,10 @@ module.exports = {
         };
         var time = Date.now() - req._startTime;
 
-        this.printMessage('access', 'grey', true, [
-            req.method.bold.grey,
+        this.printMessage('access', 'green', true, [
+            req.method.white,
             (req.originalUrl || req.url).grey,
-            proxy ? ('==> ' + proxy).grey : '',
+            proxy ? ('==> '.bold.white + proxy.grey) : '',
             String(statusCode)[colormap[statusCode] || 'grey'],
             ('(' + time + 'ms' + ')')[time >= 2000 ? 'yellow' : 'grey']
         ])
@@ -54,6 +54,7 @@ module.exports = {
         program.detail && this.printMessage('detail', 'green', arguments)
     },
     printMessage: function(group, groupColor, ignoreNamespace, message){
+        var timeStr = '';
         if(arguments.length === 3){
             message = ignoreNamespace;
             ignoreNamespace = false;
@@ -66,6 +67,10 @@ module.exports = {
             message = this._namespace + ' - ' + message
         }
 
-        console.log((group ? ('[' + group + '] ').bold[groupColor] : '') + message);
+        if(program.logTime){
+            timeStr = '[' + new Date().toLocaleTimeString() + '] ';
+        }
+
+        console.log(timeStr + (group ? ('[' + group + '] ').bold[groupColor] : '') + message);
     }
 };

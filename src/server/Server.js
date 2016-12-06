@@ -6,236 +6,170 @@ var express = require('express');
 var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
-// var open = require("open");
+var os = require('os');
 
 var logger = log.namespace('Server');
-var Compiler = require('../compiler');
 var ProxyServer = require('../proxy');
+var detectBrowser = require('./detectBrowser');
+var proxyConfig = require('./proxyConfig');
+var config = require('../client/config');
 
-var clients = {};
-var clientId = 0;
+// 中间件
+var preHandler = require('./middlewares/preHandler');
+var favicon = require('./middlewares/favicon');
+var compileSource = require('./middlewares/compileSource');
+var webpackHMR = require('./middlewares/webpackHMR');
 
-var docSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Document.svg'));
-var fileSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'File.svg'));
-var folderSVG = fs.readFileSync(path.resolve(__dirname, 'source', 'image', 'Folder.svg'));
-
-function Server(port, openBrowser, proxy){
+function Server(port, browser, proxy){
     this.app = express();
     this.compilers = {};
     this.proxyServer = null;
+    this.port = port;
+    this.browser = browser;
     this.proxy = proxy;
+}
+
+Server.prototype = {
+    constructor: Server,
+
+    start: function(){
+        var port = this.port;
+        var app = this.app;
+
+        // 请求预处理：去掉url中的hash和参数等
+        app.all('*', preHandler);
+
+        // webpack hot module replace
+        app.get('/__webpack_hmr', webpackHMR);
+
+        // favicon.ico
+        app.get('/favicon.ico', favicon.bind(this));
+
+        app.get(/[\w\d]+\.hot\-update\.json([\#\?].*)?$/, function(req, res, next){
+            this.sendFile(req, path.join(__hii__.codeTmpdir, req.url))
+        }.bind(this));
+
+        // 编译代码的主要逻辑
+        app.all('*', compileSource.bind(this));
 
 
-    this.app.all('*', function(req, res, next){
-        req.url = req.url.replace(/[\?\#].*$/, '');
-        req._startTime = Date.now();
-        logger.debug('request -', req.url);
-        next();
-    });
+        this.server = require('http').createServer(app).listen(port);
 
-    // this.app.get('/__webpack_hmr', function(req, res, next){
-    //     req.socket.setKeepAlive(true);
-    //     res.writeHead(200, {
-    //         'Access-Control-Allow-Origin': '*',
-    //         'Content-Type': 'text/event-stream;charset=utf-8',
-    //         'Transfer-Encoding': 'chunked',
-    //         'Cache-Control': 'no-cache, no-transform',
-    //         'Connection': 'keep-alive'
-    //     });
-    //     res.write('\n');
-    //     var id = clientId++;
-    //     clients[id] = res;
-    //     req.on("close", function(){
-    //         delete clients[id];
-    //     });
-    //
-    //     setInterval(function(){
-    //         res.write("data: \uD83D\uDC93\n\n");
-    //     }, 2000)
-    // });
-    
-    this.app.get('/favicon.ico', function(req, res, next){
-        this.sendFile(req, __dirname + '/source/favicon.ico');
-    }.bind(this));
+        if(program.https){
+            var hiiConfig = config.get();
 
-    this.app.all('*', function(req, res, next){
-        var url = req.url;
-        // var filePath = path.resolve('.' + url);
-        var filePath = __hii__.cwd + url;
-        var projInfo = this.getProjectInfoFromURL(url);
+            var sslKey = program.sslKey || hiiConfig.sslKey || path.resolve(__dirname, '../../ssl/hiipack.key');
+            var sslCert = program.sslCert || hiiConfig.sslCert || path.resolve(__dirname, '../../ssl/hiipack.crt');
+            var option = {
+                key: fs.readFileSync(sslKey),
+                cert: fs.readFileSync(sslCert)
+            };
+            this.httpsServer = require('https').createServer(option, app).listen(443);
 
-        logger.debug('projInfo:' + JSON.stringify(projInfo));
+            log.debug('SSL server use key : ', sslKey.bold.green);
+            log.debug('SSL server use cert: ', sslCert.bold.green);
+        }
 
-        if(projInfo){
-            var projectName = projInfo.projectName;
-            var fileExt = projInfo.fileExt;
-            var env = projInfo.env;
-            var compiler = this.compilers[projectName];
+        this.initEvents();
+    },
 
-            // 第一次请求这个项目，新建一个compiler
-            if(!compiler){
-                compiler = this.compilers[projectName] = new Compiler(projectName);
-            }
+    initEvents: function(){
+        var server = this.server;
+        var port = this.port;
+        var proxy = this.proxy;
+        var browser = this.browser;
+        var self = this;
+        var serverCount = this.httpsServer ? 2 : 1;
+        var count = 0;
 
-            if(fileExt === 'scss'){
-                // 编译sass文件
-                return compiler.compileSASS(filePath, function(err, css, time, result){
-                    if(err){
-                        res.statusCode = 500;
-                        res.end(err.stack || err.message)
-                    }else{
-                        res.setHeader('Content-Type', 'text/css');
-                        res.end(css);
-                        logger.debug('*.sass', '-', filePath.bold, 'compiled', (time + 'ms').magenta);
-                    }
-                    logger.access(req);
-                });
-            }else if(fileExt === 'js'){
-                if(env === 'prd'/* || req.url.indexOf('hot-update.js') !== -1*/){
-                    return compiler.compile('loc', function(){
-                        this.sendCompiledFile(req, projInfo)
-                    }.bind(this))
-                }else if(env === 'dev'){
-                    filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
-
-                    logger.debug(req.url, '==>', filePath);
-
-                    if(fs.statSync(filePath).isFile()){
-                        this.sendFile(req, filePath)
-                    }
-                }else if(env === 'src' || env === 'loc'){
-                    this.sendFile(req)
-                }
-            }else if(fileExt === 'css'){
-                if(fs.existsSync(filePath)){
-                    this.sendFile(req, filePath);
-                }else{
-                    return compiler.compile('loc', function(){
-                        this.sendCompiledFile(req, projInfo)
-                    }.bind(this));
-                    // var userConfig = require(path.resolve(__hii__.cwd, projInfo.projectName, 'hii.config.js'));
-                    // var entry = userConfig.entry;
-                    // var entries = Object.keys(entry);
-                    //
-                    // if(entries.indexOf(projInfo.fileName) !== -1){
-                    //     // 处理css文件
-                    //     res.setHeader('Content-Type', 'text/css');
-                    //     logger.debug('css -', filePath.bold, 'replaced');
-                    //     res.end('/* The `css` code in development environment has been moved to the `js` file */');
-                    //     logger.access(req);
-                    // }else{
-                    //     // will return 404
-                    //     this.sendFile(req, filePath);
-                    // }
-                }
+        function onError(err){
+            if(err.code === 'EADDRINUSE'){
+                console.log('Port', String(port).bold.yellow, 'is already in use.');
+            }else if(err.code === 'EACCES'){
+                console.log('\nPermission denied.\nPlease try running this command again as root/Administrator.\n');
             }else{
-                // 其它文件
-                filePath = filePath.replace(/\/prd\//, '/src/');
-
-                logger.debug(req.url, '==>', filePath);
-                try{
-                    if(fs.statSync(filePath).isFile()){
-                        this.sendFile(req, filePath)
-                    }
-                }catch(e){
-                    res.statusCode = 404;
-                    res.end('404 Not Found');
-                    logger.error(e);
-                    logger.access(req);
-                }
+                console.log(err.message);
             }
-        }else{
-            try{
-                var stat = fs.statSync(filePath);
-                if(stat.isDirectory()){
-                    fs.readdir(filePath, function(err, files){
-                        if(err){
-                            logger.error(err);
-                        }else{
-                            res.setHeader('Content-Type', 'text/html');
 
-                            var html = [
-                                '<header>',
-                                    '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">',
-                                '</header>',
-                                '<style>',
-                                    'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
-                                    'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
-                                    'li:hover{ color: #FF5522; }',
-                                    'a { padding: 15px 5px; display: block; color: #0077DD; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }',
-                                    'a:hover { color: #FF5522 }',
-                                    'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
-                                '</style>',
-                                '<ul>'
-                            ];
-                            html.push('<li>');
-                            html.push(      '<a href="', url.replace(/\/([^\/]*?)\/?$/, '/') , '">', folderSVG, '../</a>');
-                            html.push('</li>');
-                            var filesItem = files.map(function(fileName){
-                                if(fileName.slice(0, 1) === '.'){
-                                    logger.debug('hide system file/directory', fileName.bold);
-                                    // 不显示系统隐藏文件
-                                    return
-                                }
-
-                                var isFile = fs.statSync(filePath + '/' + fileName).isFile();
-
-                                return [
-                                    '<li>',
-                                        '<a title="' + fileName + '" href="' + (isFile ? fileName : fileName + '/') + '">',
-                                            isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
-                                            fileName,
-                                        '</a>',
-                                    '</li>'
-                                ].join('')
-                            });
-
-                            html.push.apply(html, filesItem);
-                            html.push('</ul>');
-                        }
-
-                        res.end(html.join(''));
-
-                        logger.access(req);
-                    });
-                }else{
-                    this.sendFile(req)
-                }
-            }catch(e){
-                res.statusCode = 404;
-                res.end('404 Not Found');
-
-                logger.error(e);
-                logger.access(req);
+            self.close();
+        }
+        
+        function onListening(){
+            if(serverCount === 2 && ++count < 2){
+                return
             }
+
+            var url = 'http://127.0.0.1:' + port;
+            // browser && open(url);
+
+            browser && this.openBrowser(url);
+
+            console.log();
+            console.log('current workspace ', __hiipack__.cwd.green.bold);
+            console.log('hiipack started at', url.green.bold);
+            console.log('https server state', (this.httpsServer ? 'https://127.0.0.1' : 'disabled').bold.magenta);
+
+            if(proxy){
+                // 启动代理服务
+                this.proxyServer = new ProxyServer();
+                this.proxyServer.start(4936);
+            }
+
+            setTimeout(function(){
+                log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
+            }, 200)
         }
-    }.bind(this));
 
-    var server = this.app.listen(port);
+        server.on('error', onError);
+        server.on('listening', onListening.bind(this));
 
-    server.on('error', function(err){
-        if(err.code === 'EADDRINUSE'){
-            console.log('port', String(port).bold.yellow, 'is already in use.');
-            server.close();
+        if(serverCount === 2){
+            this.httpsServer.on('error', onError);
+            this.httpsServer.on('listening', onListening.bind(this));
+        }
+
+        process.on("SIGINT", function(){
+            console.log('\b\b  ');
+            console.log('Bye Bye.'.bold.yellow);
+            process.exit()
+        });
+
+        process.on('SIGTERM', function(){
+            console.log('Bye Bye.'.bold.yellow);
+            process.exit()
+        });
+    },
+
+    close: function(){
+        this.server.close();
+
+        if(this.httpsServer){
+            this.httpsServer.close();
+        }
+    },
+
+    openBrowser: function(url){
+        var browser = this.browser;
+
+        // Firefox pac set
+        // http://www.indexdata.com/connector-platform/enginedoc/proxy-auto.html
+        // http://kb.mozillazine.org/Network.proxy.autoconfig_url
+        // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
+        // user_pref("network.proxy.type", 2);
+
+        var browserPath = detectBrowser(browser);
+
+        if(!browserPath){
+            log.error('can not find browser', browser.bold.yellow);
         }else{
-            console.log(err.message);
-        }
-    });
+            var dataDir = __hii__.cacheTmpdir;
 
-    server.on('listening', function(){
-        var url = 'http://127.0.0.1:' + port;
-        // openBrowser && open(url);
+            if(os.platform() === 'win32'){
+                browserPath = '"' + browserPath + '"';
+            }
 
-        if(openBrowser){
-            // Firefox pac set
-            // http://www.indexdata.com/connector-platform/enginedoc/proxy-auto.html
-            // http://kb.mozillazine.org/Network.proxy.autoconfig_url
-            // user_pref("network.proxy.autoconfig_url", "http://us2.indexdata.com:9005/id/cf.pac");
-            // user_pref("network.proxy.type", 2);
-            var chromePath = '/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome';
-            var dataDir = __hii__.tmpdir;
-            var command = chromePath + ' --proxy-pac-url="file://' + path.resolve(__dirname, '..', 'proxy', 'pac', 'hiipack.pac') + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
-            // var command = chromePath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
+            var command = browserPath + ' ' + proxyConfig[browser](dataDir, url, browserPath);
+            // var command = browserPath + ' --proxy-server="http://127.0.0.1:' + 4936 + '"  --user-data-dir='+ dataDir +'  --lang=local  ' + url;
             log.debug('open ==> ', command);
             require('child_process').exec(command, function(err){
                 if(err){
@@ -243,36 +177,8 @@ function Server(port, openBrowser, proxy){
                 }
             });
         }
+    },
 
-        console.log();
-        console.log('current workspace ', __hiipack__.cwd.green.bold);
-        console.log('hiipack started at', url.green.bold);
-
-        if(this.proxy){
-            // 启动代理服务
-            this.proxyServer = new ProxyServer();
-            this.proxyServer.start(4936);
-        }
-
-        setTimeout(function(){
-            log.debug('__hii__', '-',  JSON.stringify(__hiipack__));
-        }, 200)
-    }.bind(this));
-
-    process.on("SIGINT", function(){
-        console.log('\b\b  ');
-        console.log('Bye Bye.'.bold.yellow);
-        process.exit()
-    });
-
-    process.on('SIGTERM', function(){
-        console.log('Bye Bye.'.bold.yellow);
-        process.exit()
-    });
-}
-
-Server.prototype = {
-    constructor: Server,
     /**
      * 发送文件
      * @param req
@@ -280,11 +186,13 @@ Server.prototype = {
      * @param env
      */
     sendFile: function(req, filePath){
-        filePath = filePath || __hii__.cwd + req.url;
+        filePath = filePath || path.join(__hii__.cwd, req.url);
 
         logger.debug('send file: ' + filePath.bold);
 
         var res = req.res;
+
+        res.set('Access-Control-Allow-Origin', '*');
 
         res.sendFile(filePath, function(err){
             if(err){
@@ -317,28 +225,11 @@ Server.prototype = {
     },
 
     sendCompiledFile: function(req, projInfo){
-        var filePath = __hii__.codeTmpdir + req.url;
-        filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/\/prd\//, '/loc/');
+        var filePath = path.join(__hii__.codeTmpdir, req.url);
+
+        filePath = filePath.replace(/@[\w+]+\.(js|css)/, '.$1').replace(/[\\\/]prd[\\\/]/, '/loc/');
         this.sendFile(req, filePath);
-        // var content = mfs.readFileSync(filePath)//.toString();
-        // req.res.setHeader('Content-Type', 'text/javascript');
-        // req.res.setHeader('Content-Length', content.length);
-        // req.res.send(content)
     }
 };
-
-// function publish(data){
-//     for(var id in clients){
-//         clients[id].write("data: " + JSON.stringify(data) + "\n\n");
-//     }
-// }
-//
-// function buildModuleMap(modules){
-//     var map = {};
-//     modules.forEach(function(module){
-//         map[module.id] = module.name;
-//     });
-//     return map;
-// }
 
 module.exports = Server;

@@ -8,6 +8,7 @@ var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var autoprefixer = require('autoprefixer');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
 var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
@@ -18,6 +19,14 @@ var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
+    var cssLoader = userConfig.css && userConfig.css.loader;
+    var lessLoader = userConfig.less && userConfig.less.loader;
+    var scssLoader = userConfig.scss && userConfig.scss.loader;
+
+    var defaultCssLoader = "css!postcss";
+    var defaultLessLoader = "css!less!postcss";
+    var defaultScssLoader = "css!sass!postcss";
+
     var config = {
         env: 'prd',
         context: root,
@@ -30,9 +39,9 @@ module.exports = function(root, userConfig){
         module: {
             loaders: [
                 getBabelLoader(userConfig, 'prd'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract("css") },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract("css!less") },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract("css!sass") }
+                { test: /\.css$/, loader: ExtractTextPlugin.extract(cssLoader || defaultCssLoader) },
+                { test: /\.less$/, loader: ExtractTextPlugin.extract(lessLoader ||  defaultLessLoader) },
+                { test: /\.scss$/, loader: ExtractTextPlugin.extract(scssLoader || defaultScssLoader) }
             ],
             postLoaders: [
                 {
@@ -40,6 +49,9 @@ module.exports = function(root, userConfig){
                     loaders: ['es3ify-loader']
                 }
             ]
+        },
+        postcss: function() {
+            return [autoprefixer];
         },
         plugins: [
             /**
@@ -80,13 +92,13 @@ module.exports = function(root, userConfig){
         },
         resolve: {
             root: root,
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }

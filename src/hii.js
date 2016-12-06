@@ -3,26 +3,14 @@
  * @author zdying
  */
 var __hiipack = require('./global');
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
-var fse = require('fs-extra');
 var colors = require('colors');
-var child_process = require('child_process');
-var os = require('os');
 
-var server = require('./server');
-var client = require('./client');
+// console.log(process.env.NODE_PATH);
+
 var package = require('../package.json');
 var program = global.program;
 
-try{
-    fse.copy(path.resolve(__hiipack__.root, 'tmpl', '_cache'), __hiipack__.tmpdir, function(err){
-        if(err) console.error(err);
-    });
-}catch(e){
-
-}
+var exec = require('./commands').exec;
 
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);
@@ -30,10 +18,11 @@ try{
 
 program
     .version(package.version, '-v, --version')
-    .option('-o, --open', 'open in browser')
+    .option('-o, --open [open]', 'open in browser, one of: chrome|firefox|safari|opera', /^(chrome|firefox|safari|opera)$/)
     .option('-p, --port <port>', 'service port', 8800)
     .option('-r, --registry <registry>', 'npm registry address')
     .option('-d, --debug', 'print debug log')
+    .option('-s, --sync-conf <syncConf>', 'custom sync config')
     //TODO add this next version
     // .option('-U, --uglify', 'uglify javascript')
     //TODO add this next version
@@ -42,60 +31,83 @@ program
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
     .option('-x, --proxy', 'start the proxy server')
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
-    .option('--no-color', 'disable log color');
+    .option('--no-color', 'disable log color')
+    .option('--no-hot-reload', 'disable hot reload')
+    .option('--log-time', 'display log time')
+    .option('--https', 'start https server')
+    .option('--ssl-key <sslKey>', 'ssl key file')
+    .option('--ssl-cert <sslCert>', 'ssl cert file');
 
 program
     .command('init <name>')
     .description('initialize project')
     .action(function(name){
-        client.init(name, program.type, program.registry);
+        exec('init', name, program.type, program.registry);
+        // client.init(name, program.type, program.registry);
     });
 
 program
     .command('start')
     .description('create a local server')
     .action(function(){
-        server.start(program.port, program.open, program.proxy);
+        var browser = false;
+
+        if(program.open){
+            browser = typeof program.open === 'string' ? program.open : 'chrome';
+        }
+
+        exec('start', program.port, browser, program.proxy);
     });
 
 program
     .command('min')
     .description('compress/obfuscate project files')
     .action(function(){
-        client.build();
+        exec('min');
     });
 
 program
     .command('pack')
     .description('pack project files')
     .action(function(){
-        client.pack();
+        exec('pack');
     });
 
 program
     .command('sync')
     .description('synchronize the current directory to remote server')
     .action(function(){
-        client.sync();
+        exec('sync', program.syncConf);
+        // client.sync(program.syncConf);
     });
 
 program
     .command('test')
     .description('run unit test')
     .action(function(){
-        client.test();
+        exec('test');
     });
 
 program
     .command('clear')
     .description('clear resulting folders of hiipack')
     .action(function(){
-        fse.remove('dev');
-        fse.remove('prd');
-        fse.remove('ver');
-        fse.remove('loc');
-        fse.remove('dll');
-        // child_process.exec('rm -rdf dll loc dev prd ver')
+        exec('clear');
+    });
+
+program
+    .command('config [operation] [args...]')
+    .description('hiipack config, `operation`: [empty]|list|set|delete')
+    .action(function(ope, args, options){
+        // client.config(ope, args)
+        exec('config', ope, args);
+    });
+
+program
+    .command('ssl')
+    .description('show ssl certificate file path.')
+    .action(function(){
+        exec('ssl');
     });
 
 program.on('--help', function(){
@@ -121,14 +133,14 @@ if(process.argv.length == 2){
 
 function showVersion(){
     var version = package.version.magenta;
-    var versionLen = version.length;
-    var spaces = new Array(25 - versionLen + 3).join(' ');
 
-    console.log('');
-    console.log('  .-----------------------------.');
-    console.log('  |  ' + 'hiipack'.bold + ' ' + version + spaces + '  |');
-    console.log('  |  ' + 'author ', 'zdying@live.com'.yellow.bold + '    |');
-    console.log('  |  ' + 'github.com/zdying/hiipack'.green.underline + '  |');
-    console.log('  \'-----------------------------\'');
-    console.log('');
+    console.log("");
+    console.log("                ,-.");
+    console.log("      _,.      /  /");
+    console.log("     ; \\____,-==-._  )     " + "hiipack".bold + "/" + version);
+    console.log("     //_    `----' {+>     " + "zdying@live.com".bold.yellow);
+    console.log("     `  `'--/  /-'`(       " + "github.com\/zdying".green.underline);
+    console.log("           /  /");
+    console.log("           `='");
+    console.log("");
 }

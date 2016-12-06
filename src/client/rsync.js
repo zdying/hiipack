@@ -4,6 +4,7 @@
  */
 var Rsync = require('rsync');
 var path = require('path');
+var fs = require('fs');
 var colors = require('colors');
 
 var root = process.cwd();
@@ -12,10 +13,16 @@ var logPrex = '[log]'.green;
 var warnPrex = '[warn]'.yellow;
 var errPrex = '[error]'.red;
 
-function uploadFile(){
-    var config = require(path.join(root, 'dev.json'));
-    var source = path.join(root, config.source, '/');
-    var _path = config.path;
+function uploadFile(configPath){
+    var configPath = configPath || 'dev.json';
+
+    if(!fs.existsSync(configPath)){
+        return console.log('[error]'.bold.red, 'config file', configPath.bold.red, 'not exists.');
+    }
+
+    var config = require(path.join(root, configPath));
+    var source = config.source || './';
+    var _path = config.path || config.dest;
     var server = config.server;
     var isSudo = config.sudo === undefined ? true : config.sudo;
     var errorField = [];
@@ -29,7 +36,7 @@ function uploadFile(){
     }
 
     if(errorField.length > 0){
-        console.log('[error]'.red, 'invalid config field', errorField.join(', ').bold.yellow, 'at', (root + '/dev.json').bold.yellow);
+        console.log('[error]'.red, 'invalid config field', errorField.join(', ').bold.yellow, 'at', (root + '/' + configPath).bold.yellow);
         console.log('\nconfig example: \n');
         console.log('  {');
         console.log('    "source": "./",');
@@ -50,6 +57,8 @@ function uploadFile(){
         .exclude(config.exclude)
         .source(source)
         .destination(server + ':' + _path);
+
+    rsync.cwd(root);
 
     rsync.set('chmod', 'a+rX,u+w');
     rsync.set('rsync-path', (isSudo ? 'sudo ' : '') + 'rsync');

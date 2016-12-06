@@ -5,22 +5,6 @@
 var fs = require('fs');
 var path = require('path');
 
-// from http://lmws.net/making-directory-along-with-missing-parents-in-node-js
-function mkdirParent(dirPath, mode, callback) {
-    //Call the standard fs.mkdir
-    fs.mkdir(dirPath, mode, function(error) {
-        //When it fail in this way, do the custom steps
-        if (error && error.errno === 34) {
-            //Create all the parents recursively
-            fs.mkdirParent(path.dirname(dirPath), mode, callback);
-            //And then the directory
-            fs.mkdirParent(dirPath, mode, callback);
-        }
-        //Manually run the callback since we used our own callback to do all these
-        callback && callback(error);
-    });
-}
-
 var md5File = require('md5-file');
 
 function VersionPlugin(hashLength, pattern){
@@ -37,6 +21,7 @@ function VersionPlugin(hashLength, pattern){
             var versions = {};
             var assets = stats.compilation.assets;
             var context = stats.compilation.compiler.context;
+            var config = stats.compilation.compiler.options;
 
             var handerChunk = function(fileName, filePath){
                 if(!pattern || !(pattern && pattern.test(fileName))){
@@ -46,6 +31,7 @@ function VersionPlugin(hashLength, pattern){
                         if(err) console.log('[ERROR]'.bold.red, err.message);
                     });
                     lines.push(fileName + '#' + md5);
+                    versions[fileName] = md5;
                 }
             };
 
@@ -56,21 +42,58 @@ function VersionPlugin(hashLength, pattern){
                 handerChunk(fileName, filePath);
             }
 
-            // try{
-            //     require('child_process').execSync('cd ' + context + ' && mkdir ver')
-            // }catch(err){
-            //     console.log('[ERROR]'.bold.red, err.message);
-            // }
+            if(config.replaceVersion){
+                var root = path.resolve(__hii__.cwd, config.replaceVersion);
+                fs.readdir(root, function (err, files) {
+                    if(err){
+                        // console.log(err)
+                    }else{
+                        files.forEach(function(file){
+                            if(!file.match(/\.(htm|html)/)){
+                                return
+                            }
+                            var filePath = root + '/' + file;
+                            var oldStr = fs.readFileSync(filePath).toString();
 
-            // fs.mkdir('ver', function(err){
-            mkdirParent(context + '/ver', function(err){
+                            var newStr = oldStr.replace(/\/([^\/]*?)@(\w+)\.(js|css)/g, function(match, fileName, version, fileExt){
+                                var ver = versions[fileName + '.' + fileExt];
+                                if(ver){
+                                    console.log('');
+                                    return '/' + fileName + '@' + ver + '.' + fileExt;
+                                }else{
+                                    return match;
+                                }
+                            });
+
+                            newStr && fs.writeFile(filePath, newStr, function(err){
+                                if(err){ return console.log(err) }
+                                console.log('[debug]', filePath, '版本号替换成功.');
+                            })
+                        })
+                    }
+                });
+            }
+
+            fs.mkdir(context + '/ver', function(err){
                 var path = context + "/ver/versions.mapping";
                 var isExists = fs.existsSync(path);
 
                 if(isExists){
-                    fs.writeFile(path, '\n' + lines.join('\n'), {flag: 'a'});
+                    fs.writeFile(path, '\n' + lines.join('\n'), {flag: 'a'}, function(err){
+                        if(err){
+                            log.error(err);
+                        }else{
+                            // log.info('version info updated:', lines.join(', '));
+                        }
+                    });
                 }else{
-                    fs.writeFile(path, lines.join('\n'));
+                    fs.writeFile(path, lines.join('\n'), function(err){
+                        if(err){
+                            log.error(err);
+                        }else{
+                            // log.info('version info updated:', '[' + lines.join(', ') + ']');
+                        }
+                    });
                 }
             });
         });

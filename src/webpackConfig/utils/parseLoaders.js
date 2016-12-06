@@ -31,6 +31,9 @@ module.exports = function parseLoaders(customLoaders){
         if(loader.loader){
             // type1 ==> 直接使用loader
             installLoader(loader);
+            log.debug('before change loader', JSON.stringify(loader));
+            loader.loader = pkg.getPackagePath(loader.loader) || loader.loader;
+            log.debug('after change loader', JSON.stringify(loader));
             loaders.push(loader);
         }else{
             // type2/type3 ==> 先安装,然后设置
@@ -43,6 +46,7 @@ module.exports = function parseLoaders(customLoaders){
                     if(currLoaderType === 'function'){
                         // type2
                         loaderResult = installCustomDependencies(denpendence, 'loaders', currLoader);
+                        log.debug('loader config is function:', currLoader);
                     }else if(currLoaderType === 'object' && currLoader !== null){
                         // type3
                         installCustomDependencies(denpendence, 'loaders', null);
@@ -52,6 +56,10 @@ module.exports = function parseLoaders(customLoaders){
                     }
 
                     installLoader(loaderResult);
+
+                    log.debug('before change loader:', JSON.stringify(loaderResult));
+                    loaderResult.loader = pkg.getPackagePath(loaderResult.loader) || loaderResult.loader;
+                    log.debug('after change loader:', JSON.stringify(loaderResult));
 
                     loaders.push(loaderResult)
                 }
@@ -65,7 +73,6 @@ module.exports = function parseLoaders(customLoaders){
 function installLoader(loader){
     var loaderContent = loader.loader;
     var loaders = Array.isArray(loaderContent) ? loaderContent : loaderContent.split('!');
-    var tmpdir = __hiipack__.tmpdir;
     var installed = false;
     // 需要安装的package
     var loadersName = loaders.map(function(name){
@@ -74,7 +81,7 @@ function installLoader(loader){
             _name += '-loader';
         }
 
-        var exists = pkg.checkIfPackageExist(_name);
+        var exists = pkg.checkIfPackageExist(_name.split('@')[0], _name.split('@')[1]);
 
         if(exists){
             return ''
@@ -87,6 +94,7 @@ function installLoader(loader){
 
     // 如果需要安装的模块不为空, 安装相应的模块
     if(loadersName !== ''){
+        log.debug('packages that need to install:', loadersName);
         installed = pkg.installPackageAndDependencies(loadersName, 'loader')
     }
 

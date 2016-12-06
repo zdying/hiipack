@@ -10,6 +10,7 @@ var url = require('url');
 var fs = require('fs');
 
 var commands = require('./commands');
+var getCommands = require('./getCommands');
 
 /**
  * 获取代理信息, 用于请求代理的地址
@@ -28,8 +29,9 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
     var hostname, port, path, proxyName;
 
     // rewrite 优先级高于 hosts
-    if(rewrite){
+    if(rewrite && rewrite.props.proxy){
         var proxy = rewrite.props.proxy;
+        var alias = rewrite.props.alias;
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
 
@@ -43,7 +45,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
-        if(proxy.match(protocolReg)){
+        if(!alias && proxy.match(protocolReg)){
             request.url = request.url.replace(protocolReg, '')
         }
 
@@ -66,28 +68,46 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             }
         }else{
             // 普通地址字符串
+            // 否则，把url中的source部分替换成proxy
             newUrl = request.url.replace(rewrite.source, proxy);
         }
 
-        newUrlObj = url.parse(newUrl);
+        var reqCommands = getCommands(rewrite, 'request');
 
-        if(Array.isArray(rewrite.commands)){
-            rewrite.commands.forEach(function(obj){
-                //TODO 这里不能简单这么判断,要设置一个scope cmds 名单
-                // 以`proxy`开头的指令是proxy request指令
-                if(obj.name.match(/^proxy/)){
-                    // var params = obj.params.map(function(param){
-                    //     return replaceVar(param, rewrite, rewriteRules)
-                    // });
-                    commands[obj.name].apply(context, obj.params)
+        if(Array.isArray(reqCommands)){
+            log.detail('commands that will be executed [request]:', JSON.stringify(reqCommands).bold);
+
+            reqCommands.forEach(function(obj){
+                var name = obj.name;
+                var params = obj.params;
+                var func = commands[obj.name];
+
+                if(typeof func === 'function'){
+                    log.debug('exec rewrite request command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
+                    func.apply(context, params)
+                }else{
+                    log.debug(name.bold.yellow, 'is not in the scope', 'request'.bold.green, 'or not exists.')
                 }
             })
+        }else{
+            log.debug('no commands will be executed');
         }
 
-        hostname = newUrlObj.hostname;
-        port = newUrlObj.port || 80;
-        path = newUrlObj.path;
-        proxyName = 'HIIPACK';
+
+        log.debug('newURL ==>', newUrl);
+        log.debug('newURL ==>', alias);
+
+        if(alias){
+            // 本地文件系统路径, 删除前面的协议部分
+            newUrl = newUrl.replace(/^(\w+:\/\/)/, '');
+        }else{
+            newUrlObj = url.parse(newUrl);
+
+            hostname = newUrlObj.hostname;
+            port = newUrlObj.port || 80;
+            path = newUrlObj.path;
+            proxyName = 'HIIPACK';
+        }
     }else if(host){
         hostname = host.split(':')[0];
         port = Number(host.split(':')[1]);
@@ -109,7 +129,9 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         },
         PROXY: proxyName,
         hosts_rule: host,
-        rewrite_rule: rewrite
+        rewrite_rule: rewrite,
+        alias: alias,
+        newUrl: newUrl
     }
 };
 

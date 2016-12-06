@@ -11,8 +11,8 @@ var execSync = child_process.execSync;
 var Compiler = require('../compiler');
 
 var package = require('../helpers/package');
-var steps = require('../helpers/steps');
 var logger = log.namespace('client');
+var config = require('./config');
 
 var path = require('path');
 var fse = require('fs-extra');
@@ -27,23 +27,22 @@ module.exports = {
         var templatePath = path.resolve(__dirname, '..', '..', 'tmpl', type);
         var targetPath = path.join(process.cwd(), projName);
 
-        steps.printTitle('copy template files');
+        log.info('copy template files ...');
 
         fse.copy(templatePath, targetPath, function(err){
             if(err){
-                steps.printErrorIcon();
                 logger.error(err);
                 return
             }
-            steps.printSuccessIcon();
             this._replaceProjectName(projName, targetPath, registry);
         }.bind(this));
     },
 
-    _build: function(env, callback){
+    _build: function(callback){
+        var env = __hii__.env;
         var workPath = process.cwd();
         var projectName = workPath.split('/').pop();
-        var compiler = new Compiler(projectName, workPath);
+        var compiler = new Compiler(projectName, workPath, env);
         var dir = {
             'dev': ['dev'],
             'prd': ['prd', 'ver']
@@ -56,7 +55,7 @@ module.exports = {
             dir[env].forEach(function(folder){
                  fse.removeSync(folder)
             });
-            compiler.compile(env, {watch: false}, callback);
+            compiler.compile({watch: false}, callback);
         }catch(e){
             logger.error(e);
         }
@@ -67,7 +66,8 @@ module.exports = {
      * @param callback
      */
     build: function(callback){
-        this._build('prd', callback)
+        __hii__.env = 'prd';
+        this._build(callback)
     },
 
     /**
@@ -75,22 +75,24 @@ module.exports = {
      * @param callback
      */
     pack: function(callback){
-        this._build('dev', callback)
+        __hii__.env = 'dev';
+        this._build(callback)
     },
 
     /**
      * 上传文件到开发机
      */
-    sync: function(){
-        var root = process.cwd();
+    sync: function(syncConf){
+        // var root = process.cwd();
         var rsync = require('./rsync');
-        var isExist = fs.existsSync(root + '/dev');
+        // var isExist = fs.existsSync(root + '/dev');
 
-        if(!isExist){
-            this.pack(rsync.sync)
-        }else{
-            rsync.sync();
-        }
+        // if(!isExist){
+        //     this.pack(rsync.sync)
+        // }else{
+        //     rsync.sync(syncConf);
+        // }
+        rsync.sync(syncConf);
     },
 
     /**
@@ -133,6 +135,21 @@ module.exports = {
     },
 
     /**
+     * 清空打包代码缓存
+     */
+    clearCodeCache: function() {
+        fse.remove(__hii__.codeTmpdir)
+    },
+
+    /**
+     * 清空package缓存
+     */
+    clearPackageCache: function() {
+        fse.remove(__hii__.packageTmpdir);
+        fse.remove(__hii__.packageTmpdirWithVersion);
+    },
+
+    /**
      * 替换项目文件中的`项目名称`字段
      * @param projName
      * @param root
@@ -140,10 +157,11 @@ module.exports = {
      * @private
      */
     _replaceProjectName: function(projName, root, registry){
+        registry = registry || config.get('registry');
+
         var items = []; // files, directories, symlinks, etc
-        steps.printTitle('setup project');
-        steps.printSuccessIcon();
-        steps.printTitle('rename template files');
+        log.info('setup project ...');
+        log.info('rename template files ...');
         fse.walk(root)
             .on('data', function(item){
                 items.push(item.path);
@@ -153,35 +171,22 @@ module.exports = {
                 var len = items.length;
                 var finish = function(){
                     if(count === len){
-                        steps.printSuccessIcon();
+                        var cmd = [
+                            'cd ' + projName,
+                            'npm install' + (registry ? ' --registry=' + registry : '')
+                        ].join(' && ');
 
-                        var cmd = 'cd ' + projName + ' && npm install' + (registry ? ' --registry ' + registry : '');
-
-                        // steps.printTitle('setup project (installing dependencies)');
-                        steps.hideCusror();
-
-                        var _count = 1;
-                        var timer = setInterval(function(){
-                            var count = _count++;
-                            var points = (new Array(count % 5)).join('.');
-                            steps.clearLine();
-                            steps.printTitle('installing dependencies ' + points);
-                        }, 500);
+                        log.info('installing dependencies ...');
+                        log.debug('exec cmd', cmd.bold);
 
                         exec(cmd, function(err, stdout, stderr){
                             if(err){
-                                steps.printErrorIcon();
                                 logger.error(err);
                                 return
                             }
-                            clearInterval(timer);
-                            steps.clearLine();
-                            steps.printTitle('installing dependencies');
-                            steps.printSuccessIcon();
-                            steps.showCursor();
-                            console.log();
-                            console.log('init success :)'.bold.green);
-                            console.log('Now you may need to exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
+
+                            console.log('\ninit success :)'.bold.green);
+                            console.log('\nYou can exec `'.bold + 'hii start'.yellow.bold + '` to start a service '.bold);
                             console.log();
                         });
                     }
@@ -210,5 +215,24 @@ module.exports = {
                     }
                 });
             })
+    },
+
+    config: function(ope, args){
+        var config = require('./config');
+
+        switch(ope){
+            case 'set':
+                config.set.apply(config, args);
+                break;
+
+            case 'delete':
+                config.delete.apply(config, args);
+                break;
+
+            case 'list':
+
+            default:
+                config.list();
+        }
     }
 };

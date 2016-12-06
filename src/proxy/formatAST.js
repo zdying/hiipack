@@ -7,10 +7,12 @@ var commandFuncs = require('./commands');
 var merge = require('../helpers/merge');
 var type = require('../helpers/type');
 
+var replaceVar = require('./replaceVar');
+
 var scopeCmds = {
     domain : ['set'],
     global : ['set'],
-    location : ['set', 'proxy_pass']
+    location : ['set', 'proxy_pass', 'alias', 'root']
 };
 
 // var requestScopeCmds = [];
@@ -19,20 +21,26 @@ var scopeCmds = {
 module.exports = function formatAST(ASTTree){
     var res = {
         commands: [],
-        props: {}
+        props: {},
+        __id__: 'global'
     };
-    
+
     var baseRules = ASTTree.baseRules || [];
     var domains = ASTTree.domains || [];
     var commands = ASTTree.commands || [];
 
-    var globalFuncs = res.commands = parseCommand(commands);
+    var globalFuncs = res.commands = commands;// = parseCommand(commands);
 
     // step 1: 执行全局命令(比如: `set $domain example.com`)
     execCommand(globalFuncs, res, 'global');
 
     // step 1.1: 替换全局变量中的变量
-    replaceVar(res.props, res.props);
+    res.props = replaceVar(res.props, res);
+
+    // step 1.2: 替换全局指令中的变量
+    res.commands = replaceFuncVar(globalFuncs, res);
+
+    // replaceProps(res.props, res);
 
     // step 2: 解析基本规则(比如: `example.com => other.com`)
     baseRules.forEach(function(rule){
@@ -42,8 +50,8 @@ module.exports = function formatAST(ASTTree){
         var globalProps = res.props;
 
         // step 3: 替换基本规则中的变量
-        source = replaceVar(source, globalProps);
-        target = replaceVar(target, globalProps);
+        source = replaceVar(source, res);
+        target = replaceVar(target, res);
 
         res[source] = {
             source: source,
@@ -57,7 +65,13 @@ module.exports = function formatAST(ASTTree){
     domains.forEach(function(domain){
         var _domain = domain.domain;
         var location = domain.location;
-        var funcs = parseCommand(domain.commands || []);
+        var funcs = domain.commands || []; //parseCommand(domain.commands || []);
+
+        domain.__id__ = '_domain_' + _domain;
+
+        domain.toJSON = toJSON;
+
+        domain.parent = res;
 
         // step 5: 执行domain中的命令(比如: set $domain example.com)
         // 这里必须先执行命令, 然后在替换值
@@ -67,21 +81,22 @@ module.exports = function formatAST(ASTTree){
         // step 5.1: 替换domain规则中的变量
 
         // _domain属于顶层, 应该用上一层(全局)变量替换
-        _domain = replaceVar(_domain, res.props);
+        _domain = replaceVar(_domain, res);
 
         // domain中的变量, 属于domain, 用domain的变量和上一层变量替换
-        replaceVar(domain.props, domain.props, res.props);
+        replaceVar(domain.props, domain);
 
         // funcs里面的变量属于domain, 用domain的变量和上一层变量替换
+
         funcs.forEach(function(fun){
             var params = fun.params;
             var name = fun.name;
 
             if(name === 'set'){
                 // 如果是 set 命令, 不替换第一个参数
-                fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), domain.props, res.props))
+                fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), domain))
             }else{
-                fun.params = replaceVar(fun.params, domain.props, res.props)
+                fun.params = replaceVar(fun.params, domain)
             }
         });
 
@@ -90,7 +105,9 @@ module.exports = function formatAST(ASTTree){
             res[_domain] = {
                 source: _domain,
                 commands: funcs,
-                props: domain.props
+                props: domain.props,
+                parent: res,
+                toJSON: toJSON
             };
             return
         }
@@ -100,14 +117,21 @@ module.exports = function formatAST(ASTTree){
             var url = _domain + loc.location;
             var proxy;
             var props;
-            var funcs = parseCommand(loc.commands || []);
+            var funcs = loc.commands || []; //parseCommand(loc.commands || []);
+
+            loc.__id__ = '_location_' + loc.location;
+
+            loc.parent = domain;
+            loc.toJSON = toJSON;
 
             // step 8: 执行location命令(比如: `set $domain example.com`)
             execCommand(funcs, loc, 'location');
 
+            loc.props = replaceVar(loc.props, loc);
+
             // step 9: 替换location变量, 作用域为domain和上层(res)
-            url = replaceVar(url, domain.props, res.props);
-            proxy = replaceVar(loc.props.proxy, domain.props, res.props);
+            url = replaceVar(url, loc);
+            proxy = replaceVar(loc.props.proxy, loc);
 
             funcs.forEach(function(fun){
                 var params = fun.params;
@@ -115,15 +139,15 @@ module.exports = function formatAST(ASTTree){
 
                 if(name === 'set'){
                     // 如果是 set 命令, 不替换第一个参数
-                    fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), loc.props, domain.props, res.props))
+                    fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), loc))
                 }else{
-                    fun.params = replaceVar(fun.params, loc.props, domain.props, res.props)
+                    fun.params = replaceVar(fun.params, loc)
                 }
 
                 // console.log('替换location的function参数:', name, fun.params);
             });
 
-            props = merge({}, domain.props, {
+            props = merge({}, loc.props, {
                 proxy: proxy
             });
 
@@ -134,7 +158,9 @@ module.exports = function formatAST(ASTTree){
                 source: url,
                 commands: funcs,
                 props: props,
-                location: loc
+                // location: loc,
+                parent: domain,
+                toJSON: toJSON
             }
         })
     });
@@ -151,98 +177,80 @@ function execCommand(funcs, context, scope){
             if(cmds.indexOf(func.name) !== -1){
                 commandFuncs[func.name].apply(context, func.params);
             }else{
+                // console.log(func.name, 'is not in the', scope, 'scope, skipped.');
                 // log.debug(func.name.bold.yellow, 'is not in the', scope, 'scope, skipped.')
             }
         });
     }
 }
 
-function parseCommand(commands){
-    if(!Array.isArray(commands)){
-        commands = [commands]
-    }
+// function parseCommand(commands){
+//     if(!Array.isArray(commands)){
+//         commands = [commands]
+//     }
+//
+//     return commands.map(function(command){
+//         var array = command.split(/\s+/);
+//         return {
+//             name: array[0],
+//             params: array.slice(1)
+//         }
+//     });
+// }
 
-    return commands.map(function(command){
-        var array = command.split(/\s+/);
-        return {
-            name: array[0],
-            params: array.slice(1)
+
+function replaceFuncVar(funcs, source){
+    funcs.forEach(function(fun){
+        var params = fun.params;
+        var name = fun.name;
+
+        if(name === 'set'){
+            // 如果是 set 命令, 不替换第一个参数
+            fun.params = [params[0]].concat(replaceVar(fun.params.slice(1), source))
+        }else{
+            fun.params = replaceVar(fun.params, source)
         }
+
+        // console.log('替换function参数:', name, fun.params);
     });
+
+    return funcs
 }
 
 /**
- * 替换字符串/字符串数组中的变量
- * @param {String|Array} str
- * @param {Object} source
- * @returns {*}
+ * 定义toJSON，避免JSON.stringify()出现循环引用
+ * @returns {{}}
  */
-function replaceVar(str, source/*, source1, source2*/){
-    var strType = type(str);
-    var sourceArr = [].slice.call(arguments, 1);
-    var mapping = source;
-    var replace = function(str){
-        return str.replace(/\$[\w\d_]+/g, function(match){
-            var val = mapping[match];
-            return val ? val : match;
-        });
-    };
+function toJSON(){
+    var tmp = {};
 
-    if(type === 'null' || type === 'undefined'){
-        return str
-    }
-
-    if(sourceArr.length > 1){
-        mapping = {};
-        sourceArr.forEach(function(item){
-            if(item && typeof item === 'object'){
-                for(var key in item){
-                    if(!(key in mapping)){
-                        mapping[key] = item[key]
-                    }
-                }
-            }
-        });
-    }
-
-    if(strType === 'string'){
-        str = replace(str);
-    }else if(strType === 'array'){
-        str = str.map(function(string){
-            return replace(string)
-        })
-    }else if(strType === 'object'){
-        for(var key in str){
-            str[key] = replace(str[key])
+    for(var key in this){
+        if(key !== 'parent'){
+            tmp[key] = this[key]
+        }else{
+            tmp[key] = this[key].__id__
         }
     }
 
-    return str;
-}
-
-function replaceProps(props, source/*, source1, source2*/){
-    var sourceArr = [].slice.call(arguments, 1);
-
+    return tmp
 }
 
 //test
+// var log = require('../helpers/log');
 // var fs = require('fs');
+// var util = require('util');
 // var AST = require('./AST');
 // var sourceCode = fs.readFileSync(__dirname + '/example/rewrite');
 // var ASTTree = AST(sourceCode);
 // var formatedTree = module.exports(ASTTree);
 //
 // console.log(':::formated tree:::');
-// console.log(JSON.stringify(formatedTree, null, 4));
+// console.log(JSON.stringify(formatedTree, function(key, value){
+//     if(key === 'parent'){
+//         return '__parent__:' + value.__id__;
+//     }else{
+//         return value
+//     }
+// }, 4));
 
-// var str = "$flight/abc => { set_cookie UserId $id }";
-// var source1 = {
-//     '$flight': 'flight.qunar.com',
-//     '$id': 1
-// };
-// var source2 = {
-//     '$id': 2
-// };
-//
-// console.log(replaceVar(str, source1, source2));
-// console.log(replaceVar(str, source1));
+// console.log(util.inspect(formatedTree, {depth: 20}));

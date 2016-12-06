@@ -1,0 +1,1 @@
+module.exports="/usr/local/lib/node_modules";

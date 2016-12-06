@@ -40,7 +40,7 @@ module.exports = function parseRewrite(sourceCode){
         cmd: /^(\w+(?:\s[^\{]+)+)$/,
         // rule: /(.*?\s*=>\s*\{[\s\S]*?\})/,
         domainStart: /^([^\/]+) => \{$/,
-        locationStart: /^location\s((~\s*)?\/.*?)+\s\{$/,
+        locationStart: /^location\s((~\s*)?\/.*?)+\s*\{$/,
         end: /^}$/
     };
     // 注意: 正则表达式是有顺序的, baseRule必须在cmd之前;
@@ -48,11 +48,17 @@ module.exports = function parseRewrite(sourceCode){
     lines.forEach(function(line, index){
         line = line.trim().replace(/;\s*$/, '').replace(regSpace, ' ');
         // console.log((100 + index + '').slice(1), line);
+
+        if(line === ''){
+            return
+        }
+
         for(var type in regs){
             if(regs[type].test(line)){
                 switch(type){
                     case 'cmd':
-                        target.commands.push(line);
+                        var cmdObj = parseCommand(line);
+                        target.commands.push(cmdObj);
                         break;
 
                     case 'baseRule':
@@ -92,6 +98,14 @@ module.exports = function parseRewrite(sourceCode){
 
     return res
 };
+
+function parseCommand(command){
+    var array = command.split(/\s+/);
+    return {
+        name: array[0],
+        params: array.slice(1)
+    }
+}
 
 // test
 // var fs = require('fs');

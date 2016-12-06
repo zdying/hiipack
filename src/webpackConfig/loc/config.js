@@ -9,6 +9,7 @@ var path = require('path');
 
 var color = require('colors');
 var webpack = require('webpack');
+var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
 var getBabelLoader = require('../utils/getBabelLoader');
@@ -17,7 +18,15 @@ var fixAlias = require('../utils/fixAlias');
 
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
-    console.log(projTmp);
+    var projectName = utils.getProjectName(root);
+    var cssLoader = userConfig.css && userConfig.css.loader;
+    var lessLoader = userConfig.less && userConfig.less.loader;
+    var scssLoader = userConfig.scss && userConfig.scss.loader;
+
+    var defaultCssLoader = "style!css?sourceMap!postcss";
+    var defaultLessLoader = "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss";
+    var defaultScssLoader = "style!css?sourceMap!sass?sourceMap!postcss";
+
     var config = {
         env: 'loc',
         context: root,
@@ -26,14 +35,17 @@ module.exports = function(root, userConfig){
         output: {
             path: path.join(projTmp, 'loc'),
             filename: '[name].js',
-            publicPath: '/loc/'
+            publicPath: '/' + projectName + '/loc/'
         },
         module: {
+            preLoaders: program.hotReload ? [
+                { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode') }
+            ] : [],
             loaders: [
-                getBabelLoader(userConfig, 'loc'),
-                { test: /\.css$/, loader: "style!css?sourceMap" },
-                { test: /\.less$/, loader: "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat" },
-                { test: /\.scss$/, loader: "style!css?sourceMap!sass?sourceMap" }
+                getBabelLoader(userConfig, 'loc', root),
+                { test: /\.css$/, loader: cssLoader || defaultCssLoader },
+                { test: /\.less$/, loader: lessLoader ||  defaultLessLoader},
+                { test: /\.scss$/, loader: scssLoader || defaultScssLoader }
             ],
             postLoaders: [
                 {
@@ -41,6 +53,9 @@ module.exports = function(root, userConfig){
                     loaders: ['es3ify-loader']
                 }
             ]
+        },
+        postcss: function() {
+            return [autoprefixer];
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -56,13 +71,13 @@ module.exports = function(root, userConfig){
         ],
         resolve: {
             root: root,
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             extensions: ['', '.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
             modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.tmpdir, "node_modules")],
+            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         },
@@ -73,5 +88,34 @@ module.exports = function(root, userConfig){
 
     config = mergeConfig(config, userConfig, 'loc', root);
 
+    addHMRClient(config);
+
+    // console.log('merged config:', JSON.stringify(config, null, 4));
+
     return config;
 };
+
+function addHMRClient(config){
+    if(program.hotReload === false){
+        return config
+    }
+
+    var entry = config.entry;
+    var hotURL = require.resolve('webpack-hot-middleware/client') + '?path=http://127.0.0.1:' + program.port + '/__webpack_hmr';
+
+    for (var key in entry) {
+        var _entry = entry[key];
+        if (Array.isArray(_entry)) {
+            _entry.indexOf(hotURL) === -1 && _entry.unshift(hotURL)
+        } else {
+            entry[key] = [hotURL, _entry];
+        }
+    }
+
+    config.plugins.push(
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.HotModuleReplacementPlugin()
+    );
+
+    return config;
+}

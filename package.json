@@ -1,10 +1,13 @@
 {
   "name": "hiipack",
-  "version": "1.0.3-beta",
+  "version": "1.0.10",
   "description": "A front end development tool based on webpack",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "pretest": "node ./src/scripts/pretest",
+    "test": "mocha --timeout 600000",
+    "posttest": "node ./src/scripts/posttest",
+    "postinstall": "node ./src/scripts/postinstall"
   },
   "bin": {
     "hiipack": "./src/cli.js",
@@ -21,6 +24,7 @@
   "author": "zdying",
   "license": "ISC",
   "dependencies": {
+    "autoprefixer": "^6.5.0",
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-plugin-add-module-exports": "^0.2.1",
@@ -45,12 +49,12 @@
     "md5-file": "^3.1.1",
     "mocha": "^3.0.2",
     "node-sass": "^3.8.0",
-    "open": "^0.0.5",
-    "rsync": "^0.4.0",
+    "postcss-loader": "^0.13.0",
+    "rsync": "^0.5.0",
     "sass-loader": "^3.2.3",
+    "simple-mime": "^0.1.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1",
-    "webpack-hot-middleware": "^2.12.1"
+    "webpack-hot-middleware": "^2.13.0"
   }
 }
