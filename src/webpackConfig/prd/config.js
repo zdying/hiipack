@@ -92,7 +92,11 @@ module.exports = function(root, userConfig){
         },
         resolve: {
             // root: root,
-            modules: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+
+            modules: [
+                "node_modules",
+                path.resolve(__hiipack__.packageTmpdir, "node_modules")
+            ],
             extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },

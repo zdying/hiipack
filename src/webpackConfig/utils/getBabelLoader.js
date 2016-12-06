@@ -12,6 +12,7 @@ module.exports = function getBabelLoader(userConfig, env, root){
     var plugins = babelConfig.plugins;
     var exclude = babelConfig.exclude;
     var include = babelConfig.include;
+    //TODO webpack 2 support
     var supportIE8 = userConfig.supportIE8;
     var defaultPresets = [
         'babel-preset-react',
@@ -59,6 +60,7 @@ module.exports = function getBabelLoader(userConfig, env, root){
     return {
         test: /\.jsx?$/,
         exclude: exclude,
+        //TODO webpack 2 support
         // include: include,
         loader: 'babel-loader',
         query: {

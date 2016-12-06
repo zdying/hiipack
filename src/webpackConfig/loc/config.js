@@ -38,6 +38,7 @@ module.exports = function(root, userConfig){
             publicPath: '/' + projectName + '/loc/'
         },
         module: {
+            //TODO webpack 2 support
             preLoaders: program.hotReload ? [
                 { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode') }
             ] : [],
@@ -71,7 +72,11 @@ module.exports = function(root, userConfig){
         ],
         resolve: {
             // root: root,
-            modules: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            modules: [
+                "node_modules",
+                path.resolve(__hii__.packageTmpdir, "node_modules")
+            ],
+            // modules: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
             extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
