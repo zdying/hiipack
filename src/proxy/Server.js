@@ -72,7 +72,9 @@ Server.prototype = {
                     pac: pac,
                     server: server
                 });
-            })
+
+                this.find();
+            }.bind(this))
             .on('error', function(err){
                 reject(err)
             })
@@ -414,22 +416,21 @@ Server.prototype = {
             domainCache[domain] = hosts[domain];
         }
 
-        for(var url in rewrite){
+        for(var url in rewrite.domains){
             // 整个rewrite不仅仅只有url和正则表达式，还有commands/props属性
-            if(!url.match(/^(commands|props|__id__)$/)){
-                if(url.indexOf('~') === 0){
-                    regexpCache.push(rewrite[url])
-                }else{
-                    matchResult = url.match(urlReg);
-
-                    proxy = rewrite[url].props.proxy;
-
-                    if(matchResult && matchResult[3]){
-                        domainCache[matchResult[3]] = path.isAbsolute(proxy) ? "127.0.0.1" : ((proxy.match(urlReg) || [])[3] || 1);
-                    }else{
-                        log.warn('hiipack can not parse url:', url.bold.yellow);
-                    }
-                }
+            if(url.indexOf('~') === 0){
+                regexpCache.push(rewrite[url])
+            }else{
+                // matchResult = url.match(urlReg);
+                //
+                // proxy = rewrite[url].props.proxy;
+                //
+                // if(matchResult && matchResult[3]){
+                //     domainCache[matchResult[3]] = path.isAbsolute(proxy) ? "127.0.0.1" : ((proxy.match(urlReg) || [])[3] || 1);
+                // }else{
+                //     log.warn('hiipack can not parse url:', url.bold.yellow);
+                // }
+                domainCache[url] = 1;
             }
         }
 

@@ -33,6 +33,8 @@ module.exports = function parseRewrite(filePath){
     var ASTTree = AST(sourceCode);
     var tree = formatAST(ASTTree);
 
+    // console.log('tree:::', tree);
+
     return tree
 };
 
