@@ -48,28 +48,47 @@ module.exports = function formatAST(ASTTree){
 
     parseDomain(domains, res);
 
-    console.log(JSON.stringify(res, null, 4));
+    // console.log(JSON.stringify(res, null, 4));
 
     return res
 };
 
+/**
+ * 将baseRule解析成标准的domain／location对象
+ * @param baseRules
+ * @param res
+ */
 function parseBaseRule(baseRules, res){
     baseRules.forEach(function(rule){
         var arr = rule.split(/\s*=>\s*/);
         var source = arr[0];
         var target = arr[1];
-        var globalProps = res.props;
+        var url = require('url');
 
         // step 3: 替换基本规则中的变量
         source = replaceVar(source, res);
         target = replaceVar(target, res);
 
-        res[source] = {
-            source: source,
-            props: {
-                proxy: target
+        if(!/^[\w\d]+:\/\//.test(source)){
+            source = 'http://' + source;
+        }
+
+        var urlObj = url.parse(source);
+        var hostname = urlObj.hostname;
+
+        if(hostname){
+            res.domains[hostname] = {
+                domain: hostname,
+                location: [
+                    {
+                        path: urlObj.path || '/',
+                        props: {
+                            proxy: target
+                        }
+                    }
+                ]
             }
-        };
+        }
     });
 }
 
@@ -80,13 +99,12 @@ function parseDomain(domains, res){
         var location = domain.location;
         var funcs = domain.commands || []; //parseCommand(domain.commands || []);
 
-        res.domains[_domain] = domain;
-
         domain.__id__ = '_domain_' + _domain;
 
         domain.toJSON = toJSON;
 
         domain.parent = res;
+        domain.parentID = res.__id__;
 
         // step 5: 执行domain中的命令(比如: set $domain example.com)
         // 这里必须先执行命令, 然后在替换值
@@ -102,7 +120,6 @@ function parseDomain(domains, res){
         replaceVar(domain.props, domain);
 
         // funcs里面的变量属于domain, 用domain的变量和上一层变量替换
-
         funcs.forEach(function(fun){
             var params = fun.params;
             var name = fun.name;
@@ -117,14 +134,17 @@ function parseDomain(domains, res){
 
         // step 6: 如果没有location, 直接返回domain对象
         if(!Array.isArray(location) || location.length === 0){
-            res[_domain] = {
+            res.domains[_domain] = {
                 source: _domain,
                 commands: funcs,
                 props: domain.props,
                 parent: res,
+                location: [],
                 toJSON: toJSON
             };
             return
+        }else{
+            res.domains[_domain] = domain;
         }
 
         // res[_domain] = {
@@ -139,13 +159,13 @@ function parseDomain(domains, res){
 function parseLocation(domain, location, res){
     // step 7: 合并location
     location.forEach(function(loc){
-        var url = domain.domain + loc.location;
+        var location = loc.location;
+        var url = domain.domain + location;
         var proxy;
         var props;
         var funcs = loc.commands || []; //parseCommand(loc.commands || []);
 
-        loc.__id__ = '_location_' + loc.location;
-
+        loc.__id__ = '_location_' + location;
         loc.parent = domain;
         loc.toJSON = toJSON;
 
@@ -153,6 +173,7 @@ function parseLocation(domain, location, res){
         execCommand(funcs, loc, 'location');
 
         loc.props = replaceVar(loc.props, loc);
+        location = replaceVar(location, loc);
 
         // step 9: 替换location变量, 作用域为domain和上层(res)
         url = replaceVar(url, loc);
@@ -180,12 +201,14 @@ function parseLocation(domain, location, res){
         url = url.replace(/(.*?)~\/(.*)/, '~ /$1$2');
 
         domain.location.push({
-            path: loc.location,
+            path: location,
+            originPath: loc.location,
             source: url,
             commands: funcs,
             props: props,
             // location: loc,
             parent: domain,
+            parentID: domain.__id__,
             toJSON: toJSON
         });
     })
@@ -270,7 +293,7 @@ function toJSON(){
 // console.log(':::formated tree:::');
 // console.log(JSON.stringify(formatedTree, function(key, value){
 //     if(key === 'parent'){
-//         return '__parent__:' + value.__id__;
+//         return undefined;
 //     }else{
 //         return value
 //     }

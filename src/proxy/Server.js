@@ -42,9 +42,8 @@ Server.prototype = {
     init: function(){
         this.server = null;
         this.hostsRules = {};
-        this.rewriteRules = {};
+        this.rewriteRules = [];
         this.domainCache = {};
-        this.regexpCache = [];
     },
 
     start: function(port, option){
@@ -147,7 +146,7 @@ Server.prototype = {
         }
 
         if(type === 'all' || type === 'rewrite'){
-            this.rewriteRules = {};
+            this.rewriteRules = [];
             Server.cache.rewriteFiles.forEach(function(file){
                 this.mergeRewrite(file)
             }.bind(this));
@@ -187,7 +186,8 @@ Server.prototype = {
             Server.cache.rewriteFiles.push(filePath);
         }
 
-        this.rewriteRules = merge(this.rewriteRules, rewrite);
+        // this.rewriteRules = merge(this.rewriteRules, rewrite);
+        this.rewriteRules.push(rewrite);
 
         this.updateDomainCache();
 
@@ -258,7 +258,8 @@ Server.prototype = {
                 var rewrite = request.rewrite_rule;
 
                 if(stats.isDirectory()){
-                    filePath += rewrite.props.root || 'index.html'
+                    log.debug('isDirectory and add root:' + (rewrite.props.default || 'index.html'));
+                    filePath += rewrite.props.default || 'index.html'
                 }
 
                 // TODO 如果没有root，列出目录
@@ -384,8 +385,7 @@ Server.prototype = {
                 request,
                 this.hostsRules,
                 this.rewriteRules,
-                this.domainCache,
-                this.regexpCache
+                this.domainCache
             );
 
         request.proxy_options = proxyInfo.proxy_options;
@@ -403,12 +403,8 @@ Server.prototype = {
      */
     updateDomainCache: function(){
         var domainCache = this.domainCache = {};
-        var regexpCache = this.regexpCache = [];
         var hosts = this.hostsRules;
-        var rewrite = this.rewriteRules;
-        var urlReg = /((\w+):\/\/)?([^/]+)/;
-        var matchResult = null;
-        var proxy = '';
+        var rewrites = this.rewriteRules;
 
         //TODO 处理正则表达式, 尝试从正则表达式中提取网址
 
@@ -416,27 +412,14 @@ Server.prototype = {
             domainCache[domain] = hosts[domain];
         }
 
-        for(var url in rewrite.domains){
-            // 整个rewrite不仅仅只有url和正则表达式，还有commands/props属性
-            if(url.indexOf('~') === 0){
-                regexpCache.push(rewrite[url])
-            }else{
-                // matchResult = url.match(urlReg);
-                //
-                // proxy = rewrite[url].props.proxy;
-                //
-                // if(matchResult && matchResult[3]){
-                //     domainCache[matchResult[3]] = path.isAbsolute(proxy) ? "127.0.0.1" : ((proxy.match(urlReg) || [])[3] || 1);
-                // }else{
-                //     log.warn('hiipack can not parse url:', url.bold.yellow);
-                // }
-                domainCache[url] = 1;
+        rewrites.forEach(function(rewrite){
+            for(var url in rewrite.domains){
+                domainCache[url] = rewrite.domains;
             }
-        }
+        });
 
         this.createPacFile(domainCache);
         logger.debug('domain cache updated', JSON.stringify(domainCache));
-        logger.debug('regexp cache updated', JSON.stringify(regexpCache));
     },
 
     createPacFile: function(domainsCache){
@@ -472,14 +455,21 @@ Server.prototype = {
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.*');
 
-
+        var replaceFun = function(key, value){
+            if(key !== ''){
+                return 1
+            }else{
+                return value;
+            }
+        };
 
         var txt = [
             'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
             'var PROXY = "PROXY 127.0.0.1:4936";\n',
             'var DIRECT = "DIRECT";\n',
             'var EXCLUDE_REG = /' + regText + '/;\n',
-            'var DOMAINS = ' + JSON.stringify(domainsCache, null, 4) + ';\n\n',
+            'var DOMAINS = ' + JSON.stringify(domainsCache, replaceFun, 4) + ';\n\n',
+
             FindProxyForURL.toString().replace(/^\s{8}/mg, '')
         ];
 
