@@ -12,13 +12,13 @@ var getMimeType = require('simple-mime')('text/plain');
 
 var commands = require('./commands');
 var merge = require('../helpers/merge');
-var config = require('../client/config');
 
 var parseHosts = require('./parseHosts');
 var parseRewrite = require('./parseRewrite');
 var getProxyInfo = require('./getProxyInfo');
 var findHostsAndRewrite = require('./findHostsAndRewrite');
 var getCommands = require('./getCommands');
+var createPacFile = require('./createPacFile');
 
 var logger = log.namespace('proxy -> Server');
 
@@ -113,6 +113,27 @@ Server.prototype = {
         })
     },
 
+    /**
+     * 添加配置文件
+     * @param {String} filePath 文件路径
+     * @param {String} type 文件类型：hosts|rewrite
+     */
+    addFile: function(filePath, type){
+        var fun = {
+            'hosts': 'mergeHosts',
+            'rewrite': 'mergeRewrite'
+        };
+
+        logger.debug('add'.bold.green, type, 'file', filePath.bold.green);
+
+        this[fun[type]](filePath);
+
+        // 只要文本改动了，就先清空对应类型的规则，然后重新merge
+        this.watchFile(filePath, function(filePath){
+            this.mergeRules(type, filePath)
+        }.bind(this));
+    },
+
     watchFile: function(file, cbk){
         if(Server.cache.watchingList[file]){
             return
@@ -136,34 +157,40 @@ Server.prototype = {
      * 如果type为'rewrite', 清空rewrite规则，然后merge rewrite
      *
      * @param {String} type 需要merge的类型：all|hosts|rewrite
+     * @param {String} changedFile 发生更改的文件
      */
-    mergeRules: function(type){
+    mergeRules: function(type, changedFile){
         if(type === 'all' || type === 'hosts'){
             this.hostsRules = {};
             Server.cache.hostFiles.forEach(function(file){
-                this.mergeHosts(file)
+                this.mergeHosts(file, changedFile === file)
             }.bind(this));
         }
 
         if(type === 'all' || type === 'rewrite'){
             this.rewriteRules = [];
             Server.cache.rewriteFiles.forEach(function(file){
-                this.mergeRewrite(file)
+                this.mergeRewrite(file, changedFile === file)
             }.bind(this));
         }
     },
 
     /**
      * 合并hosts规则，这个只合并，不清空
-     * 如果传入的文件以前没有parse过，会先parse，并缓存
      * @param filePath
+     * @param reParse
      */
-    mergeHosts: function(filePath){
-        var hosts = Server.cache.hosts[filePath];
+    mergeHosts: function(filePath, reParse){
+        var cache = Server.cache;
+        var hosts = cache.hosts[filePath];
 
-        if(!hosts){
-            Server.cache.hosts[filePath] = hosts = parseHosts(filePath);
-            Server.cache.hostFiles.push(filePath);
+        if(reParse || !hosts){
+            log.debug('parse and merge hosts file:', filePath.bold.green);
+
+            cache.hosts[filePath] = hosts = parseHosts(filePath);
+            cache.hostFiles.push(filePath);
+        }else{
+            log.debug('use cache for hosts file:', filePath.bold.green);
         }
 
         this.hostsRules = merge(this.hostsRules, hosts);
@@ -175,44 +202,27 @@ Server.prototype = {
 
     /**
      * 合并rewrite规则，这个只合并，不清空
-     * 如果传入的文件以前没有parse过，会先parse，并缓存
      * @param filePath
+     * @param reParse
      */
-    mergeRewrite: function(filePath){
-        var rewrite = Server.cache[filePath];
+    mergeRewrite: function(filePath, rePrase){
+        var cache = Server.cache;
+        var rewrite = cache.rewrite[filePath];
 
-        if(!rewrite){
-            Server.cache.rewrite[filePath] = rewrite = parseRewrite(filePath);
-            Server.cache.rewriteFiles.push(filePath);
+        if(rePrase || !rewrite){
+            log.debug('parse and merge rewrite file:', filePath.bold.green);
+
+            cache.rewrite[filePath] = rewrite = parseRewrite(filePath);
+            cache.rewriteFiles.push(filePath);
+        }else{
+            log.debug('use cache for rewrite file:', filePath.bold.green);
         }
 
-        // this.rewriteRules = merge(this.rewriteRules, rewrite);
         this.rewriteRules.push(rewrite);
 
         this.updateDomainCache();
 
         logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
-    },
-
-    /**
-     * 添加配置文件
-     * @param {String} filePath 文件路径
-     * @param {String} type 文件类型：hosts|rewrite
-     */
-    addFile: function(filePath, type){
-        var fun = {
-            'hosts': 'mergeHosts',
-            'rewrite': 'mergeRewrite'
-        };
-
-        logger.debug('add'.bold.green, type, 'file', filePath.bold.green);
-
-        this[fun[type]](filePath);
-
-        // 只要文本改动了，就先清空对应类型的规则，然后重新merge
-        this.watchFile(filePath, function(){
-            this.mergeRules(type)
-        }.bind(this));
     },
 
     requestHandler: function(request, response){
@@ -406,8 +416,6 @@ Server.prototype = {
         var hosts = this.hostsRules;
         var rewrites = this.rewriteRules;
 
-        //TODO 处理正则表达式, 尝试从正则表达式中提取网址
-
         for(var domain in hosts){
             domainCache[domain] = hosts[domain];
         }
@@ -418,66 +426,10 @@ Server.prototype = {
             }
         });
 
-        this.createPacFile(domainCache);
-        logger.debug('domain cache updated', JSON.stringify(domainCache));
-    },
+        createPacFile(domainCache);
 
-    createPacFile: function(domainsCache){
-        function FindProxyForURL(url, host) {
-            host = host.toLowerCase();
-
-            // alert('host ::: ' + host);
-            // alert('host in DOMAINS ::: ' + host in DOMAINS);
-
-            if(host in DOMAINS){
-                // alert('return PROXY: ' + PROXY);
-                return PROXY;
-            }
-
-            if(!host.match(EXCLUDE_REG) && SYS_PROXY){
-                // alert('return SYS_PROXY: ' + SYS_PROXY);
-                return SYS_PROXY
-            }else{
-                // alert('return DIRECT :::' + DIRECT);
-                return DIRECT;
-            }
-        }
-
-        var sysProxy = config.get('system_proxy');
-        var proxyExclude = config.get('proxy_exclude');
-
-        if(!proxyExclude){
-            proxyExclude = 'localhost,::1,127.0.0.1';
-        }
-
-        var regText = proxyExclude
-            .replace(/\s*,\s*/g, '|')
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.*');
-
-        var replaceFun = function(key, value){
-            if(key !== ''){
-                return 1
-            }else{
-                return value;
-            }
-        };
-
-        var txt = [
-            'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
-            'var PROXY = "PROXY 127.0.0.1:4936";\n',
-            'var DIRECT = "DIRECT";\n',
-            'var EXCLUDE_REG = /' + regText + '/;\n',
-            'var DOMAINS = ' + JSON.stringify(domainsCache, replaceFun, 4) + ';\n\n',
-
-            FindProxyForURL.toString().replace(/^\s{8}/mg, '')
-        ];
-
-        var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
-
-        fs.writeFile(pacFilePath, txt.join(''), function(err){
-            err && logger.error(err);
-        });
+        logger.debug('domain cache updated', Object.keys(domainCache));
+        logger.detail('domain cache updated', JSON.stringify(domainCache));
     }
 };
 
