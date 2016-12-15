@@ -144,24 +144,37 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
  * @returns {*}
  */
 function getRewriteRule(urlObj, rewriteRules, domainCache, regexpCache){
-    var host = urlObj.hostname;
-    var path = urlObj.path;
+    var host = urlObj.host;
+    var hostname = urlObj.hostname;
     var href = urlObj.href;
-    var pathWithNoQuery = path.replace(/[\?\#](.*)$/, '');
-    var pathArr = pathWithNoQuery.split('/');
-    var len = pathArr.length;
     var rewriteRule = null;
-    var tryPath = '';
 
-    if(((urlObj.host || urlObj.hostname) in domainCache)){
-        while(len--){
-            tryPath = host + pathArr.slice(0, len + 1).join('/');
+    var domains = rewriteRules.domains;
+    var rule = null;
 
-            log.debug('getProxyInfo - try path', tryPath.bold.green);
+    if(((host || hostname) in domainCache)){
+        // while(len--){
+        //     tryPath = host + pathArr.slice(0, len + 1).join('/');
+        //
+        //     log.debug('getProxyInfo - try path', tryPath.bold.green);
+        //
+        //     if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
+        //         rewriteRule = rewriteRules[tryPath];
+        //         break;
+        //     }
+        // }
 
-            if((tryPath in rewriteRules) || ((tryPath += '/') in rewriteRules)){
-                rewriteRule = rewriteRules[tryPath];
-                break;
+        rule = domains[host] || domains[hostname];
+
+        var location = rule.location;
+        var urlPath = urlObj.path;
+        var loc = null;
+
+        for(var i = 0, len = location.length; i < len; i++){
+            loc = location[i];
+
+            if(urlPath.indexOf(loc.path) === 0){
+                rewriteRule = loc;
             }
         }
     }else{

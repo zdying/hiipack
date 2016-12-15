@@ -26,12 +26,14 @@ var FUNC_CMD = [
 var cmdFuncs = require('./commands');
 
 var AST = require('./AST');
-var formatAST = require('./formatAST');
+var formatAST = require('./ASTFormater');
 
 module.exports = function parseRewrite(filePath){
     var sourceCode = fs.readFileSync(filePath);
     var ASTTree = AST(sourceCode);
     var tree = formatAST(ASTTree);
+
+    // console.log('tree:::', tree);
 
     return tree
 };
