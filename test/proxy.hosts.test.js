@@ -8,7 +8,7 @@
 var assert = require('assert');
 var path = require('path');
 
-var parseHosts = require('../src/proxy/parseHosts');
+var parseHosts = require('../src/proxy/tools/parseHosts');
 
 describe('proxy hosts',function(){
     it('正确解析hosts文件', function(){

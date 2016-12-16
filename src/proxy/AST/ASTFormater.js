@@ -3,11 +3,11 @@
  * @author zdying
  */
 
-var commandFuncs = require('./commands');
-var merge = require('../helpers/merge');
-var type = require('../helpers/type');
+var commandFuncs = require('./../commands/index');
+var merge = require('../../helpers/merge');
+var type = require('../../helpers/type');
 
-var replaceVar = require('./replaceVar');
+var replaceVar = require('./../tools/replaceVar');
 
 var scopeCmds = {
     domain : ['set'],

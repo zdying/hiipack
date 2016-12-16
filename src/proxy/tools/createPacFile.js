@@ -7,7 +7,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var config = require('../client/config');
+var config = require('../../client/config');
 
 module.exports = function createPacFile(domainsCache){
     // 这个方法是生成到proxy.pac中的，hiipack不会调用

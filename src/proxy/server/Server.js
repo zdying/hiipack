@@ -8,17 +8,17 @@ var url = require('url');
 var net = require('net');
 var fs = require('fs');
 
-var getMimeType = require('simple-mime')('text/plain');
+var aliasWorker = require('./workers/alias');
+var requestWorker = require('./workers/request');
 
-var commands = require('./commands');
-var merge = require('../helpers/merge');
+var merge = require('../../helpers/merge');
 
-var parseHosts = require('./parseHosts');
-var parseRewrite = require('./parseRewrite');
+var parseHosts = require('../tools/parseHosts');
+var parseRewrite = require('../tools/parseRewrite');
+var findHostsAndRewrite = require('../tools/findHostsAndRewrite');
+var createPacFile = require('../tools/createPacFile');
+
 var getProxyInfo = require('./getProxyInfo');
-var findHostsAndRewrite = require('./findHostsAndRewrite');
-var getCommands = require('./getCommands');
-var createPacFile = require('./createPacFile');
 
 var logger = log.namespace('proxy -> Server');
 
@@ -227,9 +227,7 @@ Server.prototype = {
 
     requestHandler: function(request, response){
         var _url = request.url;
-        var uri = url.parse(_url);
         var start = Date.now();
-        var self = this;
         var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
 
         if(_url === '/'){
@@ -254,128 +252,29 @@ Server.prototype = {
 
         // 重定向到本地文件系统
         if(request.alias){
-            log.info(request.url + ' ==> ' + request.newUrl);
-
-            response.headers = response.headers || {};
-
-            self.execResponseCommand(rewrite_rule, {
-                response: response
-            });
-
-            try{
-                var stats = fs.statSync(request.newUrl);
-                var filePath = request.newUrl;
-                var rewrite = request.rewrite_rule;
-
-                if(stats.isDirectory()){
-                    log.debug('isDirectory and add root:' + (rewrite.props.default || 'index.html'));
-                    filePath += rewrite.props.default || 'index.html'
-                }
-
-                // TODO 如果没有root，列出目录
-                response.setHeader('Content-Type', getMimeType(filePath));
-
-                //TODO 这里不应该自己调用setHeader，应该继续增强commands中的命令
-                for(var key in response.headers){
-                    response.setHeader(key, response.headers[key])
-                }
-
-                return fs.createReadStream(filePath).pipe(response);
-            }catch(e){
-                response.setHeader('Content-Type', 'text/html');
-                if(e.code === 'ENOENT'){
-                    response.statusCode = 404;
-                    response.end('404 Not Found: <br><pre>' + e.stack + '</pre>');
-                }else{
-                    response.statusCode = 500;
-                    response.end('500 Server Internal Error: <br><pre>' + e.stack + '</pre>');
-                }
-            }
-
-            return
+            return aliasWorker.response(rewrite_rule, request, response);
         }
 
-        var proxy = http.request(request.proxy_options, function(res){
-            self.execResponseCommand(rewrite_rule, {
-                response: res
-            });
-
-            // response.pipe(res);
-            response.writeHead(res.statusCode, res.headers);
-            res.on('data', function(chunk){
-                response.write(chunk);
-            });
-            res.on('end', function(){
-                var proxyOption = request.proxy_options;
-                request.res = res;
-                response.end();
-                if(request.PROXY){
-                    logger.access(request, uri.protocol + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
-                }else{
-                    logger.access(request);
-                    // logger.info('direc -', request.url.bold, Date.now() - start, 'ms');
-                }
-            });
-        });
-
-        proxy.on('error', function(e){
-            if(e.code === 'ENOTFOUND'){
-                response.statusCode = 404;
-                response.end();
-            }else{
-                logger.error('proxy error:', request.url);
-                logger.detail(e.stack);
-                response.end(e.stack);
-            }
-            request.res = response;
-            log.access(request)
-        });
-
-        request.pipe(proxy);
-    },
-
-    execResponseCommand: function(rewrite_rule, context){
-        // call response commands
-        var resCommands = rewrite_rule ? getCommands(rewrite_rule, 'response') : null;
-
-        if(Array.isArray(resCommands)){
-            log.detail('commands that will be executed [response]:', JSON.stringify(resCommands).bold);
-
-            resCommands.forEach(function(command){
-                // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
-                var name = command.name;
-                var params = command.params || [];
-                var isFunction = typeof commands[name] === 'function';
-
-                if(isFunction){
-                    log.debug('exec rewrite response command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
-                    commands[name].apply(context, params);
-                }else{
-                    log.debug(name.bold.yellow, 'is not in the scope', 'response'.bold.green, 'or not exists.')
-                }
-            })
-        }
+        return requestWorker.response(rewrite_rule, request, response);
     },
 
     connectHandler: function(request, socket, head){
         var _url = url.parse('http://' + request.url);
-        var _cache = this.domainCache[_url.hostname] || this.domainCache[_url.host];
+        var _cache = this.domainCache[_url.hostname];
+        var proxy = _cache[_url.hostname].location[0].props.proxy;
 
-        if(_cache && typeof _cache === 'string'){
-            _url.host = _cache;
-            _url.hostname = _cache.split(':')[0];
-            _url.port = _cache.split(':')[1] || 443;
-
-            if(_url.port != 443){
-                _url.port = 443;
+        if(proxy){
+            var obj = url.parse(proxy);
+            if(obj.port != 443){
+                obj.port = 443;
             }
 
-            logger.info('https proxy -', request.url.bold.green, '==>', _url.hostname.bold.green);
+            logger.info('https proxy -', request.url.bold.green, '==>', obj.hostname.bold.green);
         }else{
             logger.info('https direc -', request.url.bold);
         }
 
-        var proxySocket = net.connect(_url.port, _url.hostname, function(){
+        var proxySocket = net.connect(obj.port, obj.hostname, function(){
             socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
             proxySocket.write(head);
             proxySocket.pipe(socket);

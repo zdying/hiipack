@@ -5,7 +5,7 @@
 
 'use strict';
 
-var types = require('./commands/type');
+var types = require('./type');
 
 /**
  * 获取source对象对应的指令以及祖先元素的指令，并根据type过滤
@@ -14,6 +14,9 @@ var types = require('./commands/type');
  * @returns {Array}
  */
 module.exports = function getCommonds(source, type){
+    if(type === 'request'){
+        debugger
+    }
     var tmp = [];
     var curr = source;
     var currCMDs = [];

@@ -3,15 +3,13 @@
  * @author zdying
  */
 var fs = require('fs');
-var AST = require('./AST');
-var formatAST = require('./ASTFormater');
+var AST = require('./../AST/AST');
+var formatAST = require('./../AST/ASTFormater');
 
 module.exports = function parseRewrite(filePath){
     var sourceCode = fs.readFileSync(filePath);
     var ASTTree = AST(sourceCode);
     var tree = formatAST(ASTTree);
-
-    // console.log('tree:::', tree);
 
     return tree
 };

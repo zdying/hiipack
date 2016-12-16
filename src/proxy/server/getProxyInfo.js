@@ -3,14 +3,14 @@
  * @author zdying
  */
 
-var parseHosts = require('./parseHosts');
-var parseRewrite = require('./parseRewrite');
+var parseHosts = require('../tools/parseHosts');
+var parseRewrite = require('../tools/parseRewrite');
 
 var url = require('url');
 var fs = require('fs');
 
-var commands = require('./commands');
-var getCommands = require('./getCommands');
+var commands = require('../commands/index');
+var execCommand = require('./execCommand');
 
 /**
  * 获取代理信息, 用于请求代理的地址
@@ -34,17 +34,17 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
 
-        //TODO 这里应该有个bug, props是共享的, 一个修改了,其他的也修改了
-        var context = {
-            request: request,
-            props: rewrite.props
-        };
-
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
         if(!alias && proxy.match(protocolReg)){
             request.url = request.url.replace(protocolReg, '')
         }
+
+        //TODO 替换其他props中的分组变量`$1`...`$N`, 比如下面的配置
+        // location ~ /\/(test|hot)\/(.*)/ {
+        //     proxy_set_header Proxy_Server_Source hiipack_regexp_$1;
+        //     proxy_pass http://$local/$1/$2?query=$query;
+        // }
 
         // 将原本url中的部分替换为代理地址
         if(rewrite.source.indexOf('~') === 0){
@@ -69,27 +69,12 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             newUrl = request.url.replace(rewrite.source, proxy);
         }
 
-        var reqCommands = getCommands(rewrite, 'request');
-
-        if(Array.isArray(reqCommands)){
-            log.detail('commands that will be executed [request]:', JSON.stringify(reqCommands).bold);
-
-            reqCommands.forEach(function(obj){
-                var name = obj.name;
-                var params = obj.params;
-                var func = commands[obj.name];
-
-                if(typeof func === 'function'){
-                    log.debug('exec rewrite request command', name.bold.green, 'with params', ('[' + params.join(',') + ']').bold.green);
-                    func.apply(context, params)
-                }else{
-                    log.debug(name.bold.yellow, 'is not in the scope', 'request'.bold.green, 'or not exists.')
-                }
-            })
-        }else{
-            log.debug('no commands will be executed');
-        }
-
+        //TODO 这里应该有个bug, props是共享的, 一个修改了,其他的也修改了
+        var context = {
+            request: request,
+            props: rewrite.props
+        };
+        execCommand(rewrite, context, 'request');
 
         log.debug('newURL ==>', newUrl);
         log.debug('newURL ==>', alias);
