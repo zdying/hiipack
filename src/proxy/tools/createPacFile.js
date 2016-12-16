@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 创建自动代理配置文件
  * @author zdying
  */
 
