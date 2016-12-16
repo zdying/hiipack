@@ -259,22 +259,27 @@ Server.prototype = {
     },
 
     connectHandler: function(request, socket, head){
-        var _url = url.parse('http://' + request.url);
-        var _cache = this.domainCache[_url.hostname];
-        var proxy = _cache[_url.hostname].location[0].props.proxy;
+        var urlObj = url.parse('https://' + request.url);
+        var domains = this.domainCache[urlObj.hostname];
 
-        if(proxy){
-            var obj = url.parse(proxy);
-            if(obj.port != 443){
-                obj.port = 443;
-            }
+        if(domains && typeof domains === 'object'){
+            // rewrite 规则
+            var proxy = domains[urlObj.hostname];
+            proxy = proxy.location[0].props.proxy;
 
-            logger.info('https proxy -', request.url.bold.green, '==>', obj.hostname.bold.green);
+            urlObj = url.parse(proxy);
+            urlObj.port = 443;
+
+            logger.info('https proxy -', request.url.bold.green, '==>', urlObj.hostname.bold.green);
+        }else if(typeof domains === 'string'){
+            // hosts规则
+            urlObj = url.parse('https://' + domains);
+            urlObj.port = 443;
         }else{
             logger.info('https direc -', request.url.bold);
         }
 
-        var proxySocket = net.connect(obj.port, obj.hostname, function(){
+        var proxySocket = net.connect(urlObj.port, urlObj.hostname, function(){
             socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
             proxySocket.write(head);
             proxySocket.pipe(socket);

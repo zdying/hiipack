@@ -92,7 +92,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         }
     }else if(host){
         hostname = host.split(':')[0];
-        port = Number(host.split(':')[1]);
+        port = Number(uri.port || host.split(':')[1]);
         path = uri.path;
         proxyName = 'HIIPACK';
     }else{
@@ -129,11 +129,11 @@ function getRewriteRule(urlObj, rewriteRules, domainCache){
     var href = urlObj.href;
     var rewriteRule = null;
 
-    var domains = null;
+    var domains = domainCache[hostname];
     var rule = null;
 
-    if(hostname in domainCache){
-        domains = domainCache[hostname];
+    if(domains && typeof domains === 'object'){
+
         rule = domains[hostname];
 
         var location = rule.location;
@@ -196,8 +196,6 @@ function getRewriteRule(urlObj, rewriteRules, domainCache){
                 }
             }
         }
-    }else{
-
     }
 
     log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule));
