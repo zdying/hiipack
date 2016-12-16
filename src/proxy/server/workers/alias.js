@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 代理请求转发到本地文件系统
  * @author zdying
  */
 
@@ -16,6 +16,7 @@ module.exports = {
 
         response.headers = response.headers || {};
 
+        // 执行response作用域的command
         execResponseCommand(rewrite_rule, {
             response: response
         }, 'response');

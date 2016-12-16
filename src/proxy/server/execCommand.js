@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 执行rewrite rule中相应作用域中的commands
  * @author zdying
  */
 

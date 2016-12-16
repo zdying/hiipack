@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 代理请求转发到其他服务器
  * @author zdying
  */
 
@@ -49,6 +49,7 @@ module.exports = {
             }else{
                 logger.error('proxy error:', request.url);
                 logger.detail(e.stack);
+                response.statusCode = 500;
                 response.end(e.stack);
             }
             request.res = response;

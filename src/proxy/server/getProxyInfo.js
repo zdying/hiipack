@@ -72,7 +72,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         //TODO 这里应该有个bug, props是共享的, 一个修改了,其他的也修改了
         var context = {
             request: request,
-            props: rewrite.props
+            // props: rewrite.props
         };
         execCommand(rewrite, context, 'request');
 
