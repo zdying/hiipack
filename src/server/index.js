@@ -84,9 +84,9 @@ module.exports = {
         // });
 
         var hf = new Array(60).join('~');
-        console.log(hf);
+        console.log();
         console.log(lines.join('\n'));
-        console.log(hf);
+        console.log();
     },
 
     openBrowser: function(browser, url){
