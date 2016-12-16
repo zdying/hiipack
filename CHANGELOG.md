@@ -1,7 +1,8 @@
 # 1.0.10
 
-* bugfix
 * 代码优化
+* 修改 proxy hosts bug
+* 其他bugfix
 
 # 1.0.9
 
