@@ -134,7 +134,7 @@ function getRewriteRule(urlObj, rewriteRules, domainCache){
 
     if(domains && typeof domains === 'object'){
 
-        rule = domains[hostname];
+        rule = domains;
 
         var location = rule.location;
         var urlPath = urlObj.path;

@@ -264,7 +264,7 @@ Server.prototype = {
 
         if(domains && typeof domains === 'object'){
             // rewrite 规则
-            var proxy = domains[urlObj.hostname];
+            var proxy = domains;
             proxy = proxy.location[0].props.proxy;
 
             urlObj = url.parse(proxy);
@@ -326,7 +326,10 @@ Server.prototype = {
 
         rewrites.forEach(function(rewrite){
             for(var url in rewrite.domains){
-                domainCache[url] = rewrite.domains;
+                var domain = rewrite.domains[url];
+                if(domain && typeof domain === 'object'){
+                    domainCache[url] = rewrite.domains[url];
+                }
             }
         });
 
