@@ -44,6 +44,7 @@ module.exports = {
         var projectName = workPath.split('/').pop();
         var compiler = new Compiler(projectName, workPath, env);
         var dir = {
+            'loc': [],
             'dev': ['dev'],
             'prd': ['prd', 'ver']
         };
@@ -61,13 +62,14 @@ module.exports = {
         }
     },
 
-    __build: function(callback){
+    __build: function(project, callback){
         var env = __hii__.env;
         var workPath = process.cwd();
-        var projectName = workPath.split('/').pop();
+        var projectName = project || workPath.split('/').pop();
 
         // var compiler = new Compiler(projectName, workPath, env);
         var dir = {
+            'loc': [],
             'dev': ['dev'],
             'prd': ['prd', 'ver']
         };
@@ -81,8 +83,8 @@ module.exports = {
             });
 
             var master = require('../compiler/master');
-            master.compileDLL(projectName, workPath, 'prd', { watch: false }, function(){
-                master.compile(projectName, workPath, 'prd', { watch: false });
+            master.compileDLL(projectName, '', env, { watch: false }, function(){
+                master.compile(projectName, '', env, { watch: false });
             });
         }catch(e){
             logger.error(e);
@@ -105,6 +107,11 @@ module.exports = {
     pack: function(callback){
         __hii__.env = 'dev';
         this._build(callback)
+    },
+
+    local: function(project, callback){
+        __hii__.env = 'loc';
+        this.__build(project, callback)
     },
 
     /**

@@ -6,6 +6,7 @@
 var cmds = {
     /********** CLIENT **********/
     'init'   : './client/init',
+    'local'   : './client/local',
     'pack'   : './client/pack',
     'min'    : './client/min',
     'clear'  : './client/clear',

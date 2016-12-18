@@ -74,6 +74,13 @@ program
     });
 
 program
+    .command('local <project>')
+    .description('pack local project files')
+    .action(function(project){
+        exec('local', project);
+    });
+
+program
     .command('sync')
     .description('synchronize the current directory to remote server')
     .action(function(){

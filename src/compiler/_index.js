@@ -331,8 +331,8 @@ Compiler.prototype = {
 module.exports = Compiler;
 
 function publish(data) {
-    for (var id in clients) {
-        clients[id].write("data: " + JSON.stringify(data) + "\n\n");
+    for (var id in global.clients) {
+        global.clients[id].write("data: " + JSON.stringify(data) + "\n\n");
     }
 }
 

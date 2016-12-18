@@ -10,6 +10,31 @@ var Compiler = require('./index');
 module.exports = {
     compile: function(project, root, env, option){
         var root = root || path.resolve('./' + project);
+
+        var worker = child_process.fork(__dirname + '/worker', process.argv, {
+            cwd: root
+        });
+        var _start = Date.now();
+
+        worker.send({
+            project: project,
+            root: root,
+            option: option,
+            env: env,
+            date: Date.now()
+        });
+
+
+        worker.on('message', function(m){
+            console.log('master receive message:', JSON.stringify(m));
+            var now = Date.now();
+            console.log('all finished:', now - _start, 'ms');
+            process.exit(0);
+        });
+    },
+
+    compileEveryEntry: function(project, root, env, option){
+        var root = root || path.resolve('./' + project);
         var config = require(root + '/' + 'hii.config');
 
         var entry = config.entry;
@@ -48,6 +73,8 @@ module.exports = {
     },
 
     compileDLL: function(project, root, env, option, cbk){
+        console.log(project, root, env);
+
         var root = root || path.resolve('./' + project);
         var config = require(root + '/' + 'hii.config');
         var _start = Date.now();

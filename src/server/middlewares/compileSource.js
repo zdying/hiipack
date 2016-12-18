@@ -10,6 +10,7 @@ var path = require('path');
 
 var logger = log.namespace('Server');
 var Compiler = require('../../compiler');
+// var Compiler = require('../../compiler/master');
 
 var imagePath = path.resolve(__dirname, '..', 'source', 'image');
 var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));

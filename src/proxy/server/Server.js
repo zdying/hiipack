@@ -22,8 +22,6 @@ var getProxyInfo = require('./getProxyInfo');
 
 var logger = log.namespace('proxy -> Server');
 
-//TODO 多个工程的规则合并时, commands等有问题,但是不影响功能,待修复
-
 //TODO 支持rewrite到hosts中的host时
 
 function Server(){}
