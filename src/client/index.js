@@ -83,9 +83,16 @@ module.exports = {
             });
 
             var master = require('../compiler/master');
-            master.compileDLL(projectName, '', env, { watch: false }, function(){
-                master.compile(projectName, '', env, { watch: false });
-            });
+            // master.compileDLL(projectName, workPath + '/' + projectName, env, { watch: false }, function(){
+            //     master.compile(projectName, '', env, { watch: false });
+            // });
+
+            var cbk = function(){}
+
+            cbk.cbkId = Math.random();
+
+            master.compile(projectName, workPath + '/' + projectName, env, { watch: true }, cbk);
+
         }catch(e){
             logger.error(e);
         }

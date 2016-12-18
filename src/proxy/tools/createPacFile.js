@@ -67,6 +67,6 @@ module.exports = function createPacFile(domainsCache){
     var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
 
     fs.writeFile(pacFilePath, txt.join(''), function(err){
-        err && logger.error(err);
+        err && log.error(err);
     });
 };

@@ -5,31 +5,63 @@
 var path = require('path');
 var child_process = require('child_process');
 
-var Compiler = require('./index');
+var Compiler = require('./_index');
+
+var cache = {};
+var cbk_cache = {};
 
 module.exports = {
-    compile: function(project, root, env, option){
+    compile: function(project, root, env, option, cbk){
         var root = root || path.resolve('./' + project);
-
-        var worker = child_process.fork(__dirname + '/worker', process.argv, {
-            cwd: root
-        });
-        var _start = Date.now();
-
-        worker.send({
+        var message = {
             project: project,
             root: root,
             option: option,
             env: env,
-            date: Date.now()
+            date: Date.now(),
+            watch: env === 'loc',
+            cbk: cbk.cbkId
+        };
+
+        cbk_cache[cbk.cbkId] = cbk;
+
+        if(cache[root]){
+            console.log('worker已经存在: cbk.id', cbk.cbkId, cache[root].pid);
+            cache[root].cbk = cbk;
+            cache[root].send(message);
+            return;
+        }else{
+            console.log('新建worker cbk.id', cbk.cbkId);
+        }
+
+        var worker = child_process.fork(__dirname + '/worker', process.argv, {
+            cwd: root
         });
+
+        cache[root] = worker;
+
+        worker.cbk = cbk;
+
+        var _start = Date.now();
+
+        console.log('master send message ..........................', worker.pid);
+
+        worker.send(message);
 
 
         worker.on('message', function(m){
-            console.log('master receive message:', JSON.stringify(m));
-            var now = Date.now();
-            console.log('all finished:', now - _start, 'ms');
-            process.exit(0);
+            if(m.action === 'compiler-finish'){
+                console.log('master receive message:', JSON.stringify(m));
+                var now = Date.now();
+                console.log('all finished:', now - _start, 'ms');
+                if(cbk_cache[m.cbkId]){
+                    cbk_cache[m.cbkId]();
+                    delete cbk_cache[m.cbkId];
+                }
+                // process.exit(0);
+            }else if(m.action === 'hmr'){
+                publish(m.data);
+            }
         });
     },
 
@@ -73,11 +105,13 @@ module.exports = {
     },
 
     compileDLL: function(project, root, env, option, cbk){
-        console.log('====>=====>',project, root, env);
 
         var root = root || path.resolve('./' + project);
         var config = require(root + '/' + 'hii.config');
         var _start = Date.now();
+
+        console.log('====>=====>===========>',project, root, env);
+
 
         console.log('library========>', config.library);
         var worker = child_process.fork(__dirname + '/worker');
@@ -93,6 +127,7 @@ module.exports = {
             console.log('master receive message:', JSON.stringify(m));
             console.log('dll compile finished:', Date.now() - _start, 'ms');
             process.kill(worker.pid);
+            console.log('执行cbk...', cbk.cbkId);
             cbk && cbk();
         });
     },
@@ -153,3 +188,9 @@ module.exports = {
         });
     }
 };
+
+function publish(data) {
+    for (var id in global.clients) {
+        global.clients[id].write("data: " + JSON.stringify(data) + "\n\n");
+    }
+}

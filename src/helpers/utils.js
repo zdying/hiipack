@@ -17,6 +17,10 @@ module.exports = {
     },
 
     getProjectName: function(root){
+        if(__hii__.cwd === root){
+            return root.split(/[\\\/]/).pop()
+        }
+
         var projectName = root
             .replace(__hii__.cwd, '')
             .replace(/^[\/\\]|[\/\\]$]/g, '');

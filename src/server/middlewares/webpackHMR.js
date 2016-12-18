@@ -26,6 +26,8 @@ module.exports = function(req, res, next){
 
     clients[id] = res;
 
+    console.log('add client id:', id);
+
     req.on("close", function(){
         delete clients[id];
     });

@@ -17,7 +17,7 @@ var type = require('../helpers/type');
 
 var configWatchers = {};
 
-function Compiler(projectName, root, env){
+function Compiler(projectName, root, env, hmrCallback){
     this.isCompiling = false;
     this.projectName = projectName;
     this.root = root || path.resolve('./' + projectName);
@@ -25,6 +25,9 @@ function Compiler(projectName, root, env){
     this.watching = null;
     this.env = env;
     this.configFileChanged = false;
+    this.first = true;
+
+    this.hmrCallback = hmrCallback;
 
     if(env === 'loc'){
         this.watchConfigFile(this.onConfigFileChange.bind(this));
@@ -43,6 +46,7 @@ Compiler.prototype = {
             callback && callback(err, state);
         };
 
+        console.log('调用_compile()...', this.watching);
         if(this.watching && this.watching.close){
             this.watching.close(function(){
                 logger.debug('watching closed.');
@@ -71,7 +75,7 @@ Compiler.prototype = {
         }
     },
 
-    compile: function(option, callback){
+    compile: function(option, callback, hmrCbk){
         log.debug('compiler.compile() - ', this.env);
 
         if(arguments.length === 1){
@@ -81,6 +85,8 @@ Compiler.prototype = {
             };
         }
         var isWatch = option.watch;
+
+        console.log('compile (()()()()()()()()()) isWath'.yellow, isWatch);
 
         if(this.webpackCompiler === null || this.configFileChanged){
 
@@ -161,7 +167,7 @@ Compiler.prototype = {
                     logger.info('compiling [', (Object.keys(config.entry).join('.js, ') + '.js').bold.magenta, '] ...');
 
                     if(self.env === 'loc'){
-                        publish({
+                        self.hmrCallback({
                             action: "building"
                         });
                     }
@@ -184,6 +190,11 @@ Compiler.prototype = {
                         }));
                     }
 
+                    if(self.first){
+                        self.first = false;
+                        return;
+                    }
+
                     if(self.env === 'loc'){
                         var stats = statsResult.toJson();
                         var arr = [stats];
@@ -193,7 +204,8 @@ Compiler.prototype = {
                         }
 
                         arr.forEach(function (stats) {
-                            publish({
+                            console.log('stats.hash =====>'.red, stats.hash);
+                            self.hmrCallback({
                                 name: stats.name,
                                 action: "built",
                                 time: stats.time,

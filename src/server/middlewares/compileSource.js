@@ -33,9 +33,9 @@ module.exports = function(req, res, next){
         var configPath = path.join(__hii__.cwd, projectName, 'hii.config.js');
 
         // 第一次请求这个项目，新建一个compiler
-        if(!compiler){
-            compiler = this.compilers[projectName] = new Compiler(projectName, '', 'loc');
-        }
+        // if(!compiler){
+        //     compiler = this.compilers[projectName] = new Compiler(projectName, '', 'loc');
+        // }
 
         if(fileExt === 'scss'){
             // 编译sass文件
@@ -53,19 +53,21 @@ module.exports = function(req, res, next){
         }else if(fileExt === 'js'){
             if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
                 // method: 1
-                return compiler.compile(function(){
-                    this.sendCompiledFile(req, projInfo)
-                }.bind(this))
+                // return compiler.compile(function(){
+                //     this.sendCompiledFile(req, projInfo)
+                // }.bind(this))
 
                 // method: 2
                 // console.log('===============>', projectName, __hii__.cwd);
-                // Master.compileDLL(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: false }, function(){
-                //     console.log(projectName, 'dll finish'.red);
-                //     Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
-                //         console.log('compleDll > compoel finish.'.bold.red);
-                //         this.sendCompiledFile(req, projInfo)
-                //     }.bind(this));
-                // });
+                var cbk = function(){
+                    console.log('compleDll > compoel finish.'.bold.red, cbk.cbkId, projInfo);
+                    this.sendCompiledFile(req, projInfo)
+                }.bind(this);
+
+                cbk.cbkId = Math.random();
+                console.log('新尝试的callid', cbk.cbkId);
+
+                Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, cbk);
             }else if(env === 'dev'){
                 filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 
@@ -82,7 +84,7 @@ module.exports = function(req, res, next){
             if(env === 'src' && fs.existsSync(filePath)){
                 this.sendFile(req, filePath);
             }else{
-                return compiler.compile(function(){
+                return Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
                     var userConfig = require(configPath);
                     var entry = userConfig.entry;
                     var entries = Object.keys(entry);
