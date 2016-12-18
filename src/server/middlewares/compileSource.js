@@ -10,7 +10,7 @@ var path = require('path');
 
 var logger = log.namespace('Server');
 var Compiler = require('../../compiler');
-// var Compiler = require('../../compiler/master');
+var Master = require('../../compiler/master');
 
 var imagePath = path.resolve(__dirname, '..', 'source', 'image');
 var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));
@@ -52,9 +52,20 @@ module.exports = function(req, res, next){
             });
         }else if(fileExt === 'js'){
             if(env === 'prd' || req.url.indexOf('hot-update.js') !== -1){
+                // method: 1
                 return compiler.compile(function(){
                     this.sendCompiledFile(req, projInfo)
                 }.bind(this))
+
+                // method: 2
+                // console.log('===============>', projectName, __hii__.cwd);
+                // Master.compileDLL(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: false }, function(){
+                //     console.log(projectName, 'dll finish'.red);
+                //     Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
+                //         console.log('compleDll > compoel finish.'.bold.red);
+                //         this.sendCompiledFile(req, projInfo)
+                //     }.bind(this));
+                // });
             }else if(env === 'dev'){
                 filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 

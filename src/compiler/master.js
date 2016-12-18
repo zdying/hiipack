@@ -73,7 +73,7 @@ module.exports = {
     },
 
     compileDLL: function(project, root, env, option, cbk){
-        console.log(project, root, env);
+        console.log('====>=====>',project, root, env);
 
         var root = root || path.resolve('./' + project);
         var config = require(root + '/' + 'hii.config');

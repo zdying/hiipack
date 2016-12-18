@@ -8,7 +8,7 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var execSync = child_process.execSync;
 
-var Compiler = require('../compiler');
+var Compiler = require('../compiler/_index');
 
 var package = require('../helpers/package');
 var logger = log.namespace('client');
