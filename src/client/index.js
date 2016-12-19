@@ -8,7 +8,7 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var execSync = child_process.execSync;
 
-var Compiler = require('../compiler/_index');
+var Compiler = require('../compiler/Compiler');
 
 var package = require('../helpers/package');
 var logger = log.namespace('client');
@@ -56,7 +56,7 @@ module.exports = {
             dir[env].forEach(function(folder){
                  fse.removeSync(folder)
             });
-            compiler.compile({watch: false}, callback);
+            compiler.compile({watch: false, includeDll: true}, callback);
         }catch(e){
             logger.error(e);
         }
@@ -82,7 +82,7 @@ module.exports = {
                 fse.removeSync(folder)
             });
 
-            var master = require('../compiler/master');
+            var master = require('../compiler');
             // master.compileDLL(projectName, workPath + '/' + projectName, env, { watch: false }, function(){
             //     master.compile(projectName, '', env, { watch: false });
             // });

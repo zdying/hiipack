@@ -10,7 +10,7 @@ var path = require('path');
 
 var logger = log.namespace('Server');
 var Compiler = require('../../compiler');
-var Master = require('../../compiler/master');
+var Master = require('../../compiler');
 
 var imagePath = path.resolve(__dirname, '..', 'source', 'image');
 var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));
@@ -31,6 +31,7 @@ module.exports = function(req, res, next){
         var env = projInfo.env;
         var compiler = this.compilers[projectName];
         var configPath = path.join(__hii__.cwd, projectName, 'hii.config.js');
+        var root = path.join(__hii__.cwd, projectName);
 
         // 第一次请求这个项目，新建一个compiler
         // if(!compiler){
@@ -58,7 +59,7 @@ module.exports = function(req, res, next){
                 // }.bind(this))
 
                 // method: 2
-                Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
+                Master.compile(projectName, root, 'loc', { watch: true }, function(){
                     this.sendCompiledFile(req, projInfo)
                 }.bind(this));
             }else if(env === 'dev'){
@@ -77,7 +78,7 @@ module.exports = function(req, res, next){
             if(env === 'src' && fs.existsSync(filePath)){
                 this.sendFile(req, filePath);
             }else{
-                return Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true, isCss: true }, function(){
+                return Master.compile(projectName, root, 'loc', { watch: true }, function(){
                     var userConfig = require(configPath);
                     var entry = userConfig.entry;
                     var entries = Object.keys(entry);

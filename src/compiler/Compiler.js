@@ -93,10 +93,18 @@ Compiler.prototype = {
 
             log.debug('compiler.compile() - ', 'create new webpack compiler instance.');
             // 编译dll
-            // this._compile(true, isWatch, {}, function(){
+            if(option.includeDll){
+                this._compile(true, isWatch, {}, function(){
                 // 编译其他代码
+                    this._compile(false, isWatch, option);
+                }.bind(this));
+            }else{
                 this._compile(false, isWatch, option);
-            // }.bind(this));
+            }
+            // // this._compile(true, isWatch, {}, function(){
+            //     // 编译其他代码
+            //     this._compile(false, isWatch, option);
+            // // }.bind(this));
         }else{
             // 已经创建过实力
             log.debug('compiler.compile() - ', 'use old webpack compiler instance.');
@@ -114,8 +122,28 @@ Compiler.prototype = {
         }
     },
 
-    compileDLL: function(isWatch, option, cbk){
-        this._compile(true, isWatch, option, cbk)
+    compileDLL: function(isWatch, option, callback){
+        if(!this.webpackDllCompiler || this.configFileChanged){
+            log.debug('compiler.compile() - ', 'create new webpack dll compiler instance.');
+            this._compile(true, isWatch, option, callback)
+        }else{
+            log.debug('compiler.compile() - ', 'use old webpack dll compiler instance.');
+        }
+
+        if(this.isCompiling){
+            var a = setInterval(function(){
+                if(this.isCompiling === false){
+                    callback && callback();
+                    clearInterval(a);
+                }
+            }.bind(this), 100);
+        }else{
+            callback && callback();
+        }
+    },
+
+    compileAll: function(){
+
     },
 
     compileSASS: function(filePath, callback){
