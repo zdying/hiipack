@@ -12,6 +12,8 @@ var program = global.program;
 
 var exec = require('./commands').exec;
 
+showVersion();
+
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);
 // console.log(process.env.NODE_PATH);
@@ -134,9 +136,9 @@ program.on('--help', function(){
 
 program.parse(process.argv);
 
-if(process.argv.length == 2){
-    showVersion();
-}
+// if(process.argv.length == 2){
+//     showVersion();
+// }
 
 function showVersion(){
     var version = package.version.magenta;

@@ -58,16 +58,9 @@ module.exports = function(req, res, next){
                 // }.bind(this))
 
                 // method: 2
-                // console.log('===============>', projectName, __hii__.cwd);
-                var cbk = function(){
-                    console.log('compleDll > compoel finish.'.bold.red, cbk.cbkId, projInfo);
+                Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
                     this.sendCompiledFile(req, projInfo)
-                }.bind(this);
-
-                cbk.cbkId = Math.random();
-                console.log('新尝试的callid', cbk.cbkId);
-
-                Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, cbk);
+                }.bind(this));
             }else if(env === 'dev'){
                 filePath = filePath.replace(/@(\w+)\.(\w+)/, '@dev.$2');
 
@@ -84,7 +77,7 @@ module.exports = function(req, res, next){
             if(env === 'src' && fs.existsSync(filePath)){
                 this.sendFile(req, filePath);
             }else{
-                return Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true }, function(){
+                return Master.compile(projectName, __hii__.cwd + '/' + projectName, 'loc', { watch: true, isCss: true }, function(){
                     var userConfig = require(configPath);
                     var entry = userConfig.entry;
                     var entries = Object.keys(entry);

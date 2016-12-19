@@ -46,7 +46,6 @@ Compiler.prototype = {
             callback && callback(err, state);
         };
 
-        console.log('调用_compile()...', this.watching);
         if(this.watching && this.watching.close){
             this.watching.close(function(){
                 logger.debug('watching closed.');
@@ -67,10 +66,10 @@ Compiler.prototype = {
         }
 
         if(isWatch){
-            // logger.info('watching ...');
+            logger.info('watching ...');
             return this.watching = compiler.watch({}, cbk);
         }else{
-            // logger.info('run ... ');
+            logger.info('run ... ');
             return compiler.run(cbk);
         }
     },
@@ -85,8 +84,6 @@ Compiler.prototype = {
             };
         }
         var isWatch = option.watch;
-
-        console.log('compile (()()()()()()()()()) isWath'.yellow, isWatch);
 
         if(this.webpackCompiler === null || this.configFileChanged){
 
@@ -204,7 +201,6 @@ Compiler.prototype = {
                         }
 
                         arr.forEach(function (stats) {
-                            console.log('stats.hash =====>'.red, stats.hash);
                             self.hmrCallback({
                                 name: stats.name,
                                 action: "built",

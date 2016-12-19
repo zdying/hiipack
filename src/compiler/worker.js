@@ -19,11 +19,10 @@ function compile(conf){
     // projectName, root, env
     if(!compiler){
         compiler = new Compiler(conf.project, conf.root, conf.env, publish);
-        console.log('【worker】已经缓存compiler: ', conf.root, JSON.stringify(conf));
-        conf.watch = false;
+
+        // conf.watch = false;
         compiler.compileDLL(false, conf, function(){
             console.log('[' + process.pid + ']', 'compile finish');
-            // process.send({ret: true});
             compiler.compile(conf, function(){
                 console.log('[' + process.pid + ']', 'compile finish');
                 process.send({action: 'compiler-finish', cbkId: conf.cbk})
@@ -31,7 +30,6 @@ function compile(conf){
         });
         // console.log(compilers);
     }else{
-        console.log('compiler 实例已经创建过...', JSON.stringify(conf));
         // conf.watch = false;
         compiler.compile(conf, function(){
             console.log('[' + process.pid + ']', 'compile finish');
@@ -54,7 +52,8 @@ function compile(conf){
 
 process.on('message', function(conf){
     var now = Date.now();
-    console.info('[' + process.pid + ']', 'child process receive message', now, 'delay:', now - conf.date);
+
+    log.debug('[' + process.pid + ']', 'child process receive message', now, 'delay:', now - conf.date);
 
     compile(conf);
 });

@@ -12,7 +12,7 @@ module.exports = {
         return log;
     },
     debug: function(){
-        /*program.debug && */this.printMessage('debug', 'magenta', arguments)
+        program.debug && this.printMessage('debug', 'magenta', arguments)
     },
     access: function(req, proxy){
         var statusCode = req.res.statusCode;
