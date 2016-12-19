@@ -133,16 +133,16 @@ module.exports = function(req, res, next){
 
                         var html = [
                             '<header>',
-                            '<meta charset="utf-8">',
-                            '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">',
+                                '<meta charset="utf-8">',
+                                '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">',
                             '</header>',
                             '<style>',
-                            'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
-                            'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
-                            'li:hover{ color: #FF5522; }',
-                            'a { padding: 15px 5px; display: block; color: #0077DD; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }',
-                            'a:hover { color: #FF5522 }',
-                            'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
+                                'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
+                                'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
+                                'li:hover{ color: #FF5522; }',
+                                'a { padding: 15px 5px; display: block; color: #0077DD; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }',
+                                'a:hover { color: #FF5522 }',
+                                'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
                             '</style>',
                             '<ul>'
                         ];
@@ -160,10 +160,10 @@ module.exports = function(req, res, next){
 
                             return [
                                 '<li>',
-                                '<a title="' + fileName + '" href="' + (isFile ? fileName : fileName + '/') + '">',
-                                isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
-                                fileName,
-                                '</a>',
+                                    '<a title="' + fileName + '" href="' + (isFile ? fileName : fileName + '/') + '">',
+                                    isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
+                                    fileName,
+                                    '</a>',
                                 '</li>'
                             ].join('')
                         });
