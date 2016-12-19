@@ -12,8 +12,6 @@ var program = global.program;
 
 var exec = require('./commands').exec;
 
-showVersion();
-
 // console.log('__hiipack__.root'.bold.magenta, '==>', __hiipack_root__);
 // console.log('__hiipack__.cwd '.bold.magenta, '==>', __hiipack_cwd__);
 // console.log(process.env.NODE_PATH);
@@ -58,6 +56,10 @@ program
             browser = typeof program.open === 'string' ? program.open : 'chrome';
         }
 
+        process.stdout.write('\u001B[2J\u001B[0;0f');
+
+        showVersion();
+
         exec('start', program.port, browser, program.proxy);
     });
 
@@ -65,6 +67,7 @@ program
     .command('min')
     .description('compress/obfuscate project files')
     .action(function(){
+        showVersion();
         exec('min');
     });
 
@@ -72,6 +75,7 @@ program
     .command('pack')
     .description('pack project files')
     .action(function(){
+        showVersion();
         exec('pack');
     });
 
@@ -136,9 +140,9 @@ program.on('--help', function(){
 
 program.parse(process.argv);
 
-// if(process.argv.length == 2){
-//     showVersion();
-// }
+if(process.argv.length == 2){
+    showVersion();
+}
 
 function showVersion(){
     var version = package.version.magenta;
