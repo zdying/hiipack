@@ -53,7 +53,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             var urlMatch = null;
 
             if(proxy.match(/\$\d/g)){
-                sourceReg = toRegExp(rewrite.source, 'i');
+                sourceReg = toRegExp(rewrite.path, 'i');
                 urlMatch = request.url.match(sourceReg);
 
                 // 这里可以不用判断urlMath是否为空, 因为getRewriteRule里面已经测试过

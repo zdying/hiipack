@@ -325,8 +325,6 @@ Server.prototype = {
         var rule = null;
 
         for(var domain in hosts){
-            log.info('[domain] ==>', domain);
-
             tmp = domainCache[domain];
             rule = hosts[domain];
 
@@ -339,8 +337,6 @@ Server.prototype = {
 
         rewrites.forEach(function(rewrite){
             for(var url in rewrite.domains){
-                log.info('[domain] ==>', url);
-
                 rule = rewrite.domains[url];
                 tmp = domainCache[url];
 
