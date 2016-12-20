@@ -12,10 +12,7 @@ var logger = log.namespace('Server');
 var Compiler = require('../../compiler');
 var Master = require('../../compiler');
 
-var imagePath = path.resolve(__dirname, '..', 'source', 'image');
-var docSVG = fs.readFileSync(path.resolve(imagePath, 'Document.svg'));
-var fileSVG = fs.readFileSync(path.resolve(imagePath, 'File.svg'));
-var folderSVG = fs.readFileSync(path.resolve(imagePath, 'Folder.svg'));
+var fileExplorer = require('../../helpers/fileExplorer');
 
 module.exports = function(req, res, next){
     var url = req.url;
@@ -125,57 +122,16 @@ module.exports = function(req, res, next){
         try{
             var stat = fs.statSync(filePath);
             if(stat.isDirectory()){
-                fs.readdir(filePath, function(err, files){
-                    if(err){
-                        logger.error(err);
-                    }else{
+                // 如果目录没有以`/`结尾
+                if(!/\/$/.test(url)){
+                    res.redirect(url + '/');
+                    return
+                }
+                fileExplorer.renderList(url, filePath)
+                    .then(function(html){
                         res.setHeader('Content-Type', 'text/html');
-
-                        var html = [
-                            '<header>',
-                                '<meta charset="utf-8">',
-                                '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">',
-                            '</header>',
-                            '<style>',
-                                'ul{ padding: 0; font-family: monospace; font-size: 14px; }',
-                                'li{ list-style: none; margin: 5px; width: 195px; display: inline-block; color: #0077DD; }',
-                                'li:hover{ color: #FF5522; }',
-                                'a { padding: 15px 5px; display: block; color: #0077DD; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }',
-                                'a:hover { color: #FF5522 }',
-                                'svg{ width: 36px; height: 36px; vertical-align: middle; margin: 0 10px 0 0; }',
-                            '</style>',
-                            '<ul>'
-                        ];
-                        html.push('<li>');
-                        html.push(      '<a href="', url.replace(/\/([^\\\/]*?)\/?$/, '/') , '">', folderSVG, '../</a>');
-                        html.push('</li>');
-                        var filesItem = files.map(function(fileName){
-                            if(fileName.slice(0, 1) === '.'){
-                                logger.debug('hide system file/directory', fileName.bold);
-                                // 不显示系统隐藏文件
-                                return
-                            }
-
-                            var isFile = fs.statSync(filePath + '/' + fileName).isFile();
-
-                            return [
-                                '<li>',
-                                    '<a title="' + fileName + '" href="' + (isFile ? fileName : fileName + '/') + '">',
-                                    isFile ? (fileName.indexOf('.') === -1 ? fileSVG : docSVG) : folderSVG,
-                                    fileName,
-                                    '</a>',
-                                '</li>'
-                            ].join('')
-                        });
-
-                        html.push.apply(html, filesItem);
-                        html.push('</ul>');
-                    }
-
-                    res.end(html.join(''));
-
-                    logger.access(req);
-                });
+                        res.end(html);
+                    });
             }else{
                 this.sendFile(req)
             }

@@ -15,6 +15,7 @@ var preHandler = require('./middlewares/preHandler');
 var favicon = require('./middlewares/favicon');
 var compileSource = require('./middlewares/compileSource');
 var webpackHMR = require('./middlewares/webpackHMR');
+var source = require('./middlewares/source');
 
 function Server(port, browser, proxy){
     this.app = express();
@@ -37,6 +38,8 @@ Server.prototype = {
 
         // webpack hot module replace
         app.get('/__webpack_hmr', webpackHMR);
+
+        app.use('/__source__/', source.bind(this));
 
         // favicon.ico
         app.get('*/favicon.ico', favicon.bind(this));
