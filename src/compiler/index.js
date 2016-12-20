@@ -19,7 +19,8 @@ var compiler = {
             env: env,
             date: Date.now(),
             watch: env === 'loc',
-            cbk: cbkId
+            cbk: cbkId,
+            originCwd: __hii__.cwd
         };
 
         cbk_cache[cbkId] = cbk;

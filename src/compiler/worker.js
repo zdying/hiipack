@@ -61,6 +61,8 @@ function compile(conf){
 process.on('message', function(conf){
     var now = Date.now();
 
+    __hii__.originCwd = conf.originCwd;
+
     log.debug('[' + process.pid + ']', 'child process receive message', now, 'delay:', now - conf.date);
 
     compile(conf);
