@@ -14,6 +14,7 @@ module.exports = function(root, userConfig){
     return {
         context: root,
         entry: userConfig.library,
+        replaceVersion: userConfig.replaceVersion,
         output: {
             path: path.join(root, "prd"),
             filename: "[name].js",
