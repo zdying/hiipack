@@ -2,6 +2,7 @@
 
 * 代码优化
 * 修改 proxy hosts bug
+* 修改html中位置libray中的文件版本号没有被替换的bug
 * 其他bugfix
 
 # 1.0.9
