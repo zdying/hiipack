@@ -108,21 +108,6 @@ Compiler.prototype = {
         }
     },
 
-    compileSASS: function(filePath, callback){
-        var sass = require('node-sass');
-        var start = Date.now();
-        var opt = { file: filePath };
-
-        sass.render(opt, function(err, result){
-            var time = Date.now() - start;
-            callback && callback(err, result.css.toString(), time, result);
-        });
-    },
-
-    compileLESS: function(filePath){
-        //TODO compile less file to css
-    },
-
     _getWebpackCompiler: function(isDLL, option){
         var config = this._getConfig(isDLL, option);
         var self = this;
@@ -323,13 +308,22 @@ Compiler.prototype = {
     }
 };
 
-module.exports = Compiler;
+Compiler.compileSASS = function(filePath, callback){
+    var sass = require('node-sass');
+    var start = Date.now();
+    var opt = { file: filePath };
 
-function publish(data) {
-    for (var id in global.clients) {
-        global.clients[id].write("data: " + JSON.stringify(data) + "\n\n");
-    }
-}
+    sass.render(opt, function(err, result){
+        var time = Date.now() - start;
+        callback && callback(err, result.css.toString(), time, result);
+    });
+};
+
+Compiler.compileLESS = function(filePath){
+    //TODO compile less file to css
+};
+
+module.exports = Compiler;
 
 function buildModuleMap(modules) {
     var map = {};

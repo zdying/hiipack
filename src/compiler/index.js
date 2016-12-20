@@ -4,11 +4,11 @@
  */
 var path = require('path');
 var child_process = require('child_process');
+var Compiler = require('./Compiler');
 
 var cache = {};
 var cbk_cache = {};
-
-module.exports = {
+var compiler = {
     compile: function(project, root, env, option, cbk){
         var root = root || path.resolve('./' + project);
         var cbkId = Math.random();
@@ -56,8 +56,14 @@ module.exports = {
     }
 };
 
+"compileSASS compileLESS".split(' ').forEach(function(method){
+    compiler[method] = Compiler[method];
+});
+
 function publish(data) {
     for (var id in global.clients) {
         global.clients[id].write("data: " + JSON.stringify(data) + "\n\n");
     }
 }
+
+module.exports = compiler;
