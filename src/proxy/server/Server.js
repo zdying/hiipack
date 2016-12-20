@@ -260,21 +260,25 @@ Server.prototype = {
         var urlObj = url.parse('https://' + request.url);
         var domains = this.domainCache[urlObj.hostname];
 
-        if(domains && typeof domains === 'object'){
-            // rewrite 规则
-            var proxy = domains;
-            proxy = proxy.location[0].props.proxy;
+        if(Array.isArray(domains)){
+            domains.forEach(function(domain){
+                if(domain && typeof domain === 'object'){
+                    // rewrite 规则
+                    var proxy = domain;
+                    proxy = proxy.location[0].props.proxy;
 
-            urlObj = url.parse(proxy);
-            urlObj.port = 443;
+                    urlObj = url.parse(proxy);
+                    urlObj.port = 443;
 
-            logger.info('https proxy -', request.url.bold.green, '==>', urlObj.hostname.bold.green);
-        }else if(typeof domains === 'string'){
-            // hosts规则
-            urlObj = url.parse('https://' + domains);
-            urlObj.port = 443;
-        }else{
-            logger.info('https direc -', request.url.bold);
+                    logger.info('https proxy -', request.url.bold.green, '==>', urlObj.hostname.bold.green);
+                }else if(typeof domain === 'string'){
+                    // hosts规则
+                    urlObj = url.parse('https://' + domain);
+                    urlObj.port = 443;
+                }else{
+                    logger.info('https direc -', request.url.bold);
+                }
+            });
         }
 
         var proxySocket = net.connect(urlObj.port, urlObj.hostname, function(){
@@ -317,16 +321,33 @@ Server.prototype = {
         var domainCache = this.domainCache = {};
         var hosts = this.hostsRules;
         var rewrites = this.rewriteRules;
+        var tmp = null;
+        var rule = null;
 
         for(var domain in hosts){
-            domainCache[domain] = hosts[domain];
+            log.info('[domain] ==>', domain);
+
+            tmp = domainCache[domain];
+            rule = hosts[domain];
+
+            if(Array.isArray(tmp) && tmp.indexOf(rule) === -1){
+                tmp.push(rule);
+            }else{
+                domainCache[domain] = [rule];
+            }
         }
 
         rewrites.forEach(function(rewrite){
             for(var url in rewrite.domains){
-                var domain = rewrite.domains[url];
-                if(domain && typeof domain === 'object'){
-                    domainCache[url] = rewrite.domains[url];
+                log.info('[domain] ==>', url);
+
+                rule = rewrite.domains[url];
+                tmp = domainCache[url];
+
+                if(Array.isArray(tmp) && tmp.indexOf(rule) === -1){
+                    tmp.push(rule);
+                }else{
+                    domainCache[url] = [rule];
                 }
             }
         });

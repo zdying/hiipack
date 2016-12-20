@@ -128,18 +128,19 @@ function getRewriteRule(urlObj, rewriteRules, domainCache){
     var hostname = urlObj.hostname;
     var href = urlObj.href;
     var rewriteRule = null;
+    var lastDeep = -1;
 
     var domains = domainCache[hostname];
-    var rule = null;
 
-    if(domains && typeof domains === 'object'){
+    if(!domains || !Array.isArray(domains)){
+        return null
+    }
 
-        rule = domains;
-
+    domains.forEach(function(domain){
+        var rule = domain;
         var location = rule.location;
         var urlPath = urlObj.path;
         var loc = null;
-        var lastDeep = -1;
         var currentDeep = 0;
         var locPath = '';
 
@@ -196,7 +197,7 @@ function getRewriteRule(urlObj, rewriteRules, domainCache){
                 }
             }
         }
-    }
+    });
 
     log.debug('getProxyInfo -', href, '==>', JSON.stringify(rewriteRule));
 
