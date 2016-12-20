@@ -186,7 +186,10 @@ Server.prototype = {
             log.debug('parse and merge hosts file:', filePath.bold.green);
 
             cache.hosts[filePath] = hosts = parseHosts(filePath);
-            cache.hostFiles.push(filePath);
+
+            if(cache.hostFiles.indexOf(filePath) === -1){
+                cache.hostFiles.push(filePath);
+            }
         }else{
             log.debug('use cache for hosts file:', filePath.bold.green);
         }
@@ -211,7 +214,10 @@ Server.prototype = {
             log.debug('parse and merge rewrite file:', filePath.bold.green);
 
             cache.rewrite[filePath] = rewrite = parseRewrite(filePath);
-            cache.rewriteFiles.push(filePath);
+
+            if(cache.rewriteFiles.indexOf(filePath) === -1){
+                cache.rewriteFiles.push(filePath);
+            }
         }else{
             log.debug('use cache for rewrite file:', filePath.bold.green);
         }
@@ -319,21 +325,21 @@ Server.prototype = {
      */
     updateDomainCache: function(){
         var domainCache = this.domainCache = {};
-        var hosts = this.hostsRules;
+        // var hosts = this.hostsRules;
         var rewrites = this.rewriteRules;
         var tmp = null;
         var rule = null;
 
-        for(var domain in hosts){
-            tmp = domainCache[domain];
-            rule = hosts[domain];
-
-            if(Array.isArray(tmp) && tmp.indexOf(rule) === -1){
-                tmp.push(rule);
-            }else{
-                domainCache[domain] = [rule];
-            }
-        }
+        // for(var domain in hosts){
+        //     tmp = domainCache[domain];
+        //     rule = hosts[domain];
+        //
+        //     if(Array.isArray(tmp) && tmp.indexOf(rule) === -1){
+        //         tmp.push(rule);
+        //     }else{
+        //         domainCache[domain] = [rule];
+        //     }
+        // }
 
         rewrites.forEach(function(rewrite){
             for(var url in rewrite.domains){
