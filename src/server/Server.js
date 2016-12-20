@@ -39,7 +39,7 @@ Server.prototype = {
         app.get('/__webpack_hmr', webpackHMR);
 
         // favicon.ico
-        app.get('/favicon.ico', favicon.bind(this));
+        app.get('*/favicon.ico', favicon.bind(this));
 
         app.get(/[\w\d]+\.hot\-update\.json([\#\?].*)?$/, function(req, res, next){
             this.sendFile(req, path.join(__hii__.codeTmpdir, req.url))

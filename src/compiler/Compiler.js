@@ -10,8 +10,7 @@ var colors = require('colors');
 var path = require('path');
 var fs = require('fs');
 var colors = require('colors');
-var _global = require('../global');
-
+var log = require('../helpers/log');
 var logger = log.namespace('Compiler');
 var type = require('../helpers/type');
 
@@ -33,9 +32,8 @@ function Compiler(projectName, root, env, hmrCallback){
         this.watchConfigFile(this.onConfigFileChange.bind(this));
     }
 
-    // console.log('proj==>', projectName, 'root==>', root, 'env===>', env);
-
     logger.debug('create new compiler', projectName.bold.green, 'env', env.bold.green);
+    logger.debug('NODE_PATH ==>', process.env.NODE_PATH);
 }
 
 Compiler.prototype = {
@@ -52,29 +50,26 @@ Compiler.prototype = {
             });
         }
 
-        if(isDLL){
-            var compiler = this.webpackDllCompiler = this._getWebpackCompiler(isDLL, option);
-        }else{
-            var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
-        }
+        var compiler = this.webpackCompiler = this._getWebpackCompiler(isDLL, option);
 
 
         if(!compiler){
             var err = new Error();
             err.code = "COMPILER_NULL";
+
             return cbk(err, null)
         }
 
         if(isWatch){
-            logger.info('watching ...');
+            // logger.info('watching ...');
             return this.watching = compiler.watch({}, cbk);
         }else{
-            logger.info('run ... ');
+            // logger.info('run ... ');
             return compiler.run(cbk);
         }
     },
 
-    compile: function(option, callback, hmrCbk){
+    compile: function(option, callback){
         log.debug('compiler.compile() - ', this.env);
 
         if(arguments.length === 1){
@@ -86,64 +81,31 @@ Compiler.prototype = {
         var isWatch = option.watch;
 
         if(this.webpackCompiler === null || this.configFileChanged){
-
             if(this.configFileChanged){
                 this.configFileChanged = false;
             }
 
             log.debug('compiler.compile() - ', 'create new webpack compiler instance.');
             // 编译dll
-            if(option.includeDll){
-                this._compile(true, isWatch, {}, function(){
+            this._compile(true, isWatch, {}, function(){
                 // 编译其他代码
-                    this._compile(false, isWatch, option);
-                }.bind(this));
-            }else{
                 this._compile(false, isWatch, option);
-            }
-            // // this._compile(true, isWatch, {}, function(){
-            //     // 编译其他代码
-            //     this._compile(false, isWatch, option);
-            // // }.bind(this));
+            }.bind(this));
         }else{
             // 已经创建过实力
             log.debug('compiler.compile() - ', 'use old webpack compiler instance.');
         }
 
         if(this.isCompiling){
-            var a = setInterval(function(){
+            var timer = setInterval(function(){
                 if(this.isCompiling === false){
                     callback && callback();
-                    clearInterval(a);
+                    clearInterval(timer);
                 }
             }.bind(this), 100);
         }else{
             callback && callback();
         }
-    },
-
-    compileDLL: function(isWatch, option, callback){
-        if(!this.webpackDllCompiler || this.configFileChanged){
-            log.debug('compiler.compile() - ', 'create new webpack dll compiler instance.');
-            this._compile(true, isWatch, option, callback)
-        }else{
-            log.debug('compiler.compile() - ', 'use old webpack dll compiler instance.');
-        }
-
-        if(this.isCompiling){
-            var a = setInterval(function(){
-                if(this.isCompiling === false){
-                    callback && callback();
-                    clearInterval(a);
-                }
-            }.bind(this), 100);
-        }else{
-            callback && callback();
-        }
-    },
-
-    compileAll: function(){
-
     },
 
     compileSASS: function(filePath, callback){
@@ -169,16 +131,13 @@ Compiler.prototype = {
             return null
         }
 
-        // console.log('option ~~~~~', option);
-        // console.log('config.entry ~~~~~~', config.entry);
-
-        if(!isDLL && option.entry){
-            for(var key in config.entry){
-                if(key !== option.entry){
-                    delete config.entry[key]
-                }
-            }
-        }
+        // if(!isDLL && option.entry){
+        //     for(var key in config.entry){
+        //         if(key !== option.entry){
+        //             delete config.entry[key]
+        //         }
+        //     }
+        // }
 
         var optPlugins = option.plugins || {};
         var plugins = {

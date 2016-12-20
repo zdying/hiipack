@@ -25,15 +25,15 @@ module.exports = {
         cbk_cache[cbkId] = cbk;
 
         if(cache[root]){
-            cache[root].cbk = cbk;
             cache[root].send(message);
             return;
         }else{
-            log.debug('新建worker...');
+            log.debug('create new worker...');
         }
 
-        var worker = child_process.fork(__dirname + '/worker', process.argv, {
-            cwd: root
+        var worker = child_process.fork(__dirname + '/worker', process.argv.slice(2), {
+            cwd: root,
+            execArgv: []
         });
 
         cache[root] = worker;
@@ -44,9 +44,6 @@ module.exports = {
 
         worker.on('message', function(m){
             if(m.action === 'compiler-finish'){
-                // console.log('master receive message:', JSON.stringify(m));
-                var now = Date.now();
-                // console.log('all finished:', now - _start, 'ms');
                 if(cbk_cache[m.cbkId]){
                     cbk_cache[m.cbkId]();
                     delete cbk_cache[m.cbkId];
@@ -55,67 +52,6 @@ module.exports = {
             }else if(m.action === 'hmr'){
                 publish(m.data);
             }
-        });
-    },
-
-    compileEveryEntry: function(project, root, env, option){
-        var root = root || path.resolve('./' + project);
-        var config = require(root + '/' + 'hii.config');
-
-        var entry = config.entry;
-        var length = Object.keys(entry).length;
-        var count = 0;
-        var _start = Date.now();
-
-        for(var key in entry){
-            // console.log('entry========>', key);
-            var worker = child_process.fork(__dirname + '/worker');
-            worker.send({
-                project: project,
-                root: root,
-                option: option,
-                entry: key,
-                env: env,
-                date: Date.now()
-            });
-
-            // console.log('master send message to workder#' + worker.pid, Date.now());
-
-            worker.on('message', function(m){
-                // console.log('master receive message:', JSON.stringify(m));
-                count++;
-
-                console.log(count + '/' + length);
-
-                if(count === length){
-                    var now = Date.now();
-                    // console.log('all finished:', now - _start, 'ms', 'avg:', (now - _start) / length);
-                    process.exit(0);
-                }
-                // process.kill(worker.pid)
-            });
-        }
-    },
-
-    compileDLL: function(project, root, env, option, cbk){
-        var root = root || path.resolve('./' + project);
-        var config = require(root + '/' + 'hii.config');
-        var _start = Date.now();
-
-        var worker = child_process.fork(__dirname + '/worker');
-        worker.send({
-            project: project,
-            root: root,
-            option: option,
-            isDLL: true,
-            env: env
-        });
-
-        worker.on('message', function(m){
-            // console.log('master receive message:', JSON.stringify(m));
-            log.info('dll compile finished:', Date.now() - _start, 'ms');
-            process.kill(worker.pid);
-            cbk && cbk();
         });
     }
 };

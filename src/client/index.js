@@ -56,7 +56,7 @@ module.exports = {
             dir[env].forEach(function(folder){
                  fse.removeSync(folder)
             });
-            compiler.compile({watch: false, includeDll: true}, callback);
+            compiler.compile({watch: false}, callback);
         }catch(e){
             logger.error(e);
         }
