@@ -17,7 +17,7 @@ describe('proxy rewrite',function(){
 
     it('正确解析AST', function(){
         var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite.example');
-        // var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite1');
+        // var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite1.example');
         var rules = AST(sourceCode);
 
         var target = require('./proxy/ASTTree.result');
@@ -26,7 +26,7 @@ describe('proxy rewrite',function(){
     });
 
     it('正确解析格式化AST Tree', function(){
-        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite1');
+        var sourceCode = fs.readFileSync(__dirname + '/proxy/rewrite1.example');
         var rules = AST(sourceCode);
         var formatedTree = formatAST(rules);
 

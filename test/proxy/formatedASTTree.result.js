@@ -3,99 +3,89 @@ module.exports = {
         {
             "name": "set",
             "params": [
-                "$domain",
-                "api.example.com"
-            ]
-        },
-        {
-            "name": "set",
-            "params": [
-                "$local",
-                "\"127.0.0.1:8800\""
+                "$abc",
+                "This_is_abc"
             ]
         }
     ],
     "props": {
-        "$domain": "api.example.com",
-        "$local": "\"127.0.0.1:8800\""
+        "$abc": "This_is_abc"
     },
-    "__id__": "global",
-    "usercenter.example.com": {
-        "source": "usercenter.example.com",
-        "props": {
-            "proxy": "api.example.com/test"
+    "domains": {
+        "api.example.com": {
+            "domain": "api.example.com",
+            "commands": [
+                {
+                    "name": "proxy_pass",
+                    "params": [
+                        "http://$local/news/src/mock/list.json"
+                    ]
+                },
+                {
+                    "name": "set_header",
+                    "params": [
+                        "Access-Control-Allow-Origin",
+                        "*"
+                    ]
+                }
+            ],
+            "location": [
+                {
+                    "path": "/abc/",
+                    "originPath": "/abc/",
+                    "source": "api.example.com/abc/",
+                    "commands": [
+                        {
+                            "name": "proxy_pass",
+                            "params": [
+                                "http://api.example.com/prd/This_is_abc"
+                            ]
+                        },
+                        {
+                            "name": "set_header",
+                            "params": [
+                                "Proxy",
+                                "prd"
+                            ]
+                        }
+                    ],
+                    "props": {
+                        "proxy": "http://api.example.com/prd/This_is_abc"
+                    },
+                    "parent": "_domain_api.example.com",
+                    "parentID": "_domain_api.example.com"
+                },
+                {
+                    "path": "/def/",
+                    "originPath": "/def/",
+                    "source": "api.example.com/def/",
+                    "commands": [
+                        {
+                            "name": "proxy_pass",
+                            "params": [
+                                "http://api.example.com/prd/def/f"
+                            ]
+                        },
+                        {
+                            "name": "set_header",
+                            "params": [
+                                "Proxy",
+                                "def"
+                            ]
+                        }
+                    ],
+                    "props": {
+                        "proxy": "http://api.example.com/prd/def/f"
+                    },
+                    "parent": "_domain_api.example.com",
+                    "parentID": "_domain_api.example.com"
+                }
+            ],
+            "props": {},
+            "__id__": "_domain_api.example.com",
+            "parent": "global",
+            "parentID": "global"
         }
     },
-    "flight.qunar.com/flight_qzz": {
-        "source": "flight.qunar.com/flight_qzz",
-        "props": {
-            "proxy": "127.0.0.1:8800/flight_qzz"
-        }
-    },
-    "api.example.com": {
-        "source": "api.example.com",
-        "commands": [
-            {
-                "name": "proxy_pass",
-                "params": [
-                    "http://127.0.0.1:8800/news/src/mock/"
-                ]
-            },
-            {
-                "name": "set",
-                "params": [
-                    "$mock_user",
-                    "user_$id"
-                ]
-            },
-            {
-                "name": "set_header",
-                "params": [
-                    "Host",
-                    "api.example.com"
-                ]
-            },
-            {
-                "name": "set_header",
-                "params": [
-                    "UserID",
-                    "user_$id"
-                ]
-            },
-            {
-                "name": "set_header",
-                "params": [
-                    "Access-Control-Allow-Origin",
-                    "*"
-                ]
-            }
-        ],
-        "props": {
-            "$mock_user": "user_$id"
-        },
-        "parent": "global"
-    },
-    "api.qunar.com/$flight/order/detail": {
-        "source": "api.qunar.com/$flight/order/detail",
-        "commands": [
-            {
-                "name": "proxy_pass",
-                "params": [
-                    "http://127.0.0.1:3008/user/?domain=api.example.com"
-                ]
-            },
-            {
-                "name": "set_header",
-                "params": [
-                    "Set-Cookie",
-                    "userID",
-                    "200908204140"
-                ]
-            }
-        ],
-        "props": {
-            "proxy": "http://127.0.0.1:3008/user/?domain=api.example.com"
-        },
-        "parent": "_domain_api.qunar.com"
-    }
+    "__id__": "global"
 };
