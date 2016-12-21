@@ -159,6 +159,12 @@ Compiler.prototype = {
                         }));
                     }
 
+                    console.log('compiler done plugin: env = '.red, self.env ,', isDll ='.red, isDLL);
+
+                    if(isDLL === true){
+                        return;
+                    }
+
                     if(self.first){
                         self.first = false;
                         return;
