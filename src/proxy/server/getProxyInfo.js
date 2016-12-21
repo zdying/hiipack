@@ -88,8 +88,9 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             hostname = newUrlObj.hostname;
             port = newUrlObj.port || 80;
             path = newUrlObj.path;
-            proxyName = 'HIIPACK';
         }
+
+        proxyName = 'HIIPACK';
     }else if(host){
         hostname = host.split(':')[0];
         port = Number(uri.port || host.split(':')[1]);

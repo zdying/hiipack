@@ -34,7 +34,7 @@ module.exports = {
                 response.end();
 
                 if(request.PROXY){
-                    logger.access(request, uri.protocol + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
+                    logger.access(request, (uri.protocol || 'http:') + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
                 }else{
                     logger.access(request);
                     // logger.info('direc -', request.url.bold, Date.now() - start, 'ms');
