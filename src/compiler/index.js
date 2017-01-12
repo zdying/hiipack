@@ -39,8 +39,6 @@ var compiler = {
 
         cache[root] = worker;
 
-        var _start = Date.now();
-
         worker.send(message);
 
         worker.on('message', function(m){
