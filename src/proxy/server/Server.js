@@ -241,7 +241,7 @@ Server.prototype = {
 
         if(_url === '/proxy.pac'){
             fs.readFile(pacFilePath, 'utf-8', function(err, str){
-                 response.end(str);
+                response.end(str);
             });
             return
         }
@@ -285,6 +285,8 @@ Server.prototype = {
                     logger.info('https direc -', request.url.bold);
                 }
             });
+        }else{
+            logger.info('https direc -', request.url.bold);
         }
 
         var proxySocket = net.connect(urlObj.port, urlObj.hostname, function(){
