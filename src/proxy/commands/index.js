@@ -3,6 +3,8 @@
  * @author zdying
  */
 
+var path = require('path');
+
 module.exports = {
     // proxy request config
     'proxy_set_header': function(key, value){
@@ -68,6 +70,22 @@ module.exports = {
         this.props.default = value;
     },
 
+    // domain commands
+    'ssl_certificate': function(value){
+        var global = this.parent;
+        var rewriteFilePath = global.filePath;
+        var dirname = path.dirname(rewriteFilePath);
+
+        this.props.sslCertificate = path.join(dirname, value);
+    },
+
+    'ssl_certificate_key': function(value){
+        var global = this.parent;
+        var rewriteFilePath = global.filePath;
+        var dirname = path.dirname(rewriteFilePath);
+
+        this.props.sslCertificateKey = path.join(dirname, value);
+    },
 
     // global commands
     'set': function(key, value){

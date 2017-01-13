@@ -3,26 +3,19 @@
  * @author zdying
  */
 
-var commandFuncs = require('./../commands/index');
+var commandFuncs = require('../commands');
 var merge = require('../../helpers/merge');
 var type = require('../../helpers/type');
 
 var replaceVar = require('./../tools/replaceVar');
-
-var scopeCmds = {
-    domain : ['set'],
-    global : ['set'],
-    location : ['set', 'proxy_pass', 'alias', 'root']
-};
-
-// var requestScopeCmds = [];
-// var responseScopeCmds = [];
+var scopeCmds = require('../commands/scope');
 
 module.exports = function formatAST(ASTTree){
     var res = {
         commands: [],
         props: {},
         domains: {},
+        filePath: ASTTree.filePath,
         __id__: 'global'
     };
 

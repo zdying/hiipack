@@ -2,8 +2,10 @@
  * @file
  * @author zdying
  */
+var https = require('https');
 var http = require('http');
 var path = require('path');
+var tls = require('tls');
 var url = require('url');
 var net = require('net');
 var fs = require('fs');
@@ -12,6 +14,7 @@ var aliasWorker = require('./workers/alias');
 var requestWorker = require('./workers/request');
 
 var merge = require('../../helpers/merge');
+var config = require('../../client/config');
 
 var parseHosts = require('../tools/parseHosts');
 var parseRewrite = require('../tools/parseRewrite');
@@ -24,7 +27,10 @@ var logger = log.namespace('proxy -> Server');
 
 //TODO 支持rewrite到hosts中的host时
 
-function Server(){}
+function Server(port, middleManPort){
+    this.port = port || 4936;
+    this.middleManPort = middleManPort || 10010;
+}
 
 Server.cache = {
     hosts: {},
@@ -44,13 +50,45 @@ Server.prototype = {
         this.domainCache = {};
     },
 
-    start: function(port, option){
+    start: function(option){
         this.init();
-
-        this.port = Number(port) || 4936;
 
         this.server = http.createServer()
             .listen(this.port);
+
+
+        // HTTPS Middle Man Server
+
+        var defaultCert = {
+            key: path.resolve(__dirname, '../../../ssl/hiipack.key'),
+            cert: path.resolve(__dirname, '../../../ssl/hiipack.crt')
+        };
+
+        var option = {
+            key: fs.readFileSync(defaultCert.key),
+            cert: fs.readFileSync(defaultCert.cert),
+            SNICallback: function (domain, cb) {
+                var domainCache = this.domainCache;
+                var domainRewriteRule = domainCache[domain] || [];
+                var certObj = domainRewriteRule.length > 0 && domainRewriteRule[0].props;
+
+                if(certObj && certObj.sslCertificateKey && certObj.sslCertificate) {
+                    cb(null, tls.createSecureContext({
+                        key: fs.readFileSync(certObj.sslCertificateKey),
+                        cert: fs.readFileSync(certObj.sslCertificate)
+                    }));
+                    log.debug('SNI callback [', domain.bold.green, ']:', JSON.stringify(certObj));
+                } else {
+                    cb(null, tls.createSecureContext({
+                        key: fs.readFileSync(defaultCert.key),
+                        cert: fs.readFileSync(defaultCert.cert)
+                    }));
+                    log.warn('No keys/certificates for domain requested:', domain.bold.yellow);
+                }
+            }.bind(this)
+        };
+        this.middleManServer = https.createServer(option)
+            .listen(this.middleManPort);
 
         return new Promise(this.initEvent.bind(this));
     },
@@ -60,6 +98,7 @@ Server.prototype = {
         var url = 'http://127.0.0.1:' + port;
         var pac = url + '/proxy.pac';
         var server = this.server;
+        var middleManServer = this.middleManServer;
 
         server
             .on('listening', function(){
@@ -76,7 +115,19 @@ Server.prototype = {
                 reject(err)
             })
             .on('request', this.requestHandler.bind(this))
-            .on('connect', this.connectHandler.bind(this))
+            .on('connect', this.connectHandler.bind(this));
+
+        middleManServer
+            .on('request', function(req, res){
+                var url = req.url;
+                var protocol = req.client.encrypted ? 'https' : 'http';
+
+                if(!url.match(/^\w+:\/\//)){
+                    req.url = protocol + '://' + req.headers.host + req.url;
+                }
+
+                this.requestHandler(req, res);
+            }.bind(this));
     },
 
     stop: function(){
@@ -226,7 +277,10 @@ Server.prototype = {
 
         this.updateDomainCache();
 
-        logger.debug('rewriteRules updated =>', JSON.stringify(this.rewriteRules));
+        logger.debug('rewriteRules updated ==>', (this.rewriteRules || []).map(function(rule){
+            return Object.keys(rule.domains)
+        }));
+        logger.detail('rewriteRules updated ==>', JSON.stringify(this.rewriteRules));
     },
 
     requestHandler: function(request, response){
@@ -265,6 +319,7 @@ Server.prototype = {
     connectHandler: function(request, socket, head){
         var urlObj = url.parse('https://' + request.url);
         var domains = this.domainCache[urlObj.hostname];
+        var middleManPort = this.middleManPort;
 
         if(Array.isArray(domains)){
             domains.forEach(function(domain){
@@ -274,13 +329,13 @@ Server.prototype = {
                     proxy = proxy.location[0].props.proxy;
 
                     urlObj = url.parse(proxy);
-                    urlObj.port = 443;
+                    urlObj.port = middleManPort;
 
                     logger.info('https proxy -', request.url.bold.green, '==>', urlObj.hostname.bold.green);
                 }else if(typeof domain === 'string'){
                     // hosts规则
                     urlObj = url.parse('https://' + domain);
-                    urlObj.port = 443;
+                    urlObj.port = middleManPort;
                 }else{
                     logger.info('https direc -', request.url.bold);
                 }
@@ -356,10 +411,10 @@ Server.prototype = {
             }
         });
 
-        createPacFile(domainCache);
+        createPacFile(this.port, domainCache);
 
-        logger.debug('domain cache updated', Object.keys(domainCache));
-        logger.detail('domain cache updated', JSON.stringify(domainCache));
+        logger.debug('domain cache updated ==>', Object.keys(domainCache));
+        logger.detail('domain cache updated ==>', JSON.stringify(domainCache));
     }
 };
 

@@ -22,7 +22,11 @@ module.exports = {
         'hide_header',
         'hide_cookie'
     ],
-    domain : ['set'],
+    domain : [
+        'set',
+        'ssl_certificate',
+        'ssl_certificate_key'
+    ],
     global : ['set'],
     location : [
         'set',

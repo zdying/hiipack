@@ -9,7 +9,7 @@ var fs = require('fs');
 var path = require('path');
 var config = require('../../client/config');
 
-module.exports = function createPacFile(domainsCache){
+module.exports = function createPacFile(proxyPort, domainsCache){
     // 这个方法是生成到proxy.pac中的，hiipack不会调用
     function FindProxyForURL(url, host) {
         host = host.toLowerCase();
@@ -56,7 +56,7 @@ module.exports = function createPacFile(domainsCache){
 
     var txt = [
         'var SYS_PROXY = "' + (sysProxy ? 'PROXY ' + sysProxy : '') + '";\n',
-        'var PROXY = "PROXY 127.0.0.1:4936";\n',
+        'var PROXY = "PROXY 127.0.0.1:' + proxyPort+ '";\n',
         'var DIRECT = "DIRECT";\n',
         'var EXCLUDE_REG = /' + regText + '/;\n',
         'var DOMAINS = ' + JSON.stringify(domainsCache, replaceFun, 4) + ';\n\n',

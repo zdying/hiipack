@@ -35,6 +35,7 @@ program
     .option('--no-hot-reload', 'disable hot reload')
     .option('--log-time', 'display log time')
     .option('--https', 'start https server')
+    .option('--proxy-port <proxyPort>', 'proxy server port')
     .option('--ssl-key <sslKey>', 'ssl key file')
     .option('--ssl-cert <sslCert>', 'ssl cert file');
 

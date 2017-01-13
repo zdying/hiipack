@@ -1,6 +1,10 @@
 # 1.1.2
 
 * fix bug: https访问目录时，图标加载失败
+* rewrite支持ssl_certificate,ssl_certificate_key命令
+* 添加--proxy-port参数
+* https支持反向代理
+* https代理支持SNI
 
 # 1.1.1
 

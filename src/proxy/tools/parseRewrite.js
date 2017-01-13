@@ -8,7 +8,7 @@ var formatAST = require('./../AST/ASTFormater');
 
 module.exports = function parseRewrite(filePath){
     var sourceCode = fs.readFileSync(filePath);
-    var ASTTree = AST(sourceCode);
+    var ASTTree = AST(sourceCode, filePath);
     var tree = formatAST(ASTTree);
 
     return tree

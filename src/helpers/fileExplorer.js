@@ -17,8 +17,9 @@ module.exports = {
                     return
                 }
 
-                var hostPort = program.https ? 'https://127.0.0.1' : '//127.0.0.1' + program.port;
-                var sourceUrl = hostPort + '/__source__/image/';
+                //TODO 这里需要考虑HTTPS
+                // var hostPort = program.https ? 'https://127.0.0.1' : '//127.0.0.1' + program.port;
+                var sourceUrl = /*hostPort + */'/__source__/image/';
                 var docSVG = '<img class="file-icon" src="' + sourceUrl + 'Document.svg' + '"/>';
                 var fileSVG = '<img class="file-icon" src="' + sourceUrl + 'File.svg' + '"/>';
                 var folderSVG = '<img class="file-icon" src="' + sourceUrl + 'Folder.svg' + '"/>';

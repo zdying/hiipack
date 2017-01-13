@@ -6,13 +6,15 @@
 /**
  * Parse rewrite source file to AST tree
  * @param sourceCode
+ * @param filePath
  * @returns {{}}
  */
-module.exports = function parseRewrite(sourceCode){
+module.exports = function parseRewrite(sourceCode, filePath){
     var res = {
         baseRules: [],
         domains: [],
-        commands: []
+        commands: [],
+        filePath: filePath
     };
     var target = res;
     var history = [];
