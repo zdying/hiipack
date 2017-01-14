@@ -7,6 +7,7 @@
 * 支持proxy_set_cookie, proxy_hide_cookie
 * 优化commond日志
 * 支持代理：HTTP -> HTTPS和HTTPS  -> HTTP
+* proxy中domain格式支持新语法:`domain xxx.com {`
 * fix bug: proxy_hide_header大小写问题
 * fix bug: https访问目录时，图标加载失败
 * fix bug: fix#13

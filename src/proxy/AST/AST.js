@@ -41,7 +41,7 @@ module.exports = function parseRewrite(sourceCode, filePath){
         baseRule: /^(.*?\s*=>\s*[^\{\}]*)$/,
         cmd: /^(\w+(?:\s[^\{]+)+)$/,
         // rule: /(.*?\s*=>\s*\{[\s\S]*?\})/,
-        domainStart: /^([^\/]+) => \{$/,
+        domainStart: /^(([^\/]+) => \{)|(domain ([^\/]+) \{)$/,
         locationStart: /^location\s((~\s*)?\/.*?)+\s*\{$/,
         end: /^}$/
     };
@@ -68,6 +68,10 @@ module.exports = function parseRewrite(sourceCode, filePath){
                         break;
 
                     case 'domainStart':
+                        var domain = line.indexOf('domain') === 0
+                            ? line.replace(/domain ([^\/]+) \{/, '$1')
+                            : line.split(/\s*=>\s*/)[0];
+
                         target.domains.push({
                             domain: line.split(/\s*=>\s*/)[0],
                             commands: [],
