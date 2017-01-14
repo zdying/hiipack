@@ -4,6 +4,7 @@
  */
 
 var path = require('path');
+var setHeader = require('./setHeader');
 
 module.exports = {
     // proxy request config
@@ -35,19 +36,25 @@ module.exports = {
 
     // response config
     'hide_cookie': function(key){
-        this.response.headers['Set-Cookie'] = key + '=; Expires=' + new Date(1);
+        log.debug('hide_cookie -', key);
+
+        setHeader(this.response, 'Set-Cookie', key + '=; Expires=' + new Date(1))
     },
     'hide_header': function(key, value){
         log.debug('hide_header -', key, value);
-        delete this.response.headers[key];
+
+        delete this.response.headers[key.toLowerCase()];
+        this.response.removeHeader(key);
     },
     'set_header': function(key, value){
         log.debug('set_header -', key, value);
-        this.response.headers[key] = value;
+
+        setHeader(this.response, key, value);
     },
     'set_cookie': function(key, value){
         log.debug('set_cookie -', key, value);
-        this.response.headers['Set-Cookie'] = key + '=' + value;
+
+        setHeader(this.response, 'Set-Cookie', key + '=' + value)
     },
 
     // location commands

@@ -73,7 +73,7 @@ module.exports = function parseRewrite(sourceCode, filePath){
                             : line.split(/\s*=>\s*/)[0];
 
                         target.domains.push({
-                            domain: line.split(/\s*=>\s*/)[0],
+                            domain: domain,
                             commands: [],
                             location: [],
                             props: {}

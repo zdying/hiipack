@@ -23,8 +23,10 @@ module.exports = {
         }
 
         var proxy = (isHTTPS ? https : http).request(proxyOption, function(res){
+            response.headers = res.headers;
+
             execResponseCommand(rewrite_rule, {
-                response: res
+                response: response
             }, 'response');
 
             // response.pipe(res);
