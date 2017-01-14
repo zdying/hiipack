@@ -24,7 +24,20 @@ module.exports = {
 
             // response.pipe(res);
             response.writeHead(res.statusCode, res.headers);
+
+            /*
+            res.pause();
+
+            log.warn('request was paused:'.red, _url.bold.red);
+
+            setTimeout(function(){
+                res.resume();                
+                log.warn('request was resumed:'.red, _url.bold.red);
+            }, 5000)
+            */
+
             res.on('data', function(chunk){
+                // console.log('res.on.data ===>', chunk.toString());
                 response.write(chunk);
             });
             res.on('end', function(){
