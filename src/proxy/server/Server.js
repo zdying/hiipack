@@ -286,7 +286,6 @@ Server.prototype = {
     requestHandler: function(request, response){
         var _url = request.url;
         var start = Date.now();
-        var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
 
         if(_url === '/'){
             response.end('proxy file url: http://127.0.0.1:' + this.port + '/proxy.pac');
@@ -294,6 +293,8 @@ Server.prototype = {
         }
 
         if(_url === '/proxy.pac'){
+            var pacFilePath = path.resolve(__hii__.cacheTmpdir, 'hiipack.pac');
+
             fs.readFile(pacFilePath, 'utf-8', function(err, str){
                 response.end(str);
             });

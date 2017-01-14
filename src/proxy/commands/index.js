@@ -12,8 +12,8 @@ module.exports = {
         this.request.headers[key] = value;
     },
     'proxy_hide_header': function(key, value){
-        log.debug('proxy_del_header -', key, value);
-        delete this.request.headers[key];
+        log.debug('proxy_hide_header -', key, value);
+        delete this.request.headers[key.toLowerCase()];
     },
     'proxy_set_cookie': function(key, value){
         log.debug('proxy_set_cookie -', key, value);

@@ -21,23 +21,29 @@ var execCommand = require('./execCommand');
  * @returns {Object}
  */
 module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domainCache){
-    var uri = url.parse(request.url);
+    var originUrl = request.url;
+    var uri = url.parse(originUrl);
     var rewrite = !!rewriteRules && getRewriteRule(uri, rewriteRules, domainCache || {});
     var host = !!hostsRules && hostsRules[uri.hostname];
 
-    var hostname, port, path, proxyName;
+    var hostname, port, path, proxyName, protocol;
+
+    protocol = uri.protocol;
 
     // rewrite 优先级高于 hosts
     if(rewrite && rewrite.props.proxy){
-        var proxy = rewrite.props.proxy;
-        var alias = rewrite.props.alias;
+        var rewriteProps = rewrite.props;
+        var proxy = rewriteProps.proxy;
+        var alias = rewriteProps.alias;
+        var proxyUrlObj = url.parse(rewriteProps.proxy);
         var protocolReg = /^(\w+:\/\/)/;
         var newUrl, newUrlObj;
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
-        if(!alias && proxy.match(protocolReg)){
-            request.url = request.url.replace(protocolReg, '')
+        if(!alias && proxyUrlObj.protocol){
+            protocol = proxyUrlObj.protocol;
+            originUrl = originUrl.replace(protocolReg, '')
         }
 
         //TODO 替换其他props中的分组变量`$1`...`$N`, 比如下面的配置
@@ -66,7 +72,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         }else{
             // 普通地址字符串
             // 否则，把url中的source部分替换成proxy
-            newUrl = request.url.replace(rewrite.source, proxy);
+            newUrl = originUrl.replace(rewrite.source, proxy);
         }
 
         //TODO 这里应该有个bug, props是共享的, 一个修改了,其他的也修改了
@@ -74,6 +80,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             request: request,
             // props: rewrite.props
         };
+
         execCommand(rewrite, context, 'request');
 
         log.debug('newURL ==>', newUrl);
@@ -86,7 +93,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
             newUrlObj = url.parse(newUrl);
 
             hostname = newUrlObj.hostname;
-            port = newUrlObj.port || 80;
+            port = newUrlObj.port;
             path = newUrlObj.path;
         }
 
@@ -98,17 +105,18 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         proxyName = 'HIIPACK';
     }else{
         hostname = uri.hostname;
-        port = uri.port || 80;
+        port = uri.port;
         path = uri.path;
     }
 
     return {
         proxy_options: {
             host: hostname,
-            port: port || 80,
+            port: port,
             path: path,
             method: request.method,
-            headers: request.headers
+            headers: request.headers,
+            protocol: protocol
         },
         PROXY: proxyName,
         hosts_rule: host,

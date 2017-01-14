@@ -5,19 +5,24 @@
 
 'use strict';
 
-var url = require('url');
-var http = require('http');
-
 var logger = log.namespace('proxy -> Server');
 
 var execResponseCommand = require('../execCommand');
 
 module.exports = {
     response: function(rewrite_rule, request, response){
-        var _url = request.url;
-        var uri = url.parse(_url);
+        var url = require('url');
+        var http = require('http');
+        var https = require('https');
 
-        var proxy = http.request(request.proxy_options, function(res){
+        var proxyOption = request.proxy_options;
+        var isHTTPS = proxyOption.protocol === 'https:';
+
+        if(isHTTPS){
+            proxyOption.rejectUnauthorized = false;
+        }
+
+        var proxy = (isHTTPS ? https : http).request(proxyOption, function(res){
             execResponseCommand(rewrite_rule, {
                 response: res
             }, 'response');
@@ -41,13 +46,11 @@ module.exports = {
                 response.write(chunk);
             });
             res.on('end', function(){
-                var proxyOption = request.proxy_options;
-
                 request.res = res;
                 response.end();
 
                 if(request.PROXY){
-                    logger.access(request, (uri.protocol || 'http:') + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
+                    logger.access(request, (proxyOption.protocol || 'http:') + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
                 }else{
                     logger.access(request);
                     // logger.info('direc -', request.url.bold, Date.now() - start, 'ms');

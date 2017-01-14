@@ -1,12 +1,15 @@
 # 1.1.2
 
-* fix bug: https访问目录时，图标加载失败
 * rewrite支持ssl_certificate,ssl_certificate_key命令
 * 添加--proxy-port参数
 * https支持反向代理
 * https代理支持SNI
 * 支持proxy_set_cookie, proxy_hide_cookie
 * 优化commond日志
+* 支持代理：HTTP -> HTTPS和HTTPS  -> HTTP
+* fix bug: proxy_hide_header大小写问题
+* fix bug: https访问目录时，图标加载失败
+* fix bug: fix#13
 
 # 1.1.1
 
