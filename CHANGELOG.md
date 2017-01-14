@@ -5,6 +5,8 @@
 * 添加--proxy-port参数
 * https支持反向代理
 * https代理支持SNI
+* 支持proxy_set_cookie, proxy_hide_cookie
+* 优化commond日志
 
 # 1.1.1
 
