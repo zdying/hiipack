@@ -11,6 +11,7 @@ var fs = require('fs');
 
 var commands = require('../commands/index');
 var execCommand = require('./execCommand');
+//var replaceVar = require('../tools/replaceVar');
 
 /**
  * 获取代理信息, 用于请求代理的地址
@@ -51,6 +52,16 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
         //     proxy_set_header Proxy_Server_Source hiipack_regexp_$1;
         //     proxy_pass http://$local/$1/$2?query=$query;
         // }
+
+        // var varSource = {
+        //     props: {
+        //         $query: uri.query,
+        //         $search: uri.search,
+        //         $ptah: uri.path
+        //     }
+        // };
+        //
+        // proxy = replaceVar(proxy, varSource);
 
         // 将原本url中的部分替换为代理地址
         if(rewrite.source.indexOf('~') === 0){

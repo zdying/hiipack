@@ -78,7 +78,7 @@ module.exports = {
                 request.res = res;
 
                 if(request.PROXY){
-                    logger.access(request, (proxyOption.protocol || 'http:') + '//' + proxyOption.host +
+                    logger.access(request, (proxyOption.protocol || 'http:') + '//' + proxyOption.hostname +
                         (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
                 }else{
                     logger.access(request);

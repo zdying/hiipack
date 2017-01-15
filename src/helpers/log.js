@@ -51,7 +51,7 @@ module.exports = {
         if(type === '[object Error]'){
             this.printMessage('error', 'red', err.message);
             if(program.detail){
-                this.printMessage('', 'red', true, err.stack)
+                this.printMessage('error', 'red', true, err.stack)
             }
         }else{
             this.printMessage('error', 'red', arguments)

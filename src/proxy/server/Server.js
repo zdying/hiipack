@@ -367,7 +367,7 @@ Server.prototype = {
             proxySocket.write(head);
             proxySocket.pipe(socket);
         }).on('error', function(e){
-            console.log('proxy error', e.message);
+            logger.error('proxy error', e.message);
             socket.end();
         }).on('data', function(data){
             // console.log('proxy socker data:', data.toString());
