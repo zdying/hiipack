@@ -130,16 +130,20 @@ Server.prototype = {
                     req.url = protocol + '://' + host + url;
                 }
 
-                if(req.url === 'https://127.0.0.1:10010/'){
-                    res.end('the man in the middle.');
-                    return
-                }else if(url === '/favicon.ico'){
-                    res.statusCode = 404;
-                    res.end();
-                    return;
+                if(host === '127.0.0.1:' + this.middleManPort){
+                    res.end('the man in the middle page: ' + url);
+                    // if(url === '/'){
+                    //     res.end('the man in the middle.');
+                    // }else if(url === '/favicon.ico'){
+                    //     res.statusCode = 404;
+                    //     res.end('404 Not Found.');
+                    // }else{
+                    //     res.statusCode = 404;
+                    //     res.end('404 Not Found.');
+                    // }
+                }else{
+                    this.requestHandler(req, res);
                 }
-
-                this.requestHandler(req, res);
             }.bind(this));
     },
 

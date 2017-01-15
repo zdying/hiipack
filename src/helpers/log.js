@@ -4,6 +4,19 @@
  */
 
 var colors = require('colors');
+var iconMap = {
+        'debug'   : '*',
+        'access'  : '➤',
+        'info'    : 'ℹ',
+        'error'   : '✘',
+        'warn'    : '⚠',
+        'success' : '✔',
+        'detail'  : '❄'
+    };
+
+// for(var key in iconMap){
+//     console.log(iconMap[key]);
+// }
 
 module.exports = {
     namespace: function(name){
@@ -71,6 +84,6 @@ module.exports = {
             timeStr = '[' + new Date().toLocaleTimeString() + '] ';
         }
 
-        console.log(timeStr + (group ? ('[' + group + '] ').bold[groupColor] : '') + message);
+        console.log(timeStr + ' ' + iconMap[group || 'success'].bold[groupColor] + ' ' + message);
     }
 };
