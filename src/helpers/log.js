@@ -5,8 +5,8 @@
 
 var colors = require('colors');
 var iconMap = {
-        'debug'   : '*',
-        'access'  : '➤',
+        'debug'   : '➤',
+        'access'  : '✔',
         'info'    : 'ℹ',
         'error'   : '✘',
         'warn'    : '⚠',
