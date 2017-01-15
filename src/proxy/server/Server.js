@@ -56,9 +56,14 @@ Server.prototype = {
         this.server = http.createServer()
             .listen(this.port);
 
+        this.middleManServer = this.createMiddleManServer()
+            .listen(this.middleManPort);
 
+        return new Promise(this.initEvent.bind(this));
+    },
+
+    createMiddleManServer: function(){
         // HTTPS Middle Man Server
-
         var defaultCert = {
             key: path.resolve(__dirname, '../../../ssl/hiipack.key'),
             cert: path.resolve(__dirname, '../../../ssl/hiipack.crt')
@@ -87,10 +92,8 @@ Server.prototype = {
                 }
             }.bind(this)
         };
-        this.middleManServer = https.createServer(option)
-            .listen(this.middleManPort);
 
-        return new Promise(this.initEvent.bind(this));
+        return https.createServer(option)
     },
 
     initEvent: function(resolve, reject){
@@ -130,6 +133,10 @@ Server.prototype = {
                 if(req.url === 'https://127.0.0.1:10010/'){
                     res.end('the man in the middle.');
                     return
+                }else if(url === '/favicon.ico'){
+                    res.statusCode = 404;
+                    res.end();
+                    return;
                 }
 
                 this.requestHandler(req, res);
