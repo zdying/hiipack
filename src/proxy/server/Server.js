@@ -120,10 +120,16 @@ Server.prototype = {
         middleManServer
             .on('request', function(req, res){
                 var url = req.url;
+                var host = req.headers.host;
                 var protocol = req.client.encrypted ? 'https' : 'http';
 
                 if(!url.match(/^\w+:\/\//)){
-                    req.url = protocol + '://' + req.headers.host + req.url;
+                    req.url = protocol + '://' + host + url;
+                }
+
+                if(req.url === 'https://127.0.0.1:10010/'){
+                    res.end('the man in the middle.');
+                    return
                 }
 
                 this.requestHandler(req, res);

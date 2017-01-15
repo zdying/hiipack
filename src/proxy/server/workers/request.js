@@ -14,16 +14,24 @@ module.exports = {
         var url = require('url');
         var http = require('http');
         var https = require('https');
+        // var zlib = require('zlib');
 
         var proxyOption = request.proxy_options;
         var isHTTPS = proxyOption.protocol === 'https:';
 
+        proxyOption.headers['accept-encoding'] = 'gzip,deflate';
+
         if(isHTTPS){
+            // proxyOption.port = 443;
             proxyOption.rejectUnauthorized = false;
         }
 
         var proxy = (isHTTPS ? https : http).request(proxyOption, function(res){
             response.headers = res.headers;
+
+            var encoding = response.headers['content-encoding'];
+            // response.removeHeader('Content-Encoding');
+            // delete response.headers['content-encoding'];
 
             execResponseCommand(rewrite_rule, {
                 response: response
@@ -43,16 +51,35 @@ module.exports = {
             }, 5000)
             */
 
-            res.on('data', function(chunk){
-                // console.log('res.on.data ===>', chunk.toString());
-                response.write(chunk);
-            });
+            /*
+            // 打印日志
+            if(encoding === 'gzip' || encoding === 'deflate'){
+                var unzipStream = zlib.createUnzip();
+
+                unzipStream.on('data', function(chunk){
+                    console.log('ondata =>', chunk.toString());
+                });
+
+                unzipStream.on('error', function(err){
+                    console.log('error ==>', err);
+                });
+
+                res.pipe(unzipStream);
+            }else{
+                res.on('data', function(chunk){
+                    console.log('ondata =>', chunk.toString());
+                })
+            }
+            */
+
+            res.pipe(response);
+
             res.on('end', function(){
                 request.res = res;
-                response.end();
 
                 if(request.PROXY){
-                    logger.access(request, (proxyOption.protocol || 'http:') + '//' + proxyOption.host + (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
+                    logger.access(request, (proxyOption.protocol || 'http:') + '//' + proxyOption.host +
+                        (proxyOption.port ? ':' + proxyOption.port : '') + proxyOption.path)
                 }else{
                     logger.access(request);
                     // logger.info('direc -', request.url.bold, Date.now() - start, 'ms');
