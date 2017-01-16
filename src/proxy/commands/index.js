@@ -75,16 +75,16 @@ module.exports = {
 
     // domain commands
     'ssl_certificate': function(value){
-        var global = this.parent;
-        var rewriteFilePath = global.filePath;
+        var parent = this.parent;
+        var rewriteFilePath = parent.filePath;
         var dirname = path.dirname(rewriteFilePath);
 
         this.props.sslCertificate = path.join(dirname, value);
     },
 
     'ssl_certificate_key': function(value){
-        var global = this.parent;
-        var rewriteFilePath = global.filePath;
+        var parent = this.parent;
+        var rewriteFilePath = parent.filePath;
         var dirname = path.dirname(rewriteFilePath);
 
         this.props.sslCertificateKey = path.join(dirname, value);
