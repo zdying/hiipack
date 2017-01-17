@@ -1,5 +1,6 @@
 # 1.1.2
 
+* 支持模块异步加载
 * rewrite支持ssl_certificate,ssl_certificate_key命令
 * 添加--proxy-port参数
 * https支持反向代理

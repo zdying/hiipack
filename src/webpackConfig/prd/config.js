@@ -8,6 +8,7 @@ var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var ChunkManifestPlugin = require('chunk-manifest-webpack-plugin');
 var autoprefixer = require('autoprefixer');
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
@@ -85,7 +86,12 @@ module.exports = function(root, userConfig){
             /**
              * 生成版本号
              */
-            new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i)
+            new VersionPlugin(userConfig.hashLength || 6, userConfig.noVersionFiles || /static\//i),
+
+            new ChunkManifestPlugin({
+                filename: "manifest.json",
+                manifestVariable: "webpackManifest"
+            })
         ],
         node: {
             fs: "empty"

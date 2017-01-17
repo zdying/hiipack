@@ -62,9 +62,10 @@ function compileJS(projInfo, root, req, res){
         if(fs.statSync(filePath).isFile()){
             this.sendFile(req, filePath)
         }
-    }else if(env === 'src' || env === 'loc'){
-        //TODO 这里需要处理一下'loc'
+    }else if(env === 'src'){
         this.sendFile(req)
+    }else if(env === 'loc'){
+        this.sendCompiledFile(req)
     }
 }
 
