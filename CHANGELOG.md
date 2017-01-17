@@ -21,6 +21,9 @@
 * 修改proxy日志信息错误
 * 去掉删除重复CSS的插件
 
+* 内置HiipackCA根证书
+* 内置localhost证书，支持`127.0.0.1`和`localhost`
+
 # 1.0.10
 
 * 代码优化
