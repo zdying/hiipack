@@ -52,6 +52,7 @@ module.exports = function formatAST(ASTTree){
  * @param res
  */
 function parseBaseRule(baseRules, res){
+    //TODO baseURL 协议处理：只有完全匹配协议才转发
     baseRules.forEach(function(rule){
         var arr = rule.split(/\s*=>\s*/);
         var source = arr[0];
@@ -75,6 +76,7 @@ function parseBaseRule(baseRules, res){
                 location: [
                     {
                         path: urlObj.path || '/',
+                        source: source.replace(/^[\w\d]+:\/\//, ''),
                         props: {
                             proxy: target
                         }
