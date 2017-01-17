@@ -75,8 +75,9 @@ function parseBaseRule(baseRules, res){
                 domain: hostname,
                 location: [
                     {
+                        isBaseRule: true,
                         path: urlObj.path || '/',
-                        source: source.replace(/^[\w\d]+:\/\//, ''),
+                        source: source,
                         props: {
                             proxy: target
                         }

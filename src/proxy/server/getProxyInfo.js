@@ -35,6 +35,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
     if(rewrite && rewrite.props.proxy){
         var rewriteProps = rewrite.props;
         var proxy = rewriteProps.proxy;
+        var isBaseRule = rewrite.isBaseRule;
         var alias = rewriteProps.alias;
         var proxyUrlObj = url.parse(rewriteProps.proxy);
         var protocolReg = /^(\w+:\/\/)/;
@@ -42,7 +43,7 @@ module.exports = function getProxyInfo(request, hostsRules, rewriteRules, domain
 
         // 如果代理地址中包含具体协议，删除原本url中的协议
         // 最终替换位代理地址的协议
-        if(!alias && proxyUrlObj.protocol){
+        if(!alias && !isBaseRule && proxyUrlObj.protocol){
             protocol = proxyUrlObj.protocol;
             originUrl = originUrl.replace(protocolReg, '')
         }
