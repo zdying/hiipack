@@ -118,10 +118,10 @@ program
     });
 
 program
-    .command('ssl')
-    .description('show ssl certificate file path.')
-    .action(function(){
-        exec('ssl');
+    .command('ssl [operation] [args...]')
+    .description('ssl certificate manage, `operation`: [empty]|create-root-ca|ssl-path')
+    .action(function(operation, args){
+        exec('ssl', operation, args);
     });
 
 program.on('--help', function(){

@@ -4,8 +4,12 @@
  */
 
 module.exports = {
-    exec: function(args){
-        console.log(require('path').resolve(__dirname, '../ssl/'));
+    exec: function(ope, args){
+        var ssl = require('../../client/ssl');
+
+        if(typeof ssl[ope] === 'function'){
+            ssl[ope].apply(ssl, args);
+        }
     },
 
     usage: function(){

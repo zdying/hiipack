@@ -24,13 +24,15 @@ hiipack is a front end development tool based on webpack.
       start                         create a local server
       min                           compress/obfuscate project files
       pack                          pack project files
+      local <project>               pack local project files
       sync                          synchronize the current directory to remote server
       test                          run unit test
       clear                         clear resulting folders of hiipack
       config [operation] [args...]  hiipack config, `operation`: [empty]|list|set|delete
+      ssl [operation] [args...]     ssl certificate manage, `operation`: [empty]|create-root-ca|ssl-path
   
   Options:
-
+  
       -h, --help                  output usage information
       -v, --version               output the version number
       -o, --open [open]           open in browser, one of: chrome|firefox|safari|opera
@@ -45,6 +47,7 @@ hiipack is a front end development tool based on webpack.
       --no-hot-reload             disable hot reload
       --log-time                  display log time
       --https                     start https server
+      --proxy-port <proxyPort>    proxy server port
       --ssl-key <sslKey>          ssl key file
       --ssl-cert <sslCert>        ssl cert file
   
