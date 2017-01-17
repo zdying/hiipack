@@ -25,18 +25,23 @@ module.exports = {
 
         if(fs.existsSync(keyPath) && fs.existsSync(pemPath)){
             console.log('Root CA `' + caName + '` already exists.');
-            return;
+        }else{
+            child_process.execSync('openssl genrsa -out ' + keyPath + ' 2048');
+            child_process.execSync(
+                'openssl req -x509 -new -nodes -key ' + keyPath + ' -sha256 -days 3650 -out ' + pemPath,
+                {
+                    stdio: "inherit",
+                    stdin: process.stdin,
+                    stdout: process.stdout
+                }
+            );
         }
 
-        child_process.execSync('openssl genrsa -out ' + keyPath + ' 2048');
-        child_process.execSync(
-            'openssl req -x509 -new -nodes -key ' + keyPath + ' -sha256 -days 3650 -out ' + pemPath,
-            {
-                stdio: "inherit",
-                stdin: process.stdin,
-                stdout: process.stdout
-            }
-        );
+        console.log('\n\n');
+        console.log('Root CA created success, file name: ' + (caName + '.key & ' + caName + '.pem').bold.green);
+        console.log('\n\n');
+
+        openFinder(_path);
     },
 
     /**
@@ -91,5 +96,23 @@ module.exports = {
         child_process.execSync(
             certCMD
         );
+
+        console.log('\n\n');
+        console.log('Root CA created success, file name: ' + (domain + '.key & ' + domain + '.pem').bold.green);
+        console.log('\n\n');
+
+        var _path = path.join(SSL_ROOT, 'cert');
+
+        openFinder(_path);
     }
 };
+
+function openFinder(_path){
+    var os = require('os');
+
+    if(os.platform() === 'win32'){
+        child_process.exec('start "" "' + _path + '"');
+    }else{
+        child_process.exec('open ' + _path);
+    }
+}
