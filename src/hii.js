@@ -37,7 +37,9 @@ program
     .option('--https', 'start https server')
     .option('--proxy-port <proxyPort>', 'proxy server port')
     .option('--ssl-key <sslKey>', 'ssl key file')
-    .option('--ssl-cert <sslCert>', 'ssl cert file');
+    .option('--ssl-cert <sslCert>', 'ssl cert file')
+    .option('--ca-name <caName>', 'CA name, for command: `ssl create-cert`|`ssl create-root-ca`')
+    .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`');
 
 program
     .command('init <name>')
