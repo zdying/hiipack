@@ -65,8 +65,8 @@ Server.prototype = {
     createMiddleManServer: function(){
         // HTTPS Middle Man Server
         var defaultCert = {
-            key: path.resolve(__dirname, '../../../ssl/hiipack.key'),
-            cert: path.resolve(__dirname, '../../../ssl/hiipack.crt')
+            key: path.resolve(__dirname, '../../../ssl/cert/localhost.key'),
+            cert: path.resolve(__dirname, '../../../ssl/cert/localhost.crt')
         };
 
         var option = {

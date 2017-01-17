@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-rm -rdf ./cert
-mkdir cert
 
-read -p "Enter your file name [rootCA]: " CA_NAME
+read -p "Enter your file name [HiipackCA]: " CA_NAME
 
-DEFAULT_CA_NAME="rootCA"
+DEFAULT_CA_NAME="HiipackCA"
 CA_NAME=${CA_NAME:-$DEFAULT_CA_NAME}
 
 echo "Create the Root Key ..."
-openssl genrsa -out ./cert/$CA_NAME.key 2048
+openssl genrsa -out ./root/$CA_NAME.key 2048
 
 echo "self-sign this certificate ..."
-SUBJECT="/C=CN/ST=BeiJing/L=HaiDian/O=$CA_NAME/OU=DEV/CN=$CA_NAME/emailAddress=zdying@live.com"
-openssl req -x509 -new -subj $SUBJECT -nodes -key ./cert/$CA_NAME.key -sha256 -days 1024 -out ./cert/$CA_NAME.pem
+SUBJECT="/C=CN/ST=BeiJing/L=HaiDian/O=$CA_NAME/OU=MASTER/CN=$CA_NAME/emailAddress=zdying@live.com"
+openssl req -x509 -new -subj $SUBJECT -nodes -key ./root/$CA_NAME.key -sha256 -days 3650 -out ./root/$CA_NAME.pem
