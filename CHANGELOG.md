@@ -8,6 +8,9 @@
 * 优化commond日志
 * 支持代理：HTTP -> HTTPS和HTTPS  -> HTTP
 * proxy中domain格式支持新语法:`domain xxx.com {`
+* 内置HiipackCA根证书
+* 内置localhost证书，支持`127.0.0.1`和`localhost`
+
 * fix bug: proxy_hide_header大小写问题
 * fix bug: https访问目录时，图标加载失败
 * fix bug: fix#13
@@ -20,9 +23,6 @@
 * fix bug：多次修改hosts/rewrite文件，遍历次数每次递增
 * 修改proxy日志信息错误
 * 去掉删除重复CSS的插件
-
-* 内置HiipackCA根证书
-* 内置localhost证书，支持`127.0.0.1`和`localhost`
 
 # 1.0.10
 
