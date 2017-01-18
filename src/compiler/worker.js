@@ -37,8 +37,6 @@ var publish = function(data){
     })
 };
 
-console.log('afafasfasfa');
-
 function compile(conf){
     // projectName, root, env
     if(!compiler){
