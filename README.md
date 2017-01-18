@@ -1,14 +1,15 @@
 # hiipack
 
+hiipack is a front-end development tool based on the Webpack.
+
 [![webpack](https://img.shields.io/badge/hiipack-%20based%20on%20webpack%20-green.svg?style=flat)](https://webpack.github.io/)
 [![Node.js version](https://img.shields.io/badge/node-%3E%3D0.12.7-orange.svg)](https://nodejs.org/)
 [![NPM version](https://img.shields.io/npm/v/hiipack.svg?style=flat)](https://www.npmjs.org/package/hiipack)
 [![npm](https://img.shields.io/npm/dm/hiipack.svg)](https://www.npmjs.com/package/hiipack)
 [![Build Status](https://travis-ci.org/zdying/hiipack.svg?branch=master)](https://travis-ci.org/zdying/hiipack)
 
-hiipack is a front end development tool based on webpack.
-
-hiipack is a front-end development tool based on the WebPack. It provides code pack, compression, synchronization and other functions.
+hiipack is a front-end development tool based on the Webpack, it simplifies the Webpack configuration so that you can easily build a project.
+It provides code pack, compression, synchronization and other functions.
 hiipack also provides a local development service, can run multiple projects simultaneously.
 In addition, hiipack also has a built-in proxy server can fulfill the request forwarding, 
 including the mutual conversion between HTTP and HTTPS proxy.
@@ -23,6 +24,17 @@ including the mutual conversion between HTTP and HTTPS proxy.
 
 3. Proxy server
 
+## Features:
+
+* Local development service
+* Code pack
+* Compress/uglify
+* Sync code to remote server
+* Easy to configure
+* Built-in proxy
+* HTTPS support
+* Easy to create https certificate
+
 ## Install:
   
       npm install hiipack -g
@@ -36,7 +48,7 @@ including the mutual conversion between HTTP and HTTPS proxy.
   
       init <name>                   initialize project
       start                         create a local server
-      min                           compress/obfuscate project files
+      min                           compress/uglify project files
       pack                          pack project files
       local <project>               pack local project files
       sync                          synchronize the current directory to remote server
