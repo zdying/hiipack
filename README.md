@@ -8,7 +8,7 @@
 
 hiipack is a front end development tool based on webpack.
 
-  Screenshot
+## Screenshot
     
 1. Development server
 ![hiipack development server](http://i.imgur.com/0cMSrm0.gif)
@@ -18,16 +18,16 @@ hiipack is a front end development tool based on webpack.
 
 3. Proxy server
 
-  Install:
+## Install:
   
       npm install hiipack -g
 
-  Usage: 
+## Usage: 
     
       hii [options] [command]
   
   
-  Commands:
+## Commands:
   
       init <name>                   initialize project
       start                         create a local server
@@ -40,7 +40,7 @@ hiipack is a front end development tool based on webpack.
       config [operation] [args...]  hiipack config, `operation`: [empty]|list|set|delete
       ssl [operation] [args...]     ssl certificate manage, `operation`: [empty]|create-root-ca|ssl-path
   
-  Options:
+## Options:
   
       -h, --help                  output usage information
       -v, --version               output the version number
@@ -61,7 +61,7 @@ hiipack is a front end development tool based on webpack.
       --ssl-cert <sslCert>        ssl cert file
   
   
-  Examples:
+## Examples:
 
       $ hii init project_name -t es6
       $ hii start -xodD --https --ssl-cert ssl/cert/file --ssl-key ssl/key/file
@@ -74,6 +74,6 @@ hiipack is a front end development tool based on webpack.
       $ hii config delete system_proxy
       $ hii ssl
 
-  Documention:
+## Documention:
 
   [Documention](https://zdying.gitbooks.io/hiipack_doc/content/)
