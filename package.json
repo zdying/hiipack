@@ -1,12 +1,7 @@
 {
   "name": "hiipack",
-<<<<<<< HEAD
   "version": "1.1.2",
-  "description": "A front end development tool based on webpack",
-=======
-  "version": "1.1.1",
   "description": "hiipack is a front-end development tool based on the Webpack.",
->>>>>>> master
   "main": "index.js",
   "scripts": {
     "pretest": "node ./src/scripts/pretest",

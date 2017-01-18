@@ -2,7 +2,6 @@
  * @file
  * @author zdying
  */
-
 var Compiler = require('./Compiler');
 var _global = require('../global');
 
@@ -37,6 +36,8 @@ var publish = function(data){
         data: data
     })
 };
+
+console.log('afafasfasfa');
 
 function compile(conf){
     // projectName, root, env

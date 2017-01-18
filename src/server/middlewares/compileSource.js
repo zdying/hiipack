@@ -50,7 +50,13 @@ function compileJS(projInfo, root, req, res){
         // }.bind(this))
 
         // method: 2
-        compiler.compile(projInfo.projectName, root, 'loc', { watch: true }, function(){
+        compiler.compile(projInfo.projectName, root, 'loc', { watch: true }, function(err){
+            if(err){
+                res.statusCode = 500;
+                res.end(err.message);
+                return
+            }
+
             this.sendCompiledFile(req, projInfo)
         }.bind(this));
     }else if(env === 'dev'){
@@ -77,7 +83,13 @@ function compileCSS(projInfo, root, req, res){
     if(env === 'src' && fs.existsSync(filePath)){
         this.sendFile(req, filePath);
     }else{
-        return compiler.compile(projectName, root, 'loc', { watch: true }, function(){
+        return compiler.compile(projectName, root, 'loc', { watch: true }, function(err){
+            if(err){
+                res.statusCode = 500;
+                res.end(err.message);
+                return
+            }
+
             var userConfig = require(configPath);
             var entry = userConfig.entry;
             var entries = Object.keys(entry);
