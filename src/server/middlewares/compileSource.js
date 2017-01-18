@@ -52,8 +52,9 @@ function compileJS(projInfo, root, req, res){
         // method: 2
         compiler.compile(projInfo.projectName, root, 'loc', { watch: true }, function(err){
             if(err){
+                res.set('Content-Type', 'text/html');
                 res.statusCode = 500;
-                res.end(err.message);
+                res.end(err.stack);
                 return
             }
 
@@ -86,7 +87,8 @@ function compileCSS(projInfo, root, req, res){
         return compiler.compile(projectName, root, 'loc', { watch: true }, function(err){
             if(err){
                 res.statusCode = 500;
-                res.end(err.message);
+                res.set('Content-Type', 'text/html');
+                res.end(err.stack);
                 return
             }
 

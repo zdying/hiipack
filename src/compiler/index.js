@@ -26,7 +26,15 @@ var compiler = {
         cbk_cache[cbkId] = cbk;
 
         if(cache[root]){
-            cache[root].send(message);
+            log.debug('use old worker:', root);
+
+            if(cache[root].connected){
+                cache[root].send(message);
+            }else{
+                var error = new Error('Channel Closed');
+                error.code = 'CHANNEL_CLOSED';
+                cbk(new Error())
+            }
             return;
         }else{
             log.debug('create new worker');
@@ -41,6 +49,7 @@ var compiler = {
         });
 
         worker.on('error', function(err){
+            cache[root].disconnect();
             log.error(err);
             cbk(err);
             delete cbk_cache[cbkId]
