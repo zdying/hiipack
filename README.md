@@ -8,6 +8,8 @@
 
 hiipack is a front end development tool based on webpack.
 
+[Imgur](http://i.imgur.com/0cMSrm0.gifv)
+
 
   Install:
   
