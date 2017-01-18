@@ -68,7 +68,7 @@ program
 
 program
     .command('min')
-    .description('compress/obfuscate project files')
+    .description('compress/uglify project files')
     .action(function(){
         showVersion();
         exec('min');
