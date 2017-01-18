@@ -32,7 +32,6 @@ module.exports = function(req, res, next){
         }else if(fileExt === 'css'){
             compileCSS.apply(this, args);
         }else{
-            //File Explorer
             sendNormalFile.call(this, projInfo, root, req, res);
         }
     }else{
@@ -160,6 +159,7 @@ function fileExplor(req, res){
                 .then(function(html){
                     res.setHeader('Content-Type', 'text/html');
                     res.end(html);
+                    logger.access(req);
                 });
         }else{
             this.sendFile(req)
