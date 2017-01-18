@@ -8,8 +8,15 @@
 
 hiipack is a front end development tool based on webpack.
 
-[Imgur](http://i.imgur.com/0cMSrm0.gifv)
+  Screenshot
+    
+1. Development server
+![hiipack development server](http://i.imgur.com/0cMSrm0.gif)
 
+2. Pack and Min
+![hiipack pack and min command](http://i.imgur.com/ilvd35M.gif)
+
+3. Proxy server
 
   Install:
   
