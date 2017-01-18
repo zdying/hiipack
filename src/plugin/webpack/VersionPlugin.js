@@ -38,8 +38,11 @@ function VersionPlugin(hashLength, pattern){
             for(var fileName in assets){
                 var info = assets[fileName];
                 var filePath = info.existsAt;
+                var nameWithoutExt = fileName.replace(/\.\w+$/, '');
 
-                handerChunk(fileName, filePath);
+                if(nameWithoutExt in config.entry){
+                    handerChunk(fileName, filePath);
+                }
             }
 
             if(config.replaceVersion){
