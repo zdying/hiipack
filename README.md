@@ -10,7 +10,7 @@ hiipack is a front-end development tool based on the Webpack.
 
 hiipack is a front-end development tool based on the Webpack, it simplifies the Webpack configuration so that you can easily build a project.
 It provides code pack, compression, synchronization and other functions.
-hiipack also provides a local development service, can run multiple projects simultaneously.
+hiipack has a local development service, can run multiple projects simultaneously.
 In addition, hiipack also has a built-in proxy server can fulfill the request forwarding, 
 including the mutual conversion between HTTP and HTTPS proxy.
 
