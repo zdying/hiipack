@@ -86,6 +86,7 @@ ssl [operation] [args...]     ssl certificate manage, `operation`: [empty]|creat
 --ssl-cert <sslCert>        ssl cert file
 --ca-name <caName>          CA name, for command: `ssl create-cert`|`ssl create-root-ca`
 --sub-domains <subDomains>  sub domians, for command: `ssl create-cert`
+--grep <grepContent>        grep log: debug|access|info|error|warn|detail|<Any other string>
 ```
 
 ## Get Start
