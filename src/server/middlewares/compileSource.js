@@ -55,6 +55,7 @@ function compileJS(projInfo, root, req, res){
                 res.set('Content-Type', 'text/html');
                 res.statusCode = 500;
                 res.end(err.stack);
+                log.access(req);
                 return
             }
 
@@ -89,6 +90,7 @@ function compileCSS(projInfo, root, req, res){
                 res.statusCode = 500;
                 res.set('Content-Type', 'text/html');
                 res.end(err.stack);
+                log.access(req);
                 return
             }
 

@@ -126,6 +126,8 @@ Server.prototype = {
                 var host = req.headers.host;
                 var protocol = req.client.encrypted ? 'https' : 'http';
 
+                log.debug('http middle man server receive request ==>', protocol, host, url);
+
                 if(!url.match(/^\w+:\/\//)){
                     req.url = protocol + '://' + host + url;
                 }
