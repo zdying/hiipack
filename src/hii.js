@@ -39,7 +39,8 @@ program
     .option('--ssl-key <sslKey>', 'ssl key file')
     .option('--ssl-cert <sslCert>', 'ssl cert file')
     .option('--ca-name <caName>', 'CA name, for command: `ssl create-cert`|`ssl create-root-ca`')
-    .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`');
+    .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`')
+    .option('--proxy-content-log', 'show proxy response content log');
 
 program
     .command('init <name>')

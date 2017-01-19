@@ -14,7 +14,7 @@ module.exports = {
         var url = require('url');
         var http = require('http');
         var https = require('https');
-        // var zlib = require('zlib');
+        var zlib = require('zlib');
 
         var proxyOption = request.proxy_options;
         var isHTTPS = proxyOption.protocol === 'https:';
@@ -51,26 +51,28 @@ module.exports = {
             }, 5000)
             */
 
-            /*
-            // 打印日志
-            if(encoding === 'gzip' || encoding === 'deflate'){
-                var unzipStream = zlib.createUnzip();
+            var contentType = res.headers['content-type'];
 
-                unzipStream.on('data', function(chunk){
-                    console.log('ondata =>', chunk.toString());
-                });
+            if(global.program && global.program.proxyContentLog && /(text|json|javascript|css)/.test(contentType)){
+                // 打印日志
+                if(encoding === 'gzip' || encoding === 'deflate'){
+                    var unzipStream = zlib.createUnzip();
 
-                unzipStream.on('error', function(err){
-                    console.log('error ==>', err);
-                });
+                    unzipStream.on('data', function(chunk){
+                        console.log('ondata =>', chunk.toString());
+                    });
 
-                res.pipe(unzipStream);
-            }else{
-                res.on('data', function(chunk){
-                    console.log('ondata =>', chunk.toString());
-                })
+                    unzipStream.on('error', function(err){
+                        console.log('error ==>', err);
+                    });
+
+                    res.pipe(unzipStream);
+                }else{
+                    res.on('data', function(chunk){
+                        console.log('ondata =>', chunk.toString());
+                    })
+                }
             }
-            */
 
             res.pipe(response);
 
