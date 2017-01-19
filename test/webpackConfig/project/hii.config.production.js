@@ -62,10 +62,12 @@ module.exports = {
                 console.log('custom plugin 1');
             },
             {
-                'date-format': function(dateFormat, pkgPath){
-                    // console.log('callback2: data-format,', dateFormat, pkgPath);
+                'mathjs': function(math, pkgPath){
+                    console.log('pkgPath ==>', pkgPath);
+                    console.log('custom plugin 2, math.round(math.e, 3) =>', math.round(math.e, 3));
+
                     return function(){
-                        console.log('custom plugin 2, date =>', dateFormat('yyyy-MM/dd hh||mm//ss.SSS', new Date()));
+                        console.log('custom plugin 2, math.round(math.e, 3) =>', math.round(math.e, 3));
                     }
                 },
                 'underscore float-math': function(_, math, _path, mathPath){

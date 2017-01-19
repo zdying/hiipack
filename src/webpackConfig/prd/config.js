@@ -70,7 +70,7 @@ module.exports = function(root, userConfig){
              * 去除重复的css
              * sass编译出来的代码包含重复的内容(多次import同一个文件,导致同一个文件多次打包)
              */
-            new RemoveCssDuplicate(),
+            // new RemoveCssDuplicate(),
             /**
              * 压缩JS
              */

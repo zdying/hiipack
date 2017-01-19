@@ -70,6 +70,6 @@ describe('mergeConfig: ',function(){
     });
 
     it('只有extend.plugins', function(){
-        assert.equal(prdConf.plugins.length, 8);
+        assert.equal(prdConf.plugins.length, 7);
     });
 });

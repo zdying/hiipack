@@ -1,6 +1,18 @@
+# 1.1.1
+
+* 优化proxy代码
+* 优化proxy-rewrite代码
+* fix bug: html文件中library中的entry版本号没有被替换替换
+* fix bug：多次修改hosts/rewrite文件，遍历次数每次递增
+* 修改proxy日志信息错误
+* 去掉删除重复CSS的插件
+
 # 1.0.10
 
-* bugfix
+* 代码优化
+* 修改 proxy hosts bug
+* 修改html中位置libray中的文件版本号没有被替换的bug
+* 其他bugfix
 
 # 1.0.9
 

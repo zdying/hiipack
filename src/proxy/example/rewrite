@@ -64,14 +64,14 @@ api.qunar.com => {
     set $order order;
     set $cookie1 login=true;expires=20160909;
     set $test server_ip_$node_server;
-    set $test server_id_$id;
+    set $test1 server_id_$id;
 
     location /$flight/$order/detail {
         proxy_pass http://$node_server/user/?domain=$domain;
         set_header Set-Cookie userID 200908204140;
     }
 
-    location ~ /(usercenter|userinfo)/ {
+    location ~ /\/(usercenter|userinfo)/ {
         set $cookie login=true;expires=20180808;
         proxy_pass http://127.0.0.1:3008/info/;
         set_cookie userID 200908204140;

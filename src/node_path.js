@@ -12,7 +12,7 @@ module.exports = function(){
     // var globalRoot = child_process.execSync('npm root -g').toString().trim();
     var hiipackRoot = path.resolve(__dirname, '..', 'node_modules');
     var hiipackTempRoot = os.tmpdir() + '/hiipack/package/node_modules';
-    var spliter = os.platform().indexOf('win') === 0 ? ';' : ':';
+    var spliter = path.delimiter;
 
     var NODE_PATH = process.env.NODE_PATH;
     return [

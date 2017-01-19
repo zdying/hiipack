@@ -9,5 +9,6 @@ module.exports = function(req, res, next){
     req.url = req.url.replace(/[\?\#].*$/, '');
     req._startTime = Date.now();
     log.debug('request -', req.url);
+    log.detail('request -', req.url, JSON.stringify(req.headers));
     next();
 };

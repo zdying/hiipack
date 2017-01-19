@@ -56,13 +56,18 @@ program
             browser = typeof program.open === 'string' ? program.open : 'chrome';
         }
 
+        process.stdout.write('\u001B[2J\u001B[0;0f');
+
+        showVersion();
+
         exec('start', program.port, browser, program.proxy);
     });
 
 program
     .command('min')
-    .description('compress/obfuscate project files')
+    .description('compress/uglify project files')
     .action(function(){
+        showVersion();
         exec('min');
     });
 
@@ -70,7 +75,15 @@ program
     .command('pack')
     .description('pack project files')
     .action(function(){
+        showVersion();
         exec('pack');
+    });
+
+program
+    .command('local <project>')
+    .description('pack local project files')
+    .action(function(project){
+        exec('local', project);
     });
 
 program

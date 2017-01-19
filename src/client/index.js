@@ -8,7 +8,7 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var execSync = child_process.execSync;
 
-var Compiler = require('../compiler');
+var Compiler = require('../compiler/Compiler');
 
 var package = require('../helpers/package');
 var logger = log.namespace('client');
@@ -44,6 +44,7 @@ module.exports = {
         var projectName = workPath.split('/').pop();
         var compiler = new Compiler(projectName, workPath, env);
         var dir = {
+            'loc': [],
             'dev': ['dev'],
             'prd': ['prd', 'ver']
         };
@@ -56,6 +57,42 @@ module.exports = {
                  fse.removeSync(folder)
             });
             compiler.compile({watch: false}, callback);
+        }catch(e){
+            logger.error(e);
+        }
+    },
+
+    __build: function(project, callback){
+        var env = __hii__.env;
+        var workPath = process.cwd();
+        var projectName = project || workPath.split('/').pop();
+
+        // var compiler = new Compiler(projectName, workPath, env);
+        var dir = {
+            'loc': [],
+            'dev': ['dev'],
+            'prd': ['prd', 'ver']
+        };
+
+        logger.info('clean folder', '[ ' + dir[env].join(', ').bold.green + ' ]'.bold, '...');
+
+        try{
+            // execSync('rm -rdf ./' + dir[env].join(' ./'));
+            dir[env].forEach(function(folder){
+                fse.removeSync(folder)
+            });
+
+            var master = require('../compiler');
+            // master.compileDLL(projectName, workPath + '/' + projectName, env, { watch: false }, function(){
+            //     master.compile(projectName, '', env, { watch: false });
+            // });
+
+            var cbk = function(){}
+
+            cbk.cbkId = Math.random();
+
+            master.compile(projectName, workPath + '/' + projectName, env, { watch: true }, cbk);
+
         }catch(e){
             logger.error(e);
         }
@@ -77,6 +114,11 @@ module.exports = {
     pack: function(callback){
         __hii__.env = 'dev';
         this._build(callback)
+    },
+
+    local: function(project, callback){
+        __hii__.env = 'loc';
+        this.__build(project, callback)
     },
 
     /**

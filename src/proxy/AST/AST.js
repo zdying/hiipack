@@ -96,6 +96,8 @@ module.exports = function parseRewrite(sourceCode){
         }
     });
 
+    // console.log(JSON.stringify(res, null, 4));
+
     return res
 };
 
