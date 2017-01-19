@@ -347,12 +347,14 @@ Server.prototype = {
                     proxy = proxy.location[0].props.proxy;
 
                     urlObj = url.parse(proxy);
+                    urlObj.hostname = '127.0.0.1';
                     urlObj.port = middleManPort;
 
                     logger.info('https proxy -', request.url.bold.green, '==>', urlObj.hostname.bold.green);
                 }else if(typeof domain === 'string'){
                     // hosts规则
                     urlObj = url.parse('https://' + domain);
+                    urlObj.hostname = '127.0.0.1';
                     urlObj.port = middleManPort;
                 }else{
                     logger.info('https direc -', request.url.bold);
@@ -361,6 +363,8 @@ Server.prototype = {
         }else{
             logger.info('https direc -', request.url.bold);
         }
+
+        log.debug('connect to:', urlObj.port, urlObj.hostname);
 
         var proxySocket = net.connect(urlObj.port, urlObj.hostname, function(){
             socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
