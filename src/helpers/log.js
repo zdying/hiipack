@@ -68,10 +68,13 @@ module.exports = {
     },
     printMessage: function(group, groupColor, ignoreNamespace, message){
         var timeStr = '';
+        var grep = program.grep;
+
         if(arguments.length === 3){
             message = ignoreNamespace;
             ignoreNamespace = false;
         }
+
         if(typeof message === 'object'){
             message = Array.prototype.join.call(message, ' ')
         }
@@ -84,6 +87,8 @@ module.exports = {
             timeStr = '[' + new Date().toLocaleTimeString() + '] ';
         }
 
-        console.log(timeStr + ' ' + iconMap[group || 'success'].bold[groupColor] + ' ' + message);
+        if(!grep || message.indexOf(grep) !== -1 || grep === group){
+            console.log(timeStr + ' ' + iconMap[group || 'success'].bold[groupColor] + ' ' + message);
+        }
     }
 };

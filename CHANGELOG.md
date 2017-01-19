@@ -13,6 +13,7 @@
 * 内置localhost证书，支持`127.0.0.1`和`localhost`
 * 增加SSL相关命令：`ssl create-root-ca`, `ssl create-cert`, `ssl ssl-path`
 * `ssl create-cert`支持生成多域名证书
+* 增加`--grep <grepContent>`命令，过滤日志
 
 * fix bug: proxy_hide_header大小写问题
 * fix bug: https访问目录时，图标加载失败

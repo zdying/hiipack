@@ -40,7 +40,8 @@ program
     .option('--ssl-cert <sslCert>', 'ssl cert file')
     .option('--ca-name <caName>', 'CA name, for command: `ssl create-cert`|`ssl create-root-ca`')
     .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`')
-    .option('--proxy-content-log', 'show proxy response content log');
+    .option('--proxy-content-log', 'show proxy response content log')
+    .option('--grep <grepContent>', 'grep log: debug|access|info|error|warn|detail|<Any other string>');
 
 program
     .command('init <name>')
