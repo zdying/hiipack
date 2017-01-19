@@ -1,3 +1,23 @@
+# 1.1.2
+
+* 支持模块异步加载
+* rewrite支持ssl_certificate,ssl_certificate_key命令
+* 添加--proxy-port参数
+* https支持反向代理
+* https代理支持SNI
+* 支持proxy_set_cookie, proxy_hide_cookie
+* 优化commond日志
+* 支持代理：HTTP -> HTTPS和HTTPS  -> HTTP
+* proxy中domain格式支持新语法:`domain xxx.com {`
+* 内置HiipackCA根证书
+* 内置localhost证书，支持`127.0.0.1`和`localhost`
+* 增加SSL相关命令：`ssl create-root-ca`, `ssl create-cert`, `ssl ssl-path`
+* `ssl create-cert`支持生成多域名证书
+
+* fix bug: proxy_hide_header大小写问题
+* fix bug: https访问目录时，图标加载失败
+* fix bug: fix#13
+
 # 1.1.1
 
 * 优化proxy代码

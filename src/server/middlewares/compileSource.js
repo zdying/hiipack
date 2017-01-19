@@ -32,7 +32,6 @@ module.exports = function(req, res, next){
         }else if(fileExt === 'css'){
             compileCSS.apply(this, args);
         }else{
-            //File Explorer
             sendNormalFile.call(this, projInfo, root, req, res);
         }
     }else{
@@ -51,7 +50,15 @@ function compileJS(projInfo, root, req, res){
         // }.bind(this))
 
         // method: 2
-        compiler.compile(projInfo.projectName, root, 'loc', { watch: true }, function(){
+        compiler.compile(projInfo.projectName, root, 'loc', { watch: true }, function(err){
+            if(err){
+                res.set('Content-Type', 'text/html');
+                res.statusCode = 500;
+                res.end(err.stack);
+                log.access(req);
+                return
+            }
+
             this.sendCompiledFile(req, projInfo)
         }.bind(this));
     }else if(env === 'dev'){
@@ -62,9 +69,10 @@ function compileJS(projInfo, root, req, res){
         if(fs.statSync(filePath).isFile()){
             this.sendFile(req, filePath)
         }
-    }else if(env === 'src' || env === 'loc'){
-        //TODO 这里需要处理一下'loc'
+    }else if(env === 'src'){
         this.sendFile(req)
+    }else if(env === 'loc'){
+        this.sendCompiledFile(req)
     }
 }
 
@@ -77,7 +85,15 @@ function compileCSS(projInfo, root, req, res){
     if(env === 'src' && fs.existsSync(filePath)){
         this.sendFile(req, filePath);
     }else{
-        return compiler.compile(projectName, root, 'loc', { watch: true }, function(){
+        return compiler.compile(projectName, root, 'loc', { watch: true }, function(err){
+            if(err){
+                res.statusCode = 500;
+                res.set('Content-Type', 'text/html');
+                res.end(err.stack);
+                log.access(req);
+                return
+            }
+
             var userConfig = require(configPath);
             var entry = userConfig.entry;
             var entries = Object.keys(entry);
@@ -159,6 +175,7 @@ function fileExplor(req, res){
                 .then(function(html){
                     res.setHeader('Content-Type', 'text/html');
                     res.end(html);
+                    logger.access(req);
                 });
         }else{
             this.sendFile(req)

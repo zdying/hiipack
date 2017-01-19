@@ -5,7 +5,7 @@
 
 'use strict';
 
-var types = require('./type');
+var types = require('./scope');
 
 /**
  * 获取rewrite rule对象对应的指令以及祖先元素的指令，并根据type过滤

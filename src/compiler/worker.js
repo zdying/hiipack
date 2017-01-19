@@ -2,7 +2,6 @@
  * @file
  * @author zdying
  */
-
 var Compiler = require('./Compiler');
 var _global = require('../global');
 

@@ -57,8 +57,8 @@ Server.prototype = {
         if(program.https){
             var hiiConfig = config.get();
 
-            var sslKey = program.sslKey || hiiConfig.sslKey || path.resolve(__dirname, '../../ssl/hiipack.key');
-            var sslCert = program.sslCert || hiiConfig.sslCert || path.resolve(__dirname, '../../ssl/hiipack.crt');
+            var sslKey = program.sslKey || hiiConfig.sslKey || path.resolve(__dirname, '../../ssl/cert/localhost.key');
+            var sslCert = program.sslCert || hiiConfig.sslCert || path.resolve(__dirname, '../../ssl/cert/localhost.crt');
             var option = {
                 key: fs.readFileSync(sslKey),
                 cert: fs.readFileSync(sslCert)

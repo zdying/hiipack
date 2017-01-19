@@ -9,7 +9,8 @@ var path = require('path');
 var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
+var ChunkManifestPlugin = require('chunk-manifest-webpack-plugin');
+// var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
 var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
@@ -66,7 +67,12 @@ module.exports = function(root, userConfig){
              * 去除重复的css
              * sass编译出来的代码包含重复的内容(多次import同一个文件,导致同一个文件多次打包)
              */
-            new RemoveCssDuplicate()
+            // new RemoveCssDuplicate(),
+
+            new ChunkManifestPlugin({
+                filename: "manifest.json",
+                manifestVariable: "webpackManifest"
+            })
         ],
         node: {
             fs: "empty"

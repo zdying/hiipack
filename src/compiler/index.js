@@ -26,15 +26,33 @@ var compiler = {
         cbk_cache[cbkId] = cbk;
 
         if(cache[root]){
-            cache[root].send(message);
+            log.debug('use old worker:', root);
+
+            if(cache[root].connected){
+                cache[root].send(message);
+            }else{
+                var error = new Error('Channel Closed');
+                error.code = 'CHANNEL_CLOSED';
+                cbk(new Error())
+            }
             return;
         }else{
-            log.debug('create new worker...');
+            log.debug('create new worker');
         }
 
-        var worker = child_process.fork(__dirname + '/worker', process.argv.slice(2), {
+        log.debug('fork new worker:', __dirname + '/worker.js');
+        log.debug('new worker root:', root);
+
+        var worker = child_process.fork(__dirname + '/worker.js', process.argv.slice(2), {
             cwd: root,
             execArgv: []
+        });
+
+        worker.on('error', function(err){
+            cache[root].disconnect();
+            log.error(err);
+            cbk(err);
+            delete cbk_cache[cbkId]
         });
 
         cache[root] = worker;
@@ -43,9 +61,10 @@ var compiler = {
 
         worker.on('message', function(m){
             if(m.action === 'compiler-finish'){
-                if(cbk_cache[m.cbkId]){
-                    cbk_cache[m.cbkId]();
-                    delete cbk_cache[m.cbkId];
+                var cbkId = m.cbkId;
+                if(cbk_cache[cbkId]){
+                    cbk_cache[cbkId]();
+                    delete cbk_cache[cbkId];
                 }
                 // process.exit(0);
             }else if(m.action === 'hmr'){

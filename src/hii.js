@@ -35,8 +35,12 @@ program
     .option('--no-hot-reload', 'disable hot reload')
     .option('--log-time', 'display log time')
     .option('--https', 'start https server')
+    .option('--proxy-port <proxyPort>', 'proxy server port')
     .option('--ssl-key <sslKey>', 'ssl key file')
-    .option('--ssl-cert <sslCert>', 'ssl cert file');
+    .option('--ssl-cert <sslCert>', 'ssl cert file')
+    .option('--ca-name <caName>', 'CA name, for command: `ssl create-cert`|`ssl create-root-ca`')
+    .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`')
+    .option('--proxy-content-log', 'show proxy response content log');
 
 program
     .command('init <name>')
@@ -117,10 +121,10 @@ program
     });
 
 program
-    .command('ssl')
-    .description('show ssl certificate file path.')
-    .action(function(){
-        exec('ssl');
+    .command('ssl [operation] [args...]')
+    .description('ssl certificate manage, `operation`: [empty]|create-root-ca|ssl-path')
+    .action(function(operation, args){
+        exec('ssl', operation, args);
     });
 
 program.on('--help', function(){

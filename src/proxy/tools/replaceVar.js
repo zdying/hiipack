@@ -29,7 +29,7 @@ module.exports = function replaceVar(str, source){
         return str.replace(/\$[\w\d_]+/g, function(match){
             var val = allProps[match];
 
-            if(typeof val !== 'undefined'){
+            if(typeof val === 'string'){
                 // 替换首位的引号
                 return val.replace(/^(['"])(.*)(\1)$/, "$2");
             }else{

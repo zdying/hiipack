@@ -15,12 +15,12 @@ module.exports = function(rewrite_rule, context, scope){
     }
 
     // call response commands
-    var resCommands = getCommands(rewrite_rule, scope);
+    var cmdsNeedToExec = getCommands(rewrite_rule, scope);
 
-    if(Array.isArray(resCommands)){
-        log.detail('commands that will be executed [' + scope + ']:', JSON.stringify(resCommands).bold);
+    if(Array.isArray(cmdsNeedToExec)){
+        log.detail('commands that will be executed [' + scope + ']:', JSON.stringify(cmdsNeedToExec).bold);
 
-        resCommands.forEach(function(command){
+        cmdsNeedToExec.reverse().forEach(function(command){
             // var inScope = responseScopeCmds.indexOf(command.name) !== -1;
             var name = command.name;
             var params = command.params || [];
