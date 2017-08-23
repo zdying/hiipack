@@ -9,24 +9,20 @@ var color = require('colors');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var ChunkManifestPlugin = require('chunk-manifest-webpack-plugin');
-var autoprefixer = require('autoprefixer');
+var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 
 var VersionPlugin = require('../../plugin/webpack/VersionPlugin');
-var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
 
-var utils = require('../../helpers/utils');
+
 var getBabelLoader = require('../utils/getBabelLoader');
+var getStyleLoader = require('../utils/getStyleLoader');
+
 var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
-module.exports = function(root, userConfig){
-    var cssLoader = userConfig.css && userConfig.css.loader;
-    var lessLoader = userConfig.less && userConfig.less.loader;
-    var scssLoader = userConfig.scss && userConfig.scss.loader;
+var es3ifyPlugin = require('es3ify-webpack-plugin');
 
-    var defaultCssLoader = "css!postcss";
-    var defaultLessLoader = "css!less!postcss";
-    var defaultScssLoader = "css!sass!postcss";
+module.exports = function(root, userConfig){
 
     var config = {
         env: 'prd',
@@ -38,22 +34,9 @@ module.exports = function(root, userConfig){
             hashDigestLength: 32
         },
         module: {
-            loaders: [
-                getBabelLoader(userConfig, 'prd'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract(cssLoader || defaultCssLoader) },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract(lessLoader ||  defaultLessLoader) },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract(scssLoader || defaultScssLoader) }
-            ],
-            postLoaders: [
-                {
-                    test: /\.jsx?$/,
-                    loaders: ['es3ify-loader']
-                }
-            ]
+            rules: [getBabelLoader(userConfig, 'prd')].concat(getStyleLoader(userConfig, 'prd'))
         },
-        postcss: function() {
-            return [autoprefixer];
-        },
+
         plugins: [
             /**
              * 定义环境变量
@@ -67,16 +50,21 @@ module.exports = function(root, userConfig){
              * 提取公共的css
              */
             new ExtractTextPlugin('[name].css'),
-            /**
-             * 去除重复的css
-             * sass编译出来的代码包含重复的内容(多次import同一个文件,导致同一个文件多次打包)
+            // Compress extracted CSS. We are using this plugin so that possible
+            // duplicated CSS from different components can be deduped.
+            new OptimizeCSSPlugin({
+                cssProcessorOptions: {
+                    safe: true
+                }
+            }),
+            /*
+             * Support old versions of ie, such as ie8.
              */
-            // new RemoveCssDuplicate(),
+            new es3ifyPlugin(),
             /**
              * 压缩JS
              */
             new webpack.optimize.UglifyJsPlugin({
-                test: /(\.jsx?)$/,
                 compress: {
                     warnings: false,
                     drop_console: true,
@@ -97,14 +85,21 @@ module.exports = function(root, userConfig){
             fs: "empty"
         },
         resolve: {
-            root: root,
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
-            extensions: ['', '.js', '.jsx', '.scss', '.json'],
+            modules: [
+                path.resolve(__hiipack__.cwd, 'node_modules'),
+                path.resolve(__dirname, 'node_modules'),
+                root,
+                path.resolve(__hiipack__.root, 'node_modules'),
+                path.resolve(__hiipack__.packageTmpdir),
+            ],
+            extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
-            modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            modules: [
+                path.resolve(__hiipack__.root, "node_modules"),
+                path.resolve(__hiipack__.packageTmpdir, "node_modules")
+            ],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }

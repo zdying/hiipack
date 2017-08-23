@@ -16,6 +16,7 @@ var config = require('./config');
 
 var path = require('path');
 var fse = require('fs-extra');
+var klaw = require('klaw')
 var fs = require('fs');
 
 module.exports = {
@@ -164,7 +165,7 @@ module.exports = {
         fs.writeFileSync(
             rcFile,
             JSON.stringify({
-                "presets": [__hii__.resolve("babel-preset-es2015")]
+                "presets": [__hii__.resolve("babel-preset-env")]
             }, null, 4)
         );
         logger.debug('test', '-', 'exec command:', cmd.yellow);
@@ -204,7 +205,7 @@ module.exports = {
         var items = []; // files, directories, symlinks, etc
         log.info('setup project ...');
         log.info('rename template files ...');
-        fse.walk(root)
+        klaw(root)
             .on('data', function(item){
                 items.push(item.path);
             })

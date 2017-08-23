@@ -52,7 +52,8 @@ module.exports = {
 
         dirs.forEach(function(dir, index){
             dir = dir.replace(/\/node\_modules\/?$/, '');
-            var withVersionDir = dir.match(/hiipack_cache_with_version$/);
+            // var withVersionDir = dir.match(/hiipack_cache_with_version$/);
+            var withVersionDir = dir.match(/package_with_version/);
             if(!finalPath){
                 if(version && withVersionDir){
                     modulePath += '@' + version;

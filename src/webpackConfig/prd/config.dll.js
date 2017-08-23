@@ -14,7 +14,7 @@ module.exports = function(root, userConfig){
     return {
         context: root,
         entry: userConfig.library,
-        replaceVersion: userConfig.replaceVersion,
+        // replaceVersion: userConfig.replaceVersion,
         output: {
             path: path.join(root, "prd"),
             filename: "[name].js",
@@ -34,9 +34,8 @@ module.exports = function(root, userConfig){
                 name: "__lib__[name]__",
                 context: root
             }),
-            new webpack.optimize.OccurenceOrderPlugin(),
+            // new webpack.optimize.OccurenceOrderPlugin(),
             new webpack.optimize.UglifyJsPlugin({
-                test: /(\.jsx?)$/,
                 compress: {
                     warnings: false,
                     drop_console: true,

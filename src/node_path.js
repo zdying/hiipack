@@ -9,7 +9,6 @@ var _globalRoot = require('./globalRoot');
 
 module.exports = function(){
     var globalRoot = _globalRoot || path.resolve(__dirname, '../../node_modules');
-    // var globalRoot = child_process.execSync('npm root -g').toString().trim();
     var hiipackRoot = path.resolve(__dirname, '..', 'node_modules');
     var hiipackTempRoot = os.tmpdir() + '/hiipack/package/node_modules';
     var spliter = path.delimiter;

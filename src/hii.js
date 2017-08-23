@@ -29,11 +29,16 @@ program
     // .option('-e, --extract-css', 'extract css from javascript')
     .option('-D, --detail', 'print debug and error detail log')
     // .option('-w, --workspace <workspace>', 'workspace', process.cwd())
-    .option('-x, --proxy', 'start the proxy server')
     .option('-t, --type <type>', 'project type: one of react|react-redux|es6|vue|normal|empty', /^(react|react-redux|es6|vue|normal|empty)$/, 'normal')
     .option('--no-color', 'disable log color')
     .option('--no-hot-reload', 'disable hot reload')
     .option('--log-time', 'display log time')
+    
+    /*
+     * TODO
+     * Move proxy to hiproxy.
+     */
+    .option('-x, --proxy', 'start the proxy server')
     .option('--https', 'start https server')
     .option('--proxy-port <proxyPort>', 'proxy server port')
     .option('--ssl-key <sslKey>', 'ssl key file')
@@ -41,19 +46,19 @@ program
     .option('--ca-name <caName>', 'CA name, for command: `ssl create-cert`|`ssl create-root-ca`')
     .option('--sub-domains <subDomains>', 'sub domians, for command: `ssl create-cert`')
     .option('--proxy-content-log', 'show proxy response content log')
+
     .option('--grep <grepContent>', 'grep log: debug|access|info|error|warn|detail|<Any other string>');
 
 program
     .command('init <name>')
-    .description('initialize project')
+    .description('Initialize project')
     .action(function(name){
         exec('init', name, program.type, program.registry);
-        // client.init(name, program.type, program.registry);
     });
 
 program
     .command('start')
-    .description('create a local server')
+    .description('Create a local server')
     .action(function(){
         var browser = false;
 
@@ -70,7 +75,7 @@ program
 
 program
     .command('min')
-    .description('compress/uglify project files')
+    .description('Compress project files with uglify')
     .action(function(){
         showVersion();
         exec('min');
@@ -78,7 +83,7 @@ program
 
 program
     .command('pack')
-    .description('pack project files')
+    .description('Pack project files')
     .action(function(){
         showVersion();
         exec('pack');
@@ -86,44 +91,42 @@ program
 
 program
     .command('local <project>')
-    .description('pack local project files')
+    .description('Pack local project files')
     .action(function(project){
         exec('local', project);
     });
 
 program
     .command('sync')
-    .description('synchronize the current directory to remote server')
+    .description('Synchronize the current directory to remote server')
     .action(function(){
         exec('sync', program.syncConf);
-        // client.sync(program.syncConf);
     });
 
 program
     .command('test')
-    .description('run unit test')
+    .description('Run unit test')
     .action(function(){
         exec('test');
     });
 
 program
     .command('clear')
-    .description('clear resulting folders of hiipack')
+    .description('Clear resulting folders of hiipack')
     .action(function(){
         exec('clear');
     });
 
 program
     .command('config [operation] [args...]')
-    .description('hiipack config, `operation`: [empty]|list|set|delete')
+    .description('Set hiipack config, `operation`: [empty]|list|set|delete')
     .action(function(ope, args, options){
-        // client.config(ope, args)
         exec('config', ope, args);
     });
 
 program
     .command('ssl [operation] [args...]')
-    .description('ssl certificate manage, `operation`: [empty]|create-root-ca|ssl-path')
+    .description('Manage ssl certificate, `operation`: [empty]|create-root-ca|ssl-path')
     .action(function(operation, args){
         exec('ssl', operation, args);
     });

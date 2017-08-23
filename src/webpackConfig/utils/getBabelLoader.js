@@ -12,11 +12,12 @@ module.exports = function getBabelLoader(userConfig, env, root){
     var plugins = babelConfig.plugins;
     var exclude = babelConfig.exclude;
     var include = babelConfig.include;
-    var supportIE8 = userConfig.supportIE8;
-    var defaultPresets = [
-        'babel-preset-react',
-        supportIE8 ? 'babel-preset-es2015-loose' : 'babel-preset-es2015'
-    ];
+    var defaultPresets = [['babel-preset-env', {
+        "modules": false,
+        "targets": {
+            "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+        }
+    }], 'babel-preset-stage-0', 'babel-preset-react'];
 
     /*
     if(env === 'loc' && program.hotReload){
@@ -41,31 +42,41 @@ module.exports = function getBabelLoader(userConfig, env, root){
     */
 
     exclude = exclude == null ? /(node_modules|bower_components)/ : exclude;
-    include = include == null ? '' : include;
 
     presets = !!presets ? presets : defaultPresets;
 
     plugins = !!plugins ? plugins : [
         // es6 export
-        'babel-plugin-add-module-exports',
+        // 'babel-plugin-add-module-exports',
         // export default
-        'babel-plugin-transform-export-extensions',
-        // {...}语法
-        'babel-plugin-transform-object-rest-spread',
+        // 'babel-plugin-transform-export-extensions',
+
+        'babel-plugin-transform-runtime'
+        // ['babel-plugin-transform-runtime', {
+        //     "polyfill": false, "regenerator": false
+        // }],
         // Object.assign
-        'babel-plugin-transform-object-assign'
+        // 'babel-plugin-transform-object-assign',
+
+        // {...}语法
+        // 'babel-plugin-transform-object-rest-spread'
     ];
 
-    return {
+    var babelLoader = {
         test: /\.jsx?$/,
         exclude: exclude,
-        include: include,
-        loader: 'babel',
-        query: {
+        loader: 'babel-loader',
+        options: {
             cacheDirectory: (env === 'loc' || env === 'dev') ? path.join(__hii__.codeTmpdir, '__babel_cache__') : false,
             presets: presets.map(__hii__.resolve),
             plugins: plugins.map(__hii__.resolve),
             // compact: true
         }
     }
+
+    if(include) {
+        babelLoader.include = include;
+    }
+
+    return babelLoader;
 };

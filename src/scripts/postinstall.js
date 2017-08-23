@@ -43,7 +43,7 @@ try{
 try{
     var globalBoot = child_process.execSync('npm root -g').toString().trim();
 
-    fs.writeFileSync(path.resolve(__dirname, '../globalRoot.js'), 'module.exports="' + globalBoot + '"');
+    fs.writeFileSync(path.resolve(__dirname, '../globalRoot.js'), 'module.exports="' + globalBoot + '";');
 }catch(e){
     console.error('npm global root set failed.', e.message);
 }

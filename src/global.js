@@ -29,6 +29,10 @@ var __hiipack__ = {
      */
     cwd: process.cwd(),
     /**
+     * 当前用户根目录
+     */
+    userdir: process.env.HOME || process.env.USERPROFILE,
+    /**
      * hiipack存放依赖的临时目录
      */
     tmpdir: os.tmpdir(),

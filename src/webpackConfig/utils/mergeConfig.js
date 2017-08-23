@@ -7,6 +7,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var merge = require('./../../helpers/merge');
 var utils = require('../../helpers/utils');
+
 var parseLoaders = require('./parseLoaders');
 var parsePlugins = require('./parsePlugins');
 
@@ -21,6 +22,13 @@ module.exports = function mergeConfig(config, userConfig, env, root){
 
     // 把扩展配置字段追加到config
     config = mergePluginsAndLoaders.apply(this, args);
+
+    delete config.extend;
+    delete config.env;
+    delete config.module.preLoaders;
+    delete config.module.loaders;
+    delete config.module.postLoaders;
+
 
     return config
 };
@@ -37,7 +45,7 @@ function mergeBaseConfig(config, userConfig, env, root){
     };
 
     for(var key in userConfig){
-        // 只要不是特殊字段，就merge，即使指位null/undefined
+        // 只要不是特殊字段，就merge，即使值为null/undefined
         if(!(key in specialFields)){
             config[key] = userConfig[key]
         }
@@ -57,10 +65,21 @@ function mergePluginsAndLoaders(config, userConfig, env, root){
     copyplugin && plugins.push(copyplugin);
 
     if(extendFields){
+        if(extendFields.module && extendFields.module.rules){
+            loaders = loaders.concat(extendFields.module.rules);
+        }
+
+        if(extendFields.module && extendFields.module.preLoaders) {
+            loaders = loaders.concat(parseLoaders(userConfig.extend.module.preLoaders, 'pre'));
+        }
+        if(extendFields.module && extendFields.module.postLoaders) {
+            loaders = loaders.concat(parseLoaders(userConfig.extend.module.postLoaders, 'post'));
+        }
         if(extendFields.module && extendFields.module.loaders){
             loaders = loaders.concat(parseLoaders(userConfig.extend.module.loaders));
-            extendFields.module.loaders = loaders;
         }
+            
+        extendFields.module.rules = loaders;
 
         if(extendFields.plugins){
             plugins = plugins.concat(parsePlugins(userConfig.extend.plugins));

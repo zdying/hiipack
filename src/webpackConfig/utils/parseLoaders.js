@@ -5,8 +5,8 @@
 
 var pkg = require('../../helpers/package');
 
-module.exports = function parseLoaders(customLoaders){
-    var loaders = [];
+module.exports = function parseLoaders(customLoaders, type){
+    var rules = [];
 
     if(!customLoaders || Array.isArray(customLoaders) === false){
         return customLoaders
@@ -28,13 +28,17 @@ module.exports = function parseLoaders(customLoaders){
          *  ]
          */
 
+        if(type && (type === 'pre' || type === 'post')) {
+            loader.enforce = type;
+        }
+
         if(loader.loader){
             // type1 ==> 直接使用loader
             installLoader(loader);
             log.debug('before change loader', JSON.stringify(loader));
             loader.loader = pkg.getPackagePath(loader.loader) || loader.loader;
             log.debug('after change loader', JSON.stringify(loader));
-            loaders.push(loader);
+            rules.push(loader);
         }else{
             // type2/type3 ==> 先安装,然后设置
             for(var denpendence in loader){
@@ -61,13 +65,13 @@ module.exports = function parseLoaders(customLoaders){
                     loaderResult.loader = pkg.getPackagePath(loaderResult.loader) || loaderResult.loader;
                     log.debug('after change loader:', JSON.stringify(loaderResult));
 
-                    loaders.push(loaderResult)
+                    rules.push(loaderResult)
                 }
             }
         }
     });
 
-    return loaders
+    return rules
 };
 
 function installLoader(loader){

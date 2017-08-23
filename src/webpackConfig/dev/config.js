@@ -11,21 +11,18 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var ChunkManifestPlugin = require('chunk-manifest-webpack-plugin');
 // var RemoveCssDuplicate = require('../../plugin/webpack/RemoveCssDuplicate');
-var autoprefixer = require('autoprefixer');
+// var autoprefixer = require('autoprefixer');
 
-var utils = require('../../helpers/utils');
+// var utils = require('../../helpers/utils');
 var getBabelLoader = require('../utils/getBabelLoader');
+var getStyleLoader = require('../utils/getStyleLoader');
+
 var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
 
-module.exports = function(root, userConfig){
-    var cssLoader = userConfig.css && userConfig.css.loader;
-    var lessLoader = userConfig.less && userConfig.less.loader;
-    var scssLoader = userConfig.scss && userConfig.scss.loader;
+var es3ifyPlugin = require('es3ify-webpack-plugin');
 
-    var defaultCssLoader = "css!postcss";
-    var defaultLessLoader = "css!less!postcss";
-    var defaultScssLoader = "css!sass!postcss";
+module.exports = function(root, userConfig){
 
     var config = {
         env: 'dev',
@@ -36,23 +33,14 @@ module.exports = function(root, userConfig){
             hashDigestLength: 32
         },
         module: {
-            loaders: [
-                getBabelLoader(userConfig, 'dev'),
-                { test: /\.css$/, loader: ExtractTextPlugin.extract(cssLoader || defaultCssLoader) },
-                { test: /\.less$/, loader: ExtractTextPlugin.extract(lessLoader ||  defaultLessLoader) },
-                { test: /\.scss$/, loader: ExtractTextPlugin.extract(scssLoader || defaultScssLoader) }
-            ],
-            postLoaders: [
-                {
-                    test: /\.jsx?$/,
-                    loaders: ['es3ify-loader']
-                }
-            ]
-        },
-        postcss: function() {
-            return [autoprefixer];
+            rules: [getBabelLoader(userConfig, 'dev')].concat(getStyleLoader(userConfig, 'dev'))
         },
         plugins: [
+            /*
+             * Support old versions of ie, such as ie8.
+             */
+            new es3ifyPlugin(),
+
             new webpack.DefinePlugin({
                 'process.env': {
                     'NODE_ENV': JSON.stringify('production')
@@ -78,14 +66,20 @@ module.exports = function(root, userConfig){
             fs: "empty"
         },
         resolve: {
-            root: root,
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
-            extensions: ['', '.js', '.jsx', '.scss', '.json'],
+            modules: [
+                path.resolve(__hiipack__.cwd, 'node_modules'),
+                path.resolve(__dirname, 'node_modules'),
+                root,
+                path.resolve(__hiipack__.packageTmpdir),
+            ],
+            extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
-            modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            modules: [
+                path.resolve(__hiipack__.root, "node_modules"),
+                path.resolve(__hiipack__.packageTmpdir, "node_modules")
+            ],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         }

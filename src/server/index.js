@@ -83,7 +83,7 @@ module.exports = {
         //     }
         // });
 
-        var hf = new Array(60).join('~');
+        // var hf = new Array(60).join('~');
         console.log();
         console.log(lines.join('\n'));
         console.log();

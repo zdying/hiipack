@@ -13,6 +13,7 @@ var config = require('../client/config');
 // 中间件
 var preHandler = require('./middlewares/preHandler');
 var favicon = require('./middlewares/favicon');
+
 var compileSource = require('./middlewares/compileSource');
 var webpackHMR = require('./middlewares/webpackHMR');
 var source = require('./middlewares/source');

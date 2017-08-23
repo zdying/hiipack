@@ -11,7 +11,7 @@ module.exports = function(source, map) {
         this.cacheable();
     }
 
-    if (/\bmodule\.hot\b/.test(source)) {
+    if (!module.hot || /\bmodule\.hot\b/.test(source)) {
         return source;
     }
 

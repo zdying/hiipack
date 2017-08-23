@@ -31,8 +31,7 @@ module.exports = function(root, userConfig){
                 path: path.join(projTmp, "/dll/[name]-manifest.json"),
                 name: "__lib__[name]__",
                 context: root
-            }),
-            new webpack.optimize.OccurenceOrderPlugin()
+            })
         ]
     }
 };

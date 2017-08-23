@@ -9,23 +9,21 @@ var path = require('path');
 
 var color = require('colors');
 var webpack = require('webpack');
-var autoprefixer = require('autoprefixer');
+// var autoprefixer = require('autoprefixer');
 
 var utils = require('../../helpers/utils');
 var getBabelLoader = require('../utils/getBabelLoader');
+var getStyleLoader = require('../utils/getStyleLoader');
 var mergeConfig = require('../utils/mergeConfig');
 var fixAlias = require('../utils/fixAlias');
+
+var es3ifyPlugin = require('es3ify-webpack-plugin');
 
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
     var projectName = utils.getProjectName(root);
-    var cssLoader = userConfig.css && userConfig.css.loader;
-    var lessLoader = userConfig.less && userConfig.less.loader;
-    var scssLoader = userConfig.scss && userConfig.scss.loader;
 
-    var defaultCssLoader = "style!css?sourceMap!postcss";
-    var defaultLessLoader = "style!css?sourceMap!less?sourceMap&strictMath&noIeCompat!postcss";
-    var defaultScssLoader = "style!css?sourceMap!sass?sourceMap!postcss";
+    var rules = [getBabelLoader(userConfig, 'loc')].concat(getStyleLoader(userConfig, 'loc'));
 
     var config = {
         env: 'loc',
@@ -38,26 +36,14 @@ module.exports = function(root, userConfig){
             publicPath: '/' + projectName + '/loc/'
         },
         module: {
-            preLoaders: program.hotReload ? [
-                { test: /\.jsx?$/, loader: require.resolve('../utils/addHotReloadCode') }
-            ] : [],
-            loaders: [
-                getBabelLoader(userConfig, 'loc', root),
-                { test: /\.css$/, loader: cssLoader || defaultCssLoader },
-                { test: /\.less$/, loader: lessLoader ||  defaultLessLoader},
-                { test: /\.scss$/, loader: scssLoader || defaultScssLoader }
-            ],
-            postLoaders: [
-                {
-                    test: /\.jsx?$/,
-                    loaders: ['es3ify-loader']
-                }
-            ]
-        },
-        postcss: function() {
-            return [autoprefixer];
+            rules: rules
         },
         plugins: [
+            /*
+             * Support old versions of ie, such as ie8.
+             */
+            new es3ifyPlugin(),
+
             new webpack.DefinePlugin({
                 'process.env': {
                     'NODE_ENV': JSON.stringify('development')
@@ -68,16 +54,36 @@ module.exports = function(root, userConfig){
             //     log: false
             //     // useHashIndex: true
             // })
+
+            //在 HMR 更新的浏览器控制台中打印更易读的模块名称 
+            new webpack.NamedModulesPlugin(),
+
+            new webpack.LoaderOptionsPlugin({
+                options: {
+                    postcss: function(){
+                        return [ require("autoprefixer")({ browsers: ['ie>=8','>1% in CN'] }) ]
+                    }
+                }
+            })
+
         ],
         resolve: {
-            root: root,
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
-            extensions: ['', '.js', '.jsx', '.scss', '.json'],
+            modules: [
+                path.resolve(__hiipack__.cwd, 'node_modules'),
+                path.resolve(__dirname, 'node_modules'),
+                root,
+                path.resolve(__hiipack__.root, 'node_modules'),
+                path.resolve(__hiipack__.packageTmpdir),
+            ],
+            extensions: ['.js', '.jsx', '.scss', '.json'],
             alias: fixAlias(userConfig.alias)
         },
         resolveLoader: {
-            modulesDirectories: [path.resolve(__hiipack__.root, "node_modules")],
-            fallback: [path.resolve(__hiipack__.packageTmpdir, "node_modules")],
+            modules: [
+                path.resolve(__hiipack__.cwd, 'node_modules'),
+                path.resolve(__hiipack__.root, "node_modules"),
+                path.resolve(__hiipack__.packageTmpdir, "node_modules")
+            ],
             // extensions: ["", ".webpack-loader.js", ".web-loader.js", ".loader.js", ".js"],
             // packageMains: ["webpackLoader", "webLoader", "loader", "main"]
         },
@@ -88,7 +94,8 @@ module.exports = function(root, userConfig){
 
     config = mergeConfig(config, userConfig, 'loc', root);
 
-    addHMRClient(config);
+    // TODO 暂时不启用hot-reload，有BUG待解决
+    // addHMRClient(config);
 
     // console.log('merged config:', JSON.stringify(config, null, 4));
 
@@ -98,6 +105,15 @@ module.exports = function(root, userConfig){
 function addHMRClient(config){
     if(program.hotReload === false){
         return config
+    }
+
+    // preloaders
+    if(program.hotReload) {
+        config.module.rules.push({
+            test: /\.jsx?$/,
+            enforce: "pre",
+            loader: require.resolve('../utils/addHotReloadCode')
+        })
     }
 
     var entry = config.entry;
@@ -113,7 +129,6 @@ function addHMRClient(config){
     }
 
     config.plugins.push(
-        new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin()
     );
 
