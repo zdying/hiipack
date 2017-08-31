@@ -10,7 +10,7 @@ module.exports = {
      * 会把'react'和'react-dom'打包到lib.js
      */
     library: {
-        lib: ['react', 'classnames']
+        lib: ['react', 'classnames', 'react-dom', 'director']
     },
     /**
      * 业务代码入口

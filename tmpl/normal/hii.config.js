@@ -34,16 +34,16 @@ module.exports = {
     /**
      * 测试框架配置, 目前只支持mocha
      */
-    autoTest: {
-        framework: 'mocha',
-        assertion: 'expect'
-        // assertion: ['expect', 'assert']
-    },
-    less: {},
-    scss: {},
-    css: {
-        loader: ''
-    },
+    // autoTest: {
+    //     framework: 'mocha',
+    //     assertion: 'expect'
+    //     // assertion: ['expect', 'assert']
+    // },
+    // less: {},
+    // scss: {},
+    // css: {
+    //     loader: ''
+    // },
     // js: {
     //     loader: ''
     // },
@@ -56,14 +56,14 @@ module.exports = {
     extend: {
         module: {
             loaders: [
-                // { test: /\.(mustache|html)$/, loader: 'mustache' }
-                {
-                    // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
-                    'mustache mustache-loader': function(loader, path){
-                        // console.log('callback   ====> ', loader, path)
-                        return { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
-                    }
-                }
+                { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
+                // {
+                //     // 'mustache-loader': { test: /\.(mustache|html)$/, loader: 'mustache' }
+                //     'mustache mustache-loader': function(loader, path){
+                //         // console.log('callback   ====> ', loader, path)
+                //         return { test: /\.(mustache|html)$/, loader: 'mustache-loader' }
+                //     }
+                // }
             ]
         },
         plugins: [

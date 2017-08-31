@@ -4,7 +4,7 @@
 var Backbone = require('backbone')
 var $ = require('jquery')
 Backbone.$ = $
-var TodoView = require('../views/todo-view')
+var TodoView = require('./todo-view')
 var constants = require('../utils/constants')
 
 

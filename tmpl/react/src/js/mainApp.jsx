@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDom from "react-dom";
 import TodoModel from "./todoModel";
 import TodoApp from "./todoApp";
 
@@ -11,7 +12,7 @@ import "todomvc-app-css/index.css";
 	var model = new TodoModel('react-todos');
 
 	function render() {
-		React.render(
+		ReactDom.render(
 			<TodoApp model={model}/>,
 			document.getElementsByClassName('todoapp')[0]
 		);

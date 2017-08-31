@@ -1,6 +1,6 @@
 {
   "name": "hiipack",
-  "version": "3.0.0",
+  "version": "3.0.0-dev",
   "description": "hiipack is a front-end development tool based on the Webpack.",
   "main": "index.js",
   "scripts": {

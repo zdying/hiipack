@@ -13,10 +13,7 @@ module.exports = function getBabelLoader(userConfig, env, root){
     var exclude = babelConfig.exclude;
     var include = babelConfig.include;
     var defaultPresets = [['babel-preset-env', {
-        "modules": false,
-        "targets": {
-            "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
-        }
+        // "modules": false
     }], 'babel-preset-stage-0', 'babel-preset-react'];
 
     /*
@@ -51,10 +48,10 @@ module.exports = function getBabelLoader(userConfig, env, root){
         // export default
         // 'babel-plugin-transform-export-extensions',
 
-        'babel-plugin-transform-runtime'
-        // ['babel-plugin-transform-runtime', {
-        //     "polyfill": false, "regenerator": false
-        // }],
+        // 'babel-plugin-transform-runtime'
+        ['babel-plugin-transform-runtime', {
+            "polyfill": false, "regenerator": false
+        }],
         // Object.assign
         // 'babel-plugin-transform-object-assign',
 

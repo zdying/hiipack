@@ -1,5 +1,5 @@
 import React from "react";
-import director from "director";
+import { Router } from "director";
 import TodoItem from "./todoItem";
 import TodoFooter from "./footer";
 
@@ -30,7 +30,7 @@ export default class TodoApp extends React.Component {
 
   componentDidMount() {
     var setState = this.setState;
-    var router = director.Router({
+    var router = Router({
       '/': setState.bind(this, {nowShowing: ALL_TODOS}),
       '/active': setState.bind(this, {nowShowing: ACTIVE_TODOS}),
       '/completed': setState.bind(this, {nowShowing: COMPLETED_TODOS})

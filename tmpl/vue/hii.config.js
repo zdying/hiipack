@@ -2,8 +2,14 @@
  * @file 项目配置
  * @author zdying
  */
+const webpack = require('webpack');
+var path = require('path');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var cssLoaders = require('./cssLoaders');
 
-// var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var resolve = function (dir) {
+    return path.join(__dirname, dir);
+};
 
 module.exports = {
     /**
@@ -27,21 +33,20 @@ module.exports = {
     extend: {
         module: {
             loaders: [
-                { test: /\.vue$/, loader: require.resolve('vue-loader') }
-            ],
-            plugins: [
-                // new ExtractTextPlugin("[name].css")
+                {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {
+                        loaders: cssLoaders({
+                            sourceMap: __hii__.env === 'loc',
+                            extract: __hii__.env !== 'loc',
+                        })
+                    }
+                }
             ]
-        }
-    },
-    vue: {
-        loaders: {
-            html: require.resolve('vue-html-loader'),
-            // vue: 'babel-loader?presets[]=' + __hiipack__.resolve('babel-preset-es2015-loose') + '&plugins[]=' + __hiipack__.resolve('babel-plugin-transform-runtime') + '&comments=false',
-            css: require.resolve('vue-style-loader') + '!css!sass',
-            // css: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass'),
-            // sass: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass'),
-            // scss: ExtractTextPlugin.extract(require.resolve('vue-style-loader') + '!css!sass')
-        }
+        },
+        plugins: [
+            new ExtractTextPlugin("[name].css")
+        ]
     }
 };

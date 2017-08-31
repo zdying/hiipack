@@ -19,9 +19,21 @@ module.exports = function getStyleLoader(userConfig, env){
         var less = {loader: "less-loader", options: {sourceMap: true, strictMath: true, noIeCompat: true}};
         var scss = {loader: "sass-loader", options: {sourceMap: true}};
 
-        defaultCssLoader = [css, "postcss-loader"];
-        defaultLessLoader = [css, "postcss-loader", less];
-        defaultScssLoader = [css, "postcss-loader", scss];
+        defaultCssLoader = ['style-loader', css, "postcss-loader"];
+        defaultLessLoader = ['style-loader', css, "postcss-loader", less];
+        defaultScssLoader = ['style-loader', css, "postcss-loader", scss];
+
+        return [
+            {
+                test: /\.css$/, use:  cssLoader || defaultCssLoader
+            },
+            {
+                test: /\.less$/, use:  lessLoader || defaultLessLoader
+            },
+            {
+                test: /\.(sass|scss)$/, use: scssLoader || defaultScssLoader
+            }
+        ];
     }
 
     return [

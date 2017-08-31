@@ -79,7 +79,15 @@ module.exports = function(root, userConfig){
             new ChunkManifestPlugin({
                 filename: "manifest.json",
                 manifestVariable: "webpackManifest"
-            })
+            }),
+
+            // new webpack.LoaderOptionsPlugin({
+            //     options: {
+            //         postcss: function () {
+            //             return [ require("autoprefixer")({ browsers: ['last 2 versions'] }) ];
+            //         }
+            //     }
+            // })
         ],
         node: {
             fs: "empty"

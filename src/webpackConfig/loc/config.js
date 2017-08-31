@@ -19,6 +19,8 @@ var fixAlias = require('../utils/fixAlias');
 
 var es3ifyPlugin = require('es3ify-webpack-plugin');
 
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 module.exports = function(root, userConfig){
     var projTmp = utils.getProjectTMPDIR(root);
     var projectName = utils.getProjectName(root);
@@ -58,13 +60,18 @@ module.exports = function(root, userConfig){
             //在 HMR 更新的浏览器控制台中打印更易读的模块名称 
             new webpack.NamedModulesPlugin(),
 
-            new webpack.LoaderOptionsPlugin({
-                options: {
-                    postcss: function(){
-                        return [ require("autoprefixer")({ browsers: ['ie>=8','>1% in CN'] }) ]
-                    }
-                }
-            })
+            /**
+             * 提取公共的css
+             */
+            // new ExtractTextPlugin('[name].css'),
+
+            // new webpack.LoaderOptionsPlugin({
+            //     options: {
+            //         postcss: function(){
+            //             return [ require("autoprefixer")({ browsers: ['ie>=8','>1% in CN'] }) ]
+            //         }
+            //     }
+            // })
 
         ],
         resolve: {
